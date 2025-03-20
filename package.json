@@ -1,0 +1,19 @@
+{
+  "name": "bus-ticket-booking-system",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "Anudeep",
+  "license": "MIT",
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "nodemon server.ts",
+    "build": "tsc -p ."
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.1",
+    "typescript": "^5.8.2"
+  }
+}
