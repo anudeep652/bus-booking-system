@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 import userRoutes from "./routes/userRoutes.ts";
 import operatorRoutes from "./routes/operatorRoutes.ts";
+import busRoutes from "./routes/busRoutes.ts";
 
 import { logger } from "./services/LoggingService.ts";
 import { database } from "./services/DatabaseService.ts";
@@ -19,6 +20,7 @@ app.use(logger.requestLogger);
 // Routes
 app.use("/user", userRoutes);
 app.use("/operator", operatorRoutes);
+app.use("/buses", busRoutes);
 
 async function startServer() {
   try {
