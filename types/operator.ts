@@ -1,4 +1,4 @@
-const operatorStatus =  {
+export const operatorStatus =  {
   pending : "pending",
   verified : "verified",
   rejected : "rejected",

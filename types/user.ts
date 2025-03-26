@@ -1,17 +1,15 @@
-
-const userStatus =  {
-  active:"active",
-  inactive:"inactive",
+export const userStatus = {
+  active: "active",
+  inactive: "inactive",
 } as const;
-export type UserStatus = keyof typeof userStatus ;
+export type UserStatus = keyof typeof userStatus;
 
-
-const userRole = {
-    user:"user",
-   admin:"admin"
+export const userRole = {
+  user: "user",
+  admin: "admin",
 } as const;
 
-export type UserRole = keyof typeof userRole ;
+export type UserRole = keyof typeof userRole;
 
 export type User = {
   name: string;
