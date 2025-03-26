@@ -1,9 +1,57 @@
 import { User } from "../models/userSchema.ts";
 import { Operator } from "../models/operatorSchema.ts";
+import { Trip } from "../models/tripSchema.ts";
 import type { User as TUser } from "../types/user.ts";
-import type { Operator as TOperator } from "../types/operator.ts";
+import type {
+  OperatorStatus,
+  Operator as TOperator,
+} from "../types/operator.ts";
+import type { TripStatus } from "../types/trip.ts";
 
 export class AdminService {
+  async getAllTrips(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{
+    trips: any[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
+    try {
+      const skip = (page - 1) * limit;
+
+      const trips = await Trip.find()
+        .populate("bus_id", "bus_number bus_type")
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 });
+
+      const total = await Trip.countDocuments();
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        trips,
+        total,
+        page,
+        totalPages,
+      };
+    } catch (error) {
+      throw new Error("Error fetching trips");
+    }
+  }
+
+  async changeTripStatus(tripId: string, status: TripStatus): Promise<any> {
+    try {
+      return await Trip.findByIdAndUpdate(
+        tripId,
+        { status },
+        { new: true, select: "-__v" },
+      ).populate("bus_id", "bus_number bus_type");
+    } catch (error) {
+      throw new Error("Error changing trip status");
+    }
+  }
   async listUsers(page: number = 1, limit: number = 10): Promise<TUser[]> {
     try {
       return await User.find()
@@ -46,7 +94,7 @@ export class AdminService {
 
   async changeOperatorVerificationStatus(
     operatorId: string,
-    status: "pending" | "verified" | "rejected",
+    status: OperatorStatus,
   ): Promise<TOperator | null> {
     try {
       return await Operator.findByIdAndUpdate(

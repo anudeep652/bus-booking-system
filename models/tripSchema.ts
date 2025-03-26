@@ -8,6 +8,11 @@ const TripSchema = new mongoose.Schema({
   arrival_time: Date,
   price: Number,
   available_seats: Number,
+  status: {
+    type: String,
+    enum: ["scheduled", "cancelled", "completed"],
+    default: "scheduled",
+  },
 });
 
 export const Trip = mongoose.model("Trip", TripSchema);

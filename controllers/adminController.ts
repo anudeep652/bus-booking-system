@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { AdminService } from "../services/AdminService.ts";
+import type { TripStatus } from "../types/trip.ts";
 
 export class AdminController {
   private adminService: AdminService;
@@ -123,6 +124,73 @@ export class AdminController {
       res.status(200).json({
         status: "success",
         data: updatedOperator,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      });
+    }
+  }
+
+  async getAllTrips(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const trips = await this.adminService.getAllTrips(page, limit);
+
+      res.status(200).json({
+        status: "success",
+        data: trips,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      });
+    }
+  }
+
+  async changeTripStatus(
+    req: Request,
+    res: Response,
+    tripStatus: TripStatus,
+  ): Promise<void> {
+    try {
+      const tripId = req.params.id;
+      const { status } = req.body;
+
+      if (
+        !tripStatus &&
+        !["scheduled", "cancelled", "completed"].includes(status)
+      ) {
+        res.status(400).json({
+          status: "error",
+          message:
+            'Invalid status. Must be "scheduled", "completed" or "cancelled".',
+        });
+        return;
+      }
+
+      const updatedTrip = await this.adminService.changeTripStatus(
+        tripId,
+        tripStatus ?? status,
+      );
+
+      if (!updatedTrip) {
+        res.status(404).json({
+          status: "error",
+          message: "Trip not found",
+        });
+        return;
+      }
+
+      res.status(200).json({
+        status: "success",
+        data: updatedTrip,
       });
     } catch (error) {
       res.status(500).json({

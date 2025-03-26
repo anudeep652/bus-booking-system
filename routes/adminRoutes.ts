@@ -18,6 +18,12 @@ adminRouter.put("/operators/:id/verification", (req, res) =>
   adminController.changeOperatorVerificationStatus(req, res),
 );
 
+adminRouter.get("/trips", (req, res) => adminController.getAllTrips(req, res));
+
 adminRouter.get("/reports", (req, res) => adminController.getReports(req, res));
+
+adminRouter.put("/trips/:id/cancel", (req, res) =>
+  adminController.changeTripStatus(req, res, "cancelled"),
+);
 
 export default adminRouter;
