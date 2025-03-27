@@ -8,7 +8,7 @@ adminRouter.get("/users", (req, res) => adminController.listUsers(req, res));
 
 adminRouter.get("/operators", (req, res) =>
   adminController.listOperators(req, res),
-);
+);  
 
 adminRouter.put("/users/:id/status", (req, res) =>
   adminController.changeUserStatus(req, res),
