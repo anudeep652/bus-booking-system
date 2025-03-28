@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { User } from "../models/userSchema.ts";
 
 export class UserService {

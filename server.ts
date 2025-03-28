@@ -6,6 +6,7 @@ import userRoutes from "./routes/userRoutes.ts";
 import operatorRoutes from "./routes/operatorRoutes.ts";
 import busRoutes from "./routes/busRoutes.ts";
 import adminRoutes from "./routes/adminRoutes.ts";
+import bookingRoutes from "./routes/bookingRoutes.ts"
 
 import { logger } from "./services/LoggingService.ts";
 import { database } from "./services/DatabaseService.ts";
@@ -23,6 +24,7 @@ app.use("/user", userRoutes);
 app.use("/operator", operatorRoutes);
 app.use("/buses", busRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/booking",bookingRoutes)
 
 async function startServer() {
   try {
