@@ -3,9 +3,10 @@ import { User } from "../../models/userSchema.ts";
 import type { IAuthData } from "../../types/index.ts";
 
 export class UserAuthService extends BaseAuthService {
-  constructor() {
-    super(User, "user");
+  constructor(role: "user"|"admin" = "user") {
+    super(User, role);
   }
+
 
   protected validateRegistrationData(data: IAuthData): string | null {
     const { name, email, phone, password, role } = data;

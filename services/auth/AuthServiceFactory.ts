@@ -3,10 +3,12 @@ import { UserAuthService } from "./UserAuthService.ts";
 import { OperatorAuthService } from "./OperatorAuthService.ts";
 
 export class AuthServiceFactory {
-  static createAuthService(type: "user" | "operator"): IAuthService {
+  static createAuthService(type: "user" | "operator" | "admin"): IAuthService {
     switch (type) {
       case "user":
         return new UserAuthService();
+      case "admin":
+        return new UserAuthService("admin");
       case "operator":
         return new OperatorAuthService();
       default:

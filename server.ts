@@ -1,5 +1,5 @@
 import express from "express";
-import mongoose from "mongoose";
+import type { Request, Response } from "express"
 import dotenv from "dotenv";
 
 import userRoutes from "./routes/userRoutes.ts";
@@ -10,6 +10,10 @@ import bookingRoutes from "./routes/bookingRoutes.ts"
 
 import { logger } from "./services/LoggingService.ts";
 import { database } from "./services/DatabaseService.ts";
+
+import path from "path";
+import {marked} from 'marked'
+import fs from "fs"
 
 dotenv.config();
 
@@ -22,9 +26,37 @@ app.use(logger.requestLogger);
 // Routes
 app.use("/user", userRoutes);
 app.use("/operator", operatorRoutes);
-app.use("/buses", busRoutes);
+app.use("/bus", busRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/booking",bookingRoutes)
+
+//serve docs
+app.get('/docs/:path*', async (req: Request, res: Response) => {
+  console.log(req.params)
+  const docPath = path.join(path.resolve(), 'docs', req.params.path + (req.params[0] || ''));
+
+  try {
+      const markdown = fs.readFileSync(docPath + '.md', 'utf-8');
+      const html = marked(markdown);
+      res.send(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>API Documentation</title>
+              <style>
+                body { font-family: sans-serif; padding: 20px; }
+              </style>
+          </head>
+          <body>
+              ${html}
+          </body>
+          </html>
+      `);
+  } catch (err) {
+      console.error(err);
+      res.status(404).send('Documentation not found.');
+  }
+});
 
 async function startServer() {
   try {

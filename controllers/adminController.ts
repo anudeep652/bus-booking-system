@@ -1,12 +1,32 @@
 import type { Request, Response } from "express";
 import { AdminService } from "../services/AdminService.ts";
 import type { TripStatus } from "../types/trip.ts";
+import { AuthServiceFactory } from "../services/auth/AuthServiceFactory.ts";
 
 export class AdminController {
   private adminService: AdminService;
 
   constructor() {
     this.adminService = new AdminService();
+  }
+
+  async loginAdmin(req:Request,res:Response):Promise<void> {
+      const { email, password } = req.body;
+    const authService = AuthServiceFactory.createAuthService("admin");
+      const result = await authService.login(email, password);
+       res.status(result.statusCode).json({
+        message: result.message,
+        token: result.token,
+      });
+  };
+
+  async registerAdmin(req: Request, res: Response): Promise<void> {
+    const authService = AuthServiceFactory.createAuthService("admin");
+    const result = await authService.register(req.body);
+     res.status(result.statusCode).json({
+      message: result.message,
+      token: result.token,
+    });
   }
 
   async listUsers(req: Request, res: Response): Promise<void> {

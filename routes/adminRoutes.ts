@@ -1,8 +1,19 @@
 import express from "express";
 import { AdminController } from "../controllers/adminController.ts";
+import { isAdmin, isAuthenticated } from "../middleware/authMiddleware.ts";
 
 const adminRouter = express.Router();
 const adminController = new AdminController();
+
+
+adminRouter.post("/login", (req, res) =>
+  adminController.loginAdmin(req, res),
+);
+adminRouter.post("/register", (req, res) =>
+  adminController.registerAdmin(req, res),
+);
+adminRouter.use(isAuthenticated);
+adminRouter.use(isAdmin);
 
 adminRouter.get("/users", (req, res) => adminController.listUsers(req, res));
 

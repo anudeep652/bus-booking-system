@@ -61,7 +61,7 @@ describe('BookingController', () => {
       const mockError = new Error('Retrieval failed');
       mockBookingService.getBookingHistory.mockRejectedValue(mockError);
 
-      console.error = jest.fn(); // Mock console.error
+      console.error = jest.fn(); 
 
       await getBookingHistory(mockReq as Request, mockRes as Response);
 
@@ -109,7 +109,7 @@ describe('BookingController', () => {
       const mockError = new Error('Booking creation failed');
       mockBookingService.createBooking.mockRejectedValue(mockError);
 
-      console.error = jest.fn(); // Mock console.error
+      console.error = jest.fn(); 
 
       await createBooking(mockReq as Request, mockRes as Response);
 
