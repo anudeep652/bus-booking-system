@@ -11,7 +11,7 @@ class TripService {
   }> {
     try {
       const trips = await Trip.find()
-        .populate("bus_id", "bus_number bus_type") // Select specific bus fields
+        .populate("bus_id", "bus_number bus_type") 
         .skip((page - 1) * limit)
         .limit(limit)
         .sort({ departure_time: -1 });
