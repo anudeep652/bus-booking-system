@@ -10,7 +10,8 @@ import bookingRoutes from "./routes/bookingRoutes.ts"
 
 import { logger } from "./services/LoggingService.ts";
 import { database } from "./services/DatabaseService.ts";
-
+//@ts-ignore
+import expressSanitizer from "express-sanitizer";
 import path from "path";
 import {marked} from 'marked'
 import fs from "fs"
@@ -22,6 +23,18 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(logger.requestLogger);
+app.use(expressSanitizer());
+app.use((req, res, next) => {
+  if (req.body && typeof req.body === 'object') {
+    for (const key in req.body) {
+      if (typeof req.body[key] === 'string') {
+        // @ts-ignore
+        req.body[key] = req.sanitize(req.body[key]);
+      }
+    }
+  }
+  next();
+});
 
 // Routes
 app.use("/user", userRoutes);
@@ -29,6 +42,7 @@ app.use("/operator", operatorRoutes);
 app.use("/bus", busRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/booking",bookingRoutes)
+
 
 //serve docs
 app.get('/docs/:path*', async (req: Request, res: Response) => {
