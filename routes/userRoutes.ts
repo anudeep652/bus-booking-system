@@ -9,14 +9,14 @@ import { isAuthenticated } from "../middleware/authMiddleware.ts";
 
 const userRouter = express.Router();
 
-
 userRouter.post("/register", registerUser);
 
 userRouter.post("/login", loginUser);
 
+userRouter.use(isAuthenticated);
 
-userRouter.get("/profile/:id", isAuthenticated,getProfile);
+userRouter.get("/profile/:id", getProfile);
 
-userRouter.put("/profile/:id", isAuthenticated,updateProfile);
+userRouter.put("/profile/:id", updateProfile);
 
 export default userRouter;

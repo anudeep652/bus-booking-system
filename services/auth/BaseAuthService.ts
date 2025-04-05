@@ -1,4 +1,8 @@
-import type { IAuthService, IAuthResult, IAuthData } from "../../types/index.ts";
+import type {
+  IAuthService,
+  TAuthResult,
+  TAuthData,
+} from "../../types/index.ts";
 import {
   comparePassword,
   hashPassword,
@@ -15,11 +19,11 @@ export abstract class BaseAuthService implements IAuthService {
     this.role = role;
   }
 
-  protected abstract validateRegistrationData(data: IAuthData): string | null;
+  protected abstract validateRegistrationData(data: TAuthData): string | null;
 
-  protected abstract createEntity(data: IAuthData, hashedPassword: string): any;
+  protected abstract createEntity(data: TAuthData, hashedPassword: string): any;
 
-  async register(data: IAuthData): Promise<IAuthResult> {
+  async register(data: TAuthData): Promise<TAuthResult> {
     try {
       const validationError = this.validateRegistrationData(data);
       if (validationError) {
@@ -52,7 +56,7 @@ export abstract class BaseAuthService implements IAuthService {
     }
   }
 
-  async login(email: string, password: string): Promise<IAuthResult> {
+  async login(email: string, password: string): Promise<TAuthResult> {
     try {
       if (!email || !password) {
         return {

@@ -1,8 +1,11 @@
-import type { Request, Response } from "express";
+import type { Request, Response, RequestParamHandler } from "express";
 import { AuthServiceFactory } from "../services/auth/AuthServiceFactory.ts";
 import { UserService } from "../services/UserService.ts";
 
-export const registerUser = async (req: Request, res: Response) => {
+export const registerUser = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   const authService = AuthServiceFactory.createAuthService("user");
   const result = await authService.register(req.body);
   return res.status(result.statusCode).json({
@@ -11,7 +14,10 @@ export const registerUser = async (req: Request, res: Response) => {
   });
 };
 
-export const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   const authService = AuthServiceFactory.createAuthService("user");
   const { email, password } = req.body;
   const result = await authService.login(email, password);
@@ -34,10 +40,12 @@ export const getProfile = async (req: Request, res: Response) => {
       data: userProfile,
     });
   } catch (error) {
-    console.error("Profile retrieval error:", error);
     res.status(404).json({
       success: false,
-      message: error.message || "Failed to retrieve user profile",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to retrieve user profile: " + error,
     });
   }
 };
@@ -55,10 +63,12 @@ export const updateProfile = async (req: Request, res: Response) => {
       data: updatedUser,
     });
   } catch (error) {
-    console.error("Profile update error:", error);
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to update user profile",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to update user profile: " + error,
     });
   }
 };

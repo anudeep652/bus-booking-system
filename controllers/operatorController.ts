@@ -1,10 +1,14 @@
-import type { Request, Response } from "express";
+import type { Request, Response, RequestParamHandler } from "express";
 
 import { AuthServiceFactory } from "../services/auth/AuthServiceFactory.ts";
+import OperatorService from "../services/OperatorService.ts";
 
-import * as operatorService from "../services/OperatorService.ts";
+const operatorService = new OperatorService();
 
-export const registerOperator = async (req: Request, res: Response) => {
+export const registerOperator = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   const authService = AuthServiceFactory.createAuthService("operator");
   const result = await authService.register(req.body);
   return res.status(result.statusCode).json({
@@ -13,7 +17,10 @@ export const registerOperator = async (req: Request, res: Response) => {
   });
 };
 
-export const loginOperator = async (req: Request, res: Response) => {
+export const loginOperator = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   const authService = AuthServiceFactory.createAuthService("operator");
   const { email, password } = req.body;
   const result = await authService.login(email, password);
@@ -23,67 +30,91 @@ export const loginOperator = async (req: Request, res: Response) => {
   });
 };
 
-/**
- * Create a new trip.
- */
-export const createTrip = async (req:Request, res:Response) => {
+export const createTrip = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   try {
     const tripData = req.body;
     const newTrip = await operatorService.createTrip(tripData);
-    res.status(201).json(newTrip);
+    res.status(201).json({ success: true, data: newTrip });
   } catch (error) {
-    console.error("Error creating trip:", error);
-    res.status(500).json({ message: "Failed to create trip." });
+    res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to create trip: " + error,
+    });
   }
 };
 
-/**
- * Update trip details.
- */
-export const updateTrip = async (req:Request, res:Response) => {
+export const updateTrip = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   try {
     const tripId = req.params.id;
     const updateData = req.body;
     const updatedTrip = await operatorService.updateTrip(tripId, updateData);
     if (!updatedTrip) {
-      return res.status(404).json({ message: "Trip not found." });
+      return res
+        .status(404)
+        .json({ success: false, message: "Trip not found." });
     }
-    res.json(updatedTrip);
+    res.status(200).json({ success: true, data: updatedTrip });
   } catch (error) {
-    console.error("Error updating trip:", error);
-    res.status(500).json({ message: "Failed to update trip." });
+    res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to update trip: " + error,
+    });
   }
 };
 
-/**
- * Cancel a trip.
- */
-export const cancelTrip = async (req:Request, res:Response) => {
+export const cancelTrip = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   try {
     const tripId = req.params.id;
     const cancelledTrip = await operatorService.cancelTrip(tripId);
     if (!cancelledTrip) {
-      return res.status(404).json({ message: "Trip not found." });
+      return res
+        .status(404)
+        .json({ success: false, message: "Trip not found." });
     }
-    res.json({ message: "Trip cancelled successfully." });
+    res.status(200).json({ success: true, data: tripId });
   } catch (error) {
-    console.error("Error cancelling trip:", error);
-    res.status(500).json({ message: "Failed to cancel trip." });
+    res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to cancel trip: " + error,
+    });
   }
 };
 
-/**
- * View bookings.
- * Optionally, if a bus_id is provided as a query parameter,
- * return bookings only for trips associated with that bus.
- */
-export const viewOperatorBookings = async (req:Request, res:Response) => {
+export const viewOperatorBookings = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   try {
     const { bus_id } = req.query;
-    const bookings = await operatorService.getOperatorBookings(bus_id as string??"");
-    res.json(bookings);
+    const bookings = await operatorService.getOperatorBookings(
+      (bus_id as string) ?? ""
+    );
+    res.status(200).json({ success: true, data: bookings });
   } catch (error) {
-    console.error("Error retrieving bookings:", error);
-    res.status(500).json({ message: "Failed to retrieve bookings." });
+    res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Error viewing operator bookings: " + error,
+    });
   }
 };

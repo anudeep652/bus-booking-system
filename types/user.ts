@@ -12,6 +12,7 @@ export const userRole = {
 export type UserRole = keyof typeof userRole;
 
 export type User = {
+  _id?: string;
   name: string;
   email: string;
   phone: string;

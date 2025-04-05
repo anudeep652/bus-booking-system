@@ -17,8 +17,7 @@ export const getBookingHistory = async (req: Request, res: Response) => {
     console.error("Booking history retrieval error:", error);
     res.status(404).json({
       success: false,
-      //@ts-ignore
-      message: error.message || "Failed to retrieve booking history",
+      message: error instanceof Error ? error.message : "Failed to get booking history, Unknown error occured: "+ error,
     });
   }
 };
@@ -42,8 +41,7 @@ export const createBooking = async (req: Request, res: Response) => {
     console.error("Booking creation error:", error);
     res.status(400).json({
       success: false,
-            //@ts-ignore
-      message: error.message || "Failed to create booking",
+      message: error instanceof Error ? error.message : "Failed to create booking,Unknown error occured: "+ error,
     });
   }
 };
@@ -59,15 +57,12 @@ export const cancelBooking = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       data: cancelledBooking,
-      message: "Booking successfully cancelled",
     });
   } catch (error) {
     console.error("Booking cancellation error:", error);
     res.status(400).json({
       success: false,
-            //@ts-ignore
-
-      message: error.message || "Failed to cancel booking",
+      message: error instanceof Error ? error.message : "Failed to cancel booking, Unknown error occured: "+ error,
     });
   }
 };
