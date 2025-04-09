@@ -12,6 +12,7 @@ import operatorRoutes from "./routes/operatorRoutes.ts";
 import busRoutes from "./routes/busRoutes.ts";
 import adminRoutes from "./routes/adminRoutes.ts";
 import bookingRoutes from "./routes/bookingRoutes.ts";
+import feedbackRoutes from "./routes/feedbackRoutes.ts";
 
 import { logger } from "./services/LoggingService.ts";
 import { database } from "./services/DatabaseService.ts";
@@ -42,6 +43,7 @@ app.use("/api/v1/operator", operatorRoutes);
 app.use("/api/v1/bus", busRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/booking", bookingRoutes);
+app.use("/api/v2/feedback", feedbackRoutes);
 
 //serve docs
 if (
