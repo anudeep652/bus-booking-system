@@ -1,8 +1,9 @@
-export const operatorStatus =  {
-  pending : "pending",
-  verified : "verified",
-  rejected : "rejected",
+export const operatorStatus = {
+  pending: "pending",
+  verified: "verified",
+  rejected: "rejected",
 } as const;
+
 export type OperatorStatus = keyof typeof operatorStatus;
 
 export type Operator = {

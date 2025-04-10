@@ -1,16 +1,15 @@
 import express from 'express';
-import { 
-  getBookingHistory, 
-  createBooking, 
-  cancelBooking 
-} from '../controllers/bookingController.ts';
+import * as bookingController from '../controllers/bookingController.ts';
+import { isAuthenticated } from '../middleware/authMiddleware.ts';
 
 const bookingRouter = express.Router();
 
-bookingRouter.get('/:id/history',  getBookingHistory);
+bookingRouter.use(isAuthenticated);
 
-bookingRouter.post('/:id/book',  createBooking);
+bookingRouter.get('/:id/history',  bookingController.getBookingHistory);
 
-bookingRouter.delete('/:id/bookings/:bookingId',  cancelBooking);
+bookingRouter.post('/:id/book',  bookingController.createBooking);
+
+bookingRouter.delete('/:id/bookings/:bookingId',  bookingController.cancelBooking);
 
 export default bookingRouter;

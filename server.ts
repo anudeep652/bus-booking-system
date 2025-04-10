@@ -1,20 +1,21 @@
+import type { Request, Response } from "express";
 import express from "express";
-import type { Request, Response } from "express"
 import dotenv from "dotenv";
+//@ts-ignore
+import expressSanitizer from "express-sanitizer";
+import path from "path";
+import { marked } from "marked";
+import fs from "fs";
 
 import userRoutes from "./routes/userRoutes.ts";
 import operatorRoutes from "./routes/operatorRoutes.ts";
 import busRoutes from "./routes/busRoutes.ts";
 import adminRoutes from "./routes/adminRoutes.ts";
-import bookingRoutes from "./routes/bookingRoutes.ts"
+import bookingRoutes from "./routes/bookingRoutes.ts";
+import feedbackRoutes from "./routes/feedbackRoutes.ts";
 
 import { logger } from "./services/LoggingService.ts";
 import { database } from "./services/DatabaseService.ts";
-//@ts-ignore
-import expressSanitizer from "express-sanitizer";
-import path from "path";
-import {marked} from 'marked'
-import fs from "fs"
 
 dotenv.config();
 
@@ -25,9 +26,9 @@ app.use(express.json());
 app.use(logger.requestLogger);
 app.use(expressSanitizer());
 app.use((req, res, next) => {
-  if (req.body && typeof req.body === 'object') {
+  if (req.body && typeof req.body === "object") {
     for (const key in req.body) {
-      if (typeof req.body[key] === 'string') {
+      if (typeof req.body[key] === "string") {
         // @ts-ignore
         req.body[key] = req.sanitize(req.body[key]);
       }
@@ -37,20 +38,28 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use("/user", userRoutes);
-app.use("/operator", operatorRoutes);
-app.use("/bus", busRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/booking",bookingRoutes)
-
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/operator", operatorRoutes);
+app.use("/api/v1/bus", busRoutes);
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/booking", bookingRoutes);
+app.use("/api/v2/feedback", feedbackRoutes);
 
 //serve docs
-app.get('/docs/:path*', async (req: Request, res: Response) => {
-  console.log(req.params)
-  const docPath = path.join(path.resolve(), 'docs', req.params.path + (req.params[0] || ''));
+if (
+  process.env.NODE_ENV === "development" &&
+  process.env.SERVE_DOCS === "true"
+) {
+  app.get("/api/v1/docs/:path*", async (req: Request, res: Response) => {
+    console.log(req.params);
+    const docPath = path.join(
+      path.resolve(),
+      "docs",
+      req.params.path + (req.params[0] || "")
+    );
 
-  try {
-      const markdown = fs.readFileSync(docPath + '.md', 'utf-8');
+    try {
+      const markdown = fs.readFileSync(docPath + ".md", "utf-8");
       const html = marked(markdown);
       res.send(`
           <!DOCTYPE html>
@@ -66,11 +75,12 @@ app.get('/docs/:path*', async (req: Request, res: Response) => {
           </body>
           </html>
       `);
-  } catch (err) {
+    } catch (err) {
       console.error(err);
-      res.status(404).send('Documentation not found.');
-  }
-});
+      res.status(404).send("Documentation not found.");
+    }
+  });
+}
 
 async function startServer() {
   try {

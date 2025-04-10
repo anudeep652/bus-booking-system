@@ -1,67 +1,96 @@
-import * as busService from "../services/BusService.ts";
+import type { Request, Response, RequestParamHandler } from "express";
+import { BusService } from "../services/BusService.ts";
 
-/**
- * Create a new bus.
- */
-export const createBus = async (req, res) => {
+const busService = new BusService();
+
+export const createBus = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   try {
     const busData = req.body;
     const newBus = await busService.createBus(busData);
-    res.status(201).json(newBus);
+    res.status(201).json({ success: true, data: newBus });
   } catch (error) {
-    console.error("Error creating bus:", error);
-    res.status(500).json({ message: "Failed to create bus." });
+    res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to create bus: " + error,
+    });
   }
 };
 
-/**
- * Update bus details.
- */
-export const updateBus = async (req, res) => {
+export const updateBus = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   try {
     const busId = req.params.id;
     const updateData = req.body;
     const updatedBus = await busService.updateBus(busId, updateData);
     if (!updatedBus) {
-      return res.status(404).json({ message: "Bus not found." });
+      return res
+        .status(404)
+        .json({ success: false, message: "Bus not found." });
     }
-    res.json(updatedBus);
+    res.status(200).json({ success: true, data: updatedBus });
   } catch (error) {
-    console.error("Error updating bus:", error);
-    res.status(500).json({ message: "Failed to update bus." });
+    res.status(500).json({
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to update bus: " + error,
+    });
   }
 };
 
-/**
- * Delete a bus.
- */
-export const deleteBus = async (req, res) => {
+export const deleteBus = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   try {
     const busId = req.params.id;
     const deletedBus = await busService.deleteBus(busId);
     if (!deletedBus) {
-      return res.status(404).json({ message: "Bus not found." });
+      return res
+        .status(404)
+        .json({ success: false, message: "Bus not found." });
     }
-    res.json({ message: "Bus deleted successfully." });
+    res.json({ success: true, message: "Bus deleted successfully." });
   } catch (error) {
-    console.error("Error deleting bus:", error);
-    res.status(500).json({ message: "Failed to delete bus." });
+    res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to delete bus: " + error,
+    });
   }
 };
 
-/**
- * Get all buses for a specific operator.
- */
-export const getBusesByOperator = async (req, res) => {
+export const getBusesByOperator = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
   try {
     const { operator_id } = req.query;
     if (!operator_id) {
-      return res.status(400).json({ message: "Operator ID is required." });
+      return res
+        .status(400)
+        .json({ success: false, message: "Operator ID is required." });
     }
-    const buses = await busService.getBusesByOperator(operator_id);
-    res.json(buses);
+    const buses = await busService.getBusesByOperator("" + operator_id);
+    res.status(200).json({ success: true, data: buses });
   } catch (error) {
     console.error("Error fetching buses:", error);
-    res.status(500).json({ message: "Failed to fetch buses." });
+    res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch buses: " + error,
+    });
   }
 };

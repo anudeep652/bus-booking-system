@@ -1,40 +1,27 @@
 import express from "express";
-import { AdminController } from "../controllers/adminController.ts";
+import  * as adminController  from "../controllers/adminController.ts";
 import { isAdmin, isAuthenticated } from "../middleware/authMiddleware.ts";
 
 const adminRouter = express.Router();
-const adminController = new AdminController();
 
+adminRouter.post("/login", adminController.loginAdmin);
+adminRouter.post("/register", adminController.registerAdmin);
 
-adminRouter.post("/login", (req, res) =>
-  adminController.loginAdmin(req, res),
-);
-adminRouter.post("/register", (req, res) =>
-  adminController.registerAdmin(req, res),
-);
 adminRouter.use(isAuthenticated);
 adminRouter.use(isAdmin);
 
-adminRouter.get("/users", (req, res) => adminController.listUsers(req, res));
+adminRouter.get("/users", adminController.listUsers);
 
-adminRouter.get("/operators", (req, res) =>
-  adminController.listOperators(req, res),
-);  
+adminRouter.get("/operators", adminController.listOperators);
 
-adminRouter.put("/users/:id/status", (req, res) =>
-  adminController.changeUserStatus(req, res),
-);
+adminRouter.put("/users/:id/status", adminController.changeUserStatus);
 
-adminRouter.put("/operators/:id/verification", (req, res) =>
-  adminController.changeOperatorVerificationStatus(req, res),
-);
+adminRouter.put("/operators/:id/change-verification", adminController.changeOperatorVerificationStatus);
 
-adminRouter.get("/trips", (req, res) => adminController.getAllTrips(req, res));
+adminRouter.get("/trips", adminController.getAllTrips);
 
-adminRouter.get("/reports", (req, res) => adminController.getReports(req, res));
+adminRouter.get("/reports", adminController.getReports);
 
-adminRouter.put("/trips/:id/cancel", (req, res) =>
-  adminController.changeTripStatus(req, res, "cancelled"),
-);
+adminRouter.put("/trips/:id/cancel", (req, res) => adminController.changeTripStatus(req, res, "cancelled"));
 
 export default adminRouter;

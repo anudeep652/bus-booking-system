@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction, RequestParamHandler } from 'express';
 import jwt from 'jsonwebtoken';
 
 export interface AuthRequest extends Request {
@@ -8,7 +8,7 @@ export interface AuthRequest extends Request {
     };
 }
 
-export const isAuthenticated = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const isAuthenticated = (req: AuthRequest, res: Response, next: NextFunction): ReturnType<RequestParamHandler> => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -44,7 +44,7 @@ export const isAuthenticated = (req: AuthRequest, res: Response, next: NextFunct
     }
 };
 
-export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction): ReturnType<RequestParamHandler> => {
     if (!req.user || req.user.role !== 'admin') {
         return res.status(403).json({ success: false, message: 'Forbidden: Admin access required' });
     }

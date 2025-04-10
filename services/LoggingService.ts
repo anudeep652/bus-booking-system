@@ -1,4 +1,4 @@
-//@ts-nocheck
+import type { Request, Response, NextFunction } from "express";
 import winston from "winston";
 import fs from "fs";
 import path from "path";
@@ -17,7 +17,7 @@ export class LoggingService {
       level: process.env.LOG_LEVEL || "info",
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.json(),
+        winston.format.json()
       ),
       defaultMeta: { service: serviceName },
       transports: [
@@ -36,14 +36,18 @@ export class LoggingService {
         new winston.transports.Console({
           format: winston.format.combine(
             winston.format.colorize(),
-            winston.format.simple(),
+            winston.format.simple()
           ),
-        }),
+        })
       );
     }
   }
 
-  public requestLogger = (req, res, next): void => {
+  public requestLogger = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): void => {
     const start = Date.now();
 
     res.on("finish", () => {
@@ -61,7 +65,12 @@ export class LoggingService {
     next();
   };
 
-  public errorHandler = (err: Error, req, res, next): void => {
+  public errorHandler = (
+    err: Error,
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): void => {
     this.error({
       message: err.message,
       stack: err.stack,
@@ -75,31 +84,52 @@ export class LoggingService {
   };
 
   public error(message: string | object, ...meta: any[]): void {
-    this.logger.error(message, ...meta);
+    this.logger.error(
+      typeof message !== "string" ? JSON.stringify(message) : message,
+      ...meta
+    );
   }
 
   public warn(message: string | object, ...meta: any[]): void {
-    this.logger.warn(message, ...meta);
+    this.logger.warn(
+      typeof message !== "string" ? JSON.stringify(message) : message,
+      ...meta
+    );
   }
 
   public info(message: string | object, ...meta: any[]): void {
-    this.logger.info(message, ...meta);
+    this.logger.info(
+      typeof message !== "string" ? JSON.stringify(message) : message,
+      ...meta
+    );
   }
 
   public http(message: string | object, ...meta: any[]): void {
-    this.logger.http(message, ...meta);
+    this.logger.http(
+      typeof message !== "string" ? JSON.stringify(message) : message,
+      ...meta
+    );
   }
 
   public verbose(message: string | object, ...meta: any[]): void {
-    this.logger.verbose(message, ...meta);
+    this.logger.verbose(
+      typeof message !== "string" ? JSON.stringify(message) : message,
+      ...meta
+    );
   }
 
   public debug(message: string | object, ...meta: any[]): void {
-    this.logger.debug(message, ...meta);
+    this.logger.debug(
+      typeof message !== "string" ? JSON.stringify(message) : message,
+      ...meta
+    );
   }
 
   public silly(message: string | object, ...meta: any[]): void {
-    this.logger.silly(message, ...meta);
+    this.logger.silly(
+      typeof message !== "string" ? JSON.stringify(message) : message,
+      ...meta
+    );
   }
 }
 

@@ -3,7 +3,7 @@ import { Trip } from "../models/tripSchema.ts";
 class TripService {
   async getAllTrips(
     page: number = 1,
-    limit: number = 10,
+    limit: number = 10
   ): Promise<{
     trips: any[];
     totalTrips: number;
@@ -11,7 +11,7 @@ class TripService {
   }> {
     try {
       const trips = await Trip.find()
-        .populate("bus_id", "bus_number bus_type") 
+        .populate("bus_id", "bus_number bus_type")
         .skip((page - 1) * limit)
         .limit(limit)
         .sort({ departure_time: -1 });
@@ -25,7 +25,11 @@ class TripService {
         totalPages,
       };
     } catch (error) {
-      throw new Error(`Error fetching trips: ${error.message as string}`);
+      throw new Error(
+        `Error fetching trips: ${
+          error instanceof Error ? error.message : error
+        }`
+      );
     }
   }
 
@@ -43,12 +47,16 @@ class TripService {
           status: "cancelled",
           available_seats: 0, // Ensure no more bookings can be made
         },
-        { new: true },
+        { new: true }
       );
 
       return cancelledTrip;
     } catch (error) {
-      throw new Error(`Error cancelling trip: ${error.message}`);
+      throw new Error(
+        `Error cancelling trip: ${
+          error instanceof Error ? error.message : error
+        }`
+      );
     }
   }
 
@@ -56,7 +64,7 @@ class TripService {
     try {
       const trip = await Trip.findById(tripId).populate(
         "bus_id",
-        "bus_number bus_type capacity",
+        "bus_number bus_type capacity"
       );
 
       if (!trip) {
@@ -65,11 +73,14 @@ class TripService {
 
       return trip;
     } catch (error) {
-      throw new Error(`Error fetching trip details: ${error.message}`);
+      throw new Error(
+        `Error fetching trip details: ${
+          error instanceof Error ? error.message : error
+        }`
+      );
     }
   }
 
-  // Filter trips with advanced search
   async filterTrips(filters: {
     source?: string;
     destination?: string;
@@ -103,7 +114,11 @@ class TripService {
 
       return await Trip.find(query).populate("bus_id", "bus_number bus_type");
     } catch (error) {
-      throw new Error(`Error filtering trips: ${error.message}`);
+      throw new Error(
+        `Error filtering trips: ${
+          error instanceof Error ? error.message : error
+        }`
+      );
     }
   }
 }
