@@ -43,7 +43,7 @@ app.use("/api/v1/operator", operatorRoutes);
 app.use("/api/v1/bus", busRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/booking", bookingRoutes);
-app.use("/api/v2/feedback", feedbackRoutes);
+app.use("/api/v1/feedback", feedbackRoutes);
 
 //serve docs
 if (
