@@ -17,12 +17,25 @@ import feedbackRoutes from "./routes/feedbackRoutes.ts";
 import { logger } from "./services/LoggingService.ts";
 import { database } from "./services/DatabaseService.ts";
 
+import { rateLimit } from "express-rate-limit";
+
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many requests from this IP, please try again later.",
+});
+
+app.use(limiter);
+
 app.use(logger.requestLogger);
 app.use(expressSanitizer());
 app.use((req, res, next) => {
