@@ -1,173 +1,204 @@
-import { Request, Response } from 'express';
-import { 
-  getBookingHistory, 
-  createBooking, 
-  cancelBooking 
-} from '../../controllers/bookingController.ts';
-import { BookingService } from '../../services/BookingService.ts';
+import type { Request, Response } from "express";
 
-describe('BookingController', () => {
-  let mockBookingService: jest.Mocked<BookingService>;
-  let mockReq: Partial<Request>;
-  let mockRes: Partial<Response>;
+const mockGetBookingHistory = jest.fn();
+const mockCreateBooking = jest.fn();
+const mockCancelBooking = jest.fn();
+
+jest.mock("../../services/BookingService.ts", () => {
+  return {
+    BookingService: jest.fn().mockImplementation(() => {
+      return {
+        getBookingHistory: mockGetBookingHistory,
+        createBooking: mockCreateBooking,
+        cancelBooking: mockCancelBooking,
+      };
+    }),
+  };
+});
+
+const mockRequest = (body = {}, params = {}, query = {}): Request => {
+  return {
+    body,
+    params,
+    query,
+  } as Request;
+};
+
+const mockResponse = (): Response => {
+  const res: Partial<Response> = {};
+  res.status = jest.fn().mockReturnValue(res as Response);
+  res.json = jest.fn().mockReturnValue(res as Response);
+  return res as Response;
+};
+
+import {
+  getBookingHistory,
+  createBooking,
+  cancelBooking,
+} from "../../controllers/bookingController.ts";
+
+describe("Booking Controller", () => {
+  let req: Request;
+  let res: Response;
 
   beforeEach(() => {
-    // Mock BookingService
-    mockBookingService = {
-      getBookingHistory: jest.fn(),
-      createBooking: jest.fn(),
-      cancelBooking: jest.fn()
-    } as any;
-
-    // Replace the instantiated service with mock
-    jest.spyOn(BookingService.prototype, 'constructor').mockImplementation(() => {
-      return mockBookingService;
-    });
-
-    // Setup mock request and response
-    mockReq = {
-      params: {},
-      body: {}
-    };
-
-    mockRes = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn()
-    };
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
+    res = mockResponse();
   });
 
-  describe('getBookingHistory', () => {
-    it('should retrieve booking history successfully', async () => {
-      const mockBookings = [{ id: '1' }, { id: '2' }];
-      mockReq.params = { id: 'user123' };
-      mockBookingService.getBookingHistory.mockResolvedValue(mockBookings);
+  describe("getBookingHistory", () => {
+    const userId = "user123";
+    const mockBookings = [
+      { id: "b1", tripId: "t1" },
+      { id: "b2", tripId: "t2" },
+    ];
 
-      await getBookingHistory(mockReq as Request, mockRes as Response);
+    it("should return booking history on success", async () => {
+      req = mockRequest({}, { id: userId });
+      mockGetBookingHistory.mockResolvedValue(mockBookings);
 
-      expect(mockBookingService.getBookingHistory).toHaveBeenCalledWith('user123');
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith({
+      await getBookingHistory(req, res);
+
+      expect(mockGetBookingHistory).toHaveBeenCalledWith(userId);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
         success: true,
-        data: mockBookings
+        data: mockBookings,
       });
     });
 
-    it('should handle error when retrieving booking history', async () => {
-      mockReq.params = { id: 'user123' };
-      const mockError = new Error('Retrieval failed');
-      mockBookingService.getBookingHistory.mockRejectedValue(mockError);
+    it("should return 404 if service throws an Error", async () => {
+      req = mockRequest({}, { id: userId });
+      const error = new Error("No bookings found for user");
+      mockGetBookingHistory.mockRejectedValue(error);
 
-      console.error = jest.fn(); 
+      await getBookingHistory(req, res);
 
-      await getBookingHistory(mockReq as Request, mockRes as Response);
-
-      expect(console.error).toHaveBeenCalledWith(
-        "Booking history retrieval error:", 
-        mockError
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({
+      expect(mockGetBookingHistory).toHaveBeenCalledWith(userId);
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Retrieval failed'
+        message: "No bookings found for user",
+      });
+    });
+
+    it("should return 404 if service throws a non-Error", async () => {
+      req = mockRequest({}, { id: userId });
+      const error = "Database timeout";
+      mockGetBookingHistory.mockRejectedValue(error);
+
+      await getBookingHistory(req, res);
+
+      expect(mockGetBookingHistory).toHaveBeenCalledWith(userId);
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        success: false,
+        message:
+          "Failed to get booking history, Unknown error occured: Database timeout",
       });
     });
   });
 
-  describe('createBooking', () => {
-    it('should create a booking successfully', async () => {
-      const mockBooking = { id: 'booking123' };
-      mockReq.params = { id: 'user123' };
-      mockReq.body = { 
-        trip_id: 'trip123', 
-        seat_numbers: [1, 2] 
-      };
-      mockBookingService.createBooking.mockResolvedValue(mockBooking);
+  describe("createBooking", () => {
+    const userId = "user456";
+    const tripId = "trip789";
+    const seatNumbers = [5, 6];
+    const bookingData = { trip_id: tripId, seat_numbers: seatNumbers };
+    const mockNewBooking = { id: "bookingNew", userId, tripId, seatNumbers };
 
-      await createBooking(mockReq as Request, mockRes as Response);
+    it("should create a booking successfully", async () => {
+      req = mockRequest(bookingData, { id: userId });
+      mockCreateBooking.mockResolvedValue(mockNewBooking);
 
-      expect(mockBookingService.createBooking).toHaveBeenCalledWith('user123', {
-        trip_id: 'trip123',
-        seat_numbers: [1, 2]
-      });
-      expect(mockRes.status).toHaveBeenCalledWith(201);
-      expect(mockRes.json).toHaveBeenCalledWith({
+      await createBooking(req, res);
+
+      expect(mockCreateBooking).toHaveBeenCalledWith(userId, bookingData);
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith({
         success: true,
-        data: mockBooking
+        data: mockNewBooking,
       });
     });
 
-    it('should handle error when creating booking', async () => {
-      mockReq.params = { id: 'user123' };
-      mockReq.body = { 
-        trip_id: 'trip123', 
-        seat_numbers: [1, 2] 
-      };
-      const mockError = new Error('Booking creation failed');
-      mockBookingService.createBooking.mockRejectedValue(mockError);
+    it("should return 400 if service throws an Error", async () => {
+      req = mockRequest(bookingData, { id: userId });
+      const error = new Error("Seats not available");
+      mockCreateBooking.mockRejectedValue(error);
 
-      console.error = jest.fn(); 
+      await createBooking(req, res);
 
-      await createBooking(mockReq as Request, mockRes as Response);
-
-      expect(console.error).toHaveBeenCalledWith(
-        "Booking creation error:", 
-        mockError
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
+      expect(mockCreateBooking).toHaveBeenCalledWith(userId, bookingData);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Booking creation failed'
+        message: "Seats not available",
+      });
+    });
+
+    it("should return 400 if service throws a non-Error", async () => {
+      req = mockRequest(bookingData, { id: userId });
+      const error = { code: "INVALID_TRIP" };
+      mockCreateBooking.mockRejectedValue(error);
+
+      await createBooking(req, res);
+
+      expect(mockCreateBooking).toHaveBeenCalledWith(userId, bookingData);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        success: false,
+        message:
+          "Failed to create booking,Unknown error occured: [object Object]",
       });
     });
   });
 
-  describe('cancelBooking', () => {
-    it('should cancel a booking successfully', async () => {
-      const mockCancelledBooking = { id: 'booking123' };
-      mockReq.params = { 
-        id: 'user123', 
-        bookingId: 'booking123' 
-      };
-      mockBookingService.cancelBooking.mockResolvedValue(mockCancelledBooking);
+  describe("cancelBooking", () => {
+    const userId = "user789";
+    const bookingId = "bookingToCancel";
+    const mockCancelledBooking = { id: bookingId, status: "cancelled" };
 
-      await cancelBooking(mockReq as Request, mockRes as Response);
+    it("should cancel a booking successfully", async () => {
+      req = mockRequest({}, { id: userId, bookingId: bookingId });
+      mockCancelBooking.mockResolvedValue(mockCancelledBooking);
 
-      expect(mockBookingService.cancelBooking).toHaveBeenCalledWith(
-        'booking123', 
-        'user123'
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith({
+      await cancelBooking(req, res);
+
+      expect(mockCancelBooking).toHaveBeenCalledWith(bookingId, userId);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
         success: true,
         data: mockCancelledBooking,
-        message: "Booking successfully cancelled"
       });
     });
 
-    it('should handle error when cancelling booking', async () => {
-      mockReq.params = { 
-        id: 'user123', 
-        bookingId: 'booking123' 
-      };
-      const mockError = new Error('Booking cancellation failed');
-      mockBookingService.cancelBooking.mockRejectedValue(mockError);
+    it("should return 400 if service throws an Error", async () => {
+      req = mockRequest({}, { id: userId, bookingId: bookingId });
+      const error = new Error("Booking already cancelled or does not exist");
+      mockCancelBooking.mockRejectedValue(error);
 
-      console.error = jest.fn(); // Mock console.error
+      await cancelBooking(req, res);
 
-      await cancelBooking(mockReq as Request, mockRes as Response);
-
-      expect(console.error).toHaveBeenCalledWith(
-        "Booking cancellation error:", 
-        mockError
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
+      expect(mockCancelBooking).toHaveBeenCalledWith(bookingId, userId);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Booking cancellation failed'
+        message: "Booking already cancelled or does not exist",
+      });
+    });
+
+    it("should return 400 if service throws a non-Error", async () => {
+      req = mockRequest({}, { id: userId, bookingId: bookingId });
+      const error = "Cancellation period expired";
+      mockCancelBooking.mockRejectedValue(error);
+
+      await cancelBooking(req, res);
+
+      expect(mockCancelBooking).toHaveBeenCalledWith(bookingId, userId);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        success: false,
+        message:
+          "Failed to cancel booking, Unknown error occured: Cancellation period expired",
       });
     });
   });

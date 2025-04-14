@@ -1,5 +1,4 @@
-// FeedbackService.ts
-import { Feedback } from "../models/feedbackSchema.ts";
+import { Feedback } from "../models/index.ts";
 import mongoose from "mongoose";
 
 export class FeedbackService {

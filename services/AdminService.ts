@@ -1,17 +1,15 @@
-import { User } from "../models/userSchema.ts";
-import { Operator } from "../models/operatorSchema.ts";
-import { Trip } from "../models/tripSchema.ts";
-import type { User as TUser } from "../types/user.ts";
+import { Trip, User, Operator } from "../models/index.ts";
 import type {
   OperatorStatus,
   Operator as TOperator,
-} from "../types/operator.ts";
-import type { TripStatus } from "../types/trip.ts";
+  TripStatus,
+  User as TUser,
+} from "../types/index.ts";
 
 export class AdminService {
   async getAllTrips(
     page: number = 1,
-    limit: number = 10,
+    limit: number = 10
   ): Promise<{
     trips: any[];
     total: number;
@@ -46,7 +44,7 @@ export class AdminService {
       return await Trip.findByIdAndUpdate(
         tripId,
         { status },
-        { new: true, select: "-__v" },
+        { new: true, select: "-__v" }
       ).populate("bus_id", "bus_number bus_type");
     } catch (error) {
       throw new Error("Error changing trip status");
@@ -65,7 +63,7 @@ export class AdminService {
 
   async listOperators(
     page: number = 1,
-    limit: number = 10,
+    limit: number = 10
   ): Promise<TOperator[]> {
     try {
       return await Operator.find()
@@ -79,13 +77,13 @@ export class AdminService {
 
   async changeUserStatus(
     userId: string,
-    status: "active" | "inactive",
+    status: "active" | "inactive"
   ): Promise<TUser | null> {
     try {
       return await User.findByIdAndUpdate(
         userId,
         { status },
-        { new: true, select: "-password -__v" },
+        { new: true, select: "-password -__v" }
       );
     } catch (error) {
       throw new Error("Error changing user status");
@@ -94,13 +92,13 @@ export class AdminService {
 
   async changeOperatorVerificationStatus(
     operatorId: string,
-    status: OperatorStatus,
+    status: OperatorStatus
   ): Promise<TOperator | null> {
     try {
       return await Operator.findByIdAndUpdate(
         operatorId,
         { verification_status: status },
-        { new: true, select: "-password -__v" },
+        { new: true, select: "-password -__v" }
       );
     } catch (error) {
       throw new Error("Error changing operator verification status");

@@ -1,164 +1,241 @@
-import mongoose from "mongoose";
+// @ts-nocheck
 import { FeedbackService } from "../../services/FeedbackService.ts";
 import { Feedback } from "../../models/feedbackSchema.ts";
+import mongoose from "mongoose";
 
-jest.mock("../../models/feedbackSchema", () => ({
-  Feedback: {
-    find: jest.fn(),
-    save: jest.fn(),
-  },
-}));
+jest.mock("../../models/feedbackSchema");
+jest.mock("mongoose", () => {
+  const actualMongoose = jest.requireActual("mongoose");
+  return {
+    ...actualMongoose,
+    Types: {
+      ...actualMongoose.Types,
+      ObjectId: jest.fn((id) => ({
+        toString: () => id || new actualMongoose.Types.ObjectId().toString(),
+        equals: (other: any) =>
+          other?.toString() ===
+          (id || new actualMongoose.Types.ObjectId().toString()),
+      })),
+    },
+  };
+});
+
+const MockedFeedback = Feedback as jest.MockedClass<typeof Feedback>;
+const mockMongooseObjectId = mongoose.Types.ObjectId as jest.Mock;
 
 describe("FeedbackService", () => {
   let feedbackService: FeedbackService;
-  const mockUserId = "507f1f77bcf86cd799439011";
-  const mockTripId = "507f1f77bcf86cd799439022";
+  let mockSave: jest.Mock;
+  let mockFind: jest.Mock;
+  let mockPopulate: jest.Mock;
 
   beforeEach(() => {
     feedbackService = new FeedbackService();
+    mockSave = jest.fn();
+    mockPopulate = jest.fn();
+    mockFind = jest.fn(() => ({
+      populate: mockPopulate,
+    }));
+
+    MockedFeedback.mockImplementation(
+      (data: any) =>
+        ({
+          ...data,
+          save: mockSave,
+        } as any)
+    );
+    MockedFeedback.find = mockFind;
+    mockMongooseObjectId.mockClear();
     jest.clearAllMocks();
   });
 
   describe("createFeedback", () => {
-    it("should create and return feedback", async () => {
-      const mockFeedback = {
-        _id: "mockFeedbackId",
-        user_id: mockUserId,
-        trip_id: mockTripId,
-        rating: 5,
-        comments: "Great trip!",
-      };
+    const userId = "user123";
+    const tripId = "trip456";
+    const rating = 5;
+    const comments = "Great trip!";
+    const mockUserId = { toString: () => userId, equals: jest.fn() };
+    const mockTripId = { toString: () => tripId, equals: jest.fn() };
 
-      const saveSpy = jest.fn().mockResolvedValue(mockFeedback);
-      jest
-        .spyOn(mongoose.Types, "ObjectId")
-        .mockImplementation((id) => id as any);
-
-      (Feedback as any) = jest.fn().mockImplementation(() => {
-        return {
-          save: saveSpy,
-        };
-      });
-
-      const result = await feedbackService.createFeedback(
-        mockUserId,
-        mockTripId,
-        5,
-        "Great trip!"
-      );
-
-      expect(saveSpy).toHaveBeenCalled();
-      expect(result).toEqual(mockFeedback);
+    beforeEach(() => {
+      mockMongooseObjectId
+        .mockReturnValueOnce(mockUserId)
+        .mockReturnValueOnce(mockTripId);
     });
 
-    it("should throw an error if saving fails", async () => {
-      const errorMessage = "Database error";
-      const saveSpy = jest.fn().mockRejectedValue(new Error(errorMessage));
-      jest
-        .spyOn(mongoose.Types, "ObjectId")
-        .mockImplementation((id) => id as any);
+    it("should create and save feedback successfully", async () => {
+      const feedbackData = {
+        user_id: mockUserId,
+        trip_id: mockTripId,
+        rating,
+        comments,
+      };
+      const savedFeedback = { ...feedbackData, _id: "feedback789" };
+      mockSave.mockResolvedValue(savedFeedback);
 
-      (Feedback as any) = jest.fn().mockImplementation(() => {
-        return {
-          save: saveSpy,
-        };
+      const result = await feedbackService.createFeedback(
+        userId,
+        tripId,
+        rating,
+        comments
+      );
+
+      expect(mongoose.Types.ObjectId).toHaveBeenCalledWith(userId);
+      expect(mongoose.Types.ObjectId).toHaveBeenCalledWith(tripId);
+      expect(MockedFeedback).toHaveBeenCalledWith({
+        user_id: mockUserId,
+        trip_id: mockTripId,
+        rating,
+        comments,
       });
+      expect(mockSave).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(savedFeedback);
+    });
+
+    it("should create and save feedback successfully without comments", async () => {
+      const feedbackData = {
+        user_id: mockUserId,
+        trip_id: mockTripId,
+        rating,
+        comments: undefined,
+      };
+      const savedFeedback = { ...feedbackData, _id: "feedback789" };
+      mockSave.mockResolvedValue(savedFeedback);
+
+      const result = await feedbackService.createFeedback(
+        userId,
+        tripId,
+        rating
+      );
+
+      expect(mongoose.Types.ObjectId).toHaveBeenCalledWith(userId);
+      expect(mongoose.Types.ObjectId).toHaveBeenCalledWith(tripId);
+      expect(MockedFeedback).toHaveBeenCalledWith({
+        user_id: mockUserId,
+        trip_id: mockTripId,
+        rating,
+        comments: undefined,
+      });
+      expect(mockSave).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(savedFeedback);
+    });
+
+    it("should throw an error if saving feedback fails", async () => {
+      const error = new Error("Database save failed");
+      mockSave.mockRejectedValue(error);
 
       await expect(
-        feedbackService.createFeedback(mockUserId, mockTripId, 5, "Great trip!")
-      ).rejects.toThrow(`Failed to save feedback: ${errorMessage}`);
+        feedbackService.createFeedback(userId, tripId, rating, comments)
+      ).rejects.toThrow(`Failed to save feedback: ${error.message}`);
+
+      expect(mongoose.Types.ObjectId).toHaveBeenCalledWith(userId);
+      expect(mongoose.Types.ObjectId).toHaveBeenCalledWith(tripId);
+      expect(MockedFeedback).toHaveBeenCalledWith({
+        user_id: mockUserId,
+        trip_id: mockTripId,
+        rating,
+        comments,
+      });
+      expect(mockSave).toHaveBeenCalledTimes(1);
+    });
+
+    it("should throw an error with non-Error object", async () => {
+      const error = "Database save failed string";
+      mockSave.mockRejectedValue(error);
+
+      await expect(
+        feedbackService.createFeedback(userId, tripId, rating, comments)
+      ).rejects.toThrow(`Failed to save feedback: ${error}`);
+
+      expect(mockSave).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("getFeedbackByTrip", () => {
-    it("should return feedback for a specific trip", async () => {
-      const mockFeedbackList = [
-        {
-          _id: "mockFeedbackId1",
-          user_id: mockUserId,
-          trip_id: mockTripId,
-          rating: 5,
-        },
-        {
-          _id: "mockFeedbackId2",
-          user_id: "anotherUserId",
-          trip_id: mockTripId,
-          rating: 4,
-        },
-      ];
+    const tripId = "trip456";
+    const mockTripId = { toString: () => tripId, equals: jest.fn() };
 
-      const mockPopulate = jest.fn().mockResolvedValue(mockFeedbackList);
-      const mockFind = jest.fn().mockReturnValue({ populate: mockPopulate });
-      (Feedback.find as jest.Mock).mockImplementation(mockFind);
-      jest
-        .spyOn(mongoose.Types, "ObjectId")
-        .mockImplementation((id) => id as any);
-
-      const result = await feedbackService.getFeedbackByTrip(mockTripId);
-
-      expect(Feedback.find).toHaveBeenCalledWith({ trip_id: mockTripId });
-      expect(mockPopulate).toHaveBeenCalledWith("user_id", "name email");
-      expect(result).toEqual(mockFeedbackList);
+    beforeEach(() => {
+      mockMongooseObjectId.mockReturnValue(mockTripId);
     });
 
-    it("should throw an error if finding fails", async () => {
-      const errorMessage = "Database error";
-      (Feedback.find as jest.Mock).mockImplementation(() => {
-        throw new Error(errorMessage);
-      });
-      jest
-        .spyOn(mongoose.Types, "ObjectId")
-        .mockImplementation((id) => id as any);
+    it("should fetch feedback for a given trip ID", async () => {
+      const mockFeedback = [{ _id: "fb1" }, { _id: "fb2" }];
+      mockPopulate.mockResolvedValue(mockFeedback);
 
-      await expect(
-        feedbackService.getFeedbackByTrip(mockTripId)
-      ).rejects.toThrow(`Failed to fetch feedback: ${errorMessage}`);
+      const result = await feedbackService.getFeedbackByTrip(tripId);
+
+      expect(mongoose.Types.ObjectId).toHaveBeenCalledWith(tripId);
+      expect(MockedFeedback.find).toHaveBeenCalledWith({ trip_id: mockTripId });
+      expect(mockPopulate).toHaveBeenCalledWith("user_id", "name email");
+      expect(result).toEqual(mockFeedback);
+    });
+
+    it("should throw an error if fetching feedback fails", async () => {
+      const error = new Error("Database find failed");
+      mockPopulate.mockRejectedValue(error);
+
+      await expect(feedbackService.getFeedbackByTrip(tripId)).rejects.toThrow(
+        `Failed to fetch feedback: ${error.message}`
+      );
+
+      expect(mongoose.Types.ObjectId).toHaveBeenCalledWith(tripId);
+      expect(MockedFeedback.find).toHaveBeenCalledWith({ trip_id: mockTripId });
+      expect(mockPopulate).toHaveBeenCalledWith("user_id", "name email");
+    });
+
+    it("should throw an error with non-Error object during fetch", async () => {
+      const error = "Database find failed string";
+      mockPopulate.mockRejectedValue(error);
+
+      await expect(feedbackService.getFeedbackByTrip(tripId)).rejects.toThrow(
+        `Failed to fetch feedback: ${error}`
+      );
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("getUserFeedback", () => {
-    it("should return feedback for a specific user", async () => {
-      const mockFeedbackList = [
-        {
-          _id: "mockFeedbackId1",
-          user_id: mockUserId,
-          trip_id: mockTripId,
-          rating: 5,
-        },
-        {
-          _id: "mockFeedbackId2",
-          user_id: mockUserId,
-          trip_id: "anotherTripId",
-          rating: 3,
-        },
-      ];
+    const userId = "user123";
+    const mockUserId = { toString: () => userId, equals: jest.fn() };
 
-      const mockPopulate = jest.fn().mockResolvedValue(mockFeedbackList);
-      const mockFind = jest.fn().mockReturnValue({ populate: mockPopulate });
-      (Feedback.find as jest.Mock).mockImplementation(mockFind);
-      jest
-        .spyOn(mongoose.Types, "ObjectId")
-        .mockImplementation((id) => id as any);
-
-      const result = await feedbackService.getUserFeedback(mockUserId);
-
-      expect(Feedback.find).toHaveBeenCalledWith({ user_id: mockUserId });
-      expect(mockPopulate).toHaveBeenCalledWith("trip_id");
-      expect(result).toEqual(mockFeedbackList);
+    beforeEach(() => {
+      mockMongooseObjectId.mockReturnValue(mockUserId);
     });
 
-    it("should throw an error if finding fails", async () => {
-      const errorMessage = "Database error";
-      (Feedback.find as jest.Mock).mockImplementation(() => {
-        throw new Error(errorMessage);
-      });
-      jest
-        .spyOn(mongoose.Types, "ObjectId")
-        .mockImplementation((id) => id as any);
+    it("should fetch feedback for a given user ID", async () => {
+      const mockFeedback = [{ _id: "fb1" }, { _id: "fb2" }];
+      mockPopulate.mockResolvedValue(mockFeedback);
 
-      await expect(feedbackService.getUserFeedback(mockUserId)).rejects.toThrow(
-        `Failed to fetch user feedback: ${errorMessage}`
+      const result = await feedbackService.getUserFeedback(userId);
+
+      expect(mongoose.Types.ObjectId).toHaveBeenCalledWith(userId);
+      expect(MockedFeedback.find).toHaveBeenCalledWith({ user_id: mockUserId });
+      expect(mockPopulate).toHaveBeenCalledWith("trip_id");
+      expect(result).toEqual(mockFeedback);
+    });
+
+    it("should throw an error if fetching user feedback fails", async () => {
+      const error = new Error("Database find failed for user");
+      mockPopulate.mockRejectedValue(error);
+
+      await expect(feedbackService.getUserFeedback(userId)).rejects.toThrow(
+        `Failed to fetch user feedback: ${error.message}`
       );
+
+      expect(mongoose.Types.ObjectId).toHaveBeenCalledWith(userId);
+      expect(MockedFeedback.find).toHaveBeenCalledWith({ user_id: mockUserId });
+      expect(mockPopulate).toHaveBeenCalledWith("trip_id");
+    });
+
+    it("should throw an error with non-Error object during user feedback fetch", async () => {
+      const error = "Database find failed string for user";
+      mockPopulate.mockRejectedValue(error);
+
+      await expect(feedbackService.getUserFeedback(userId)).rejects.toThrow(
+        `Failed to fetch user feedback: ${error}`
+      );
+      expect(mockPopulate).toHaveBeenCalledTimes(1);
     });
   });
 });

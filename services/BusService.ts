@@ -1,4 +1,4 @@
-import { Bus } from "../models/busSchema.ts";
+import { Bus } from "../models/index.ts";
 import type { RequireAtLeastOne, TBus } from "../types/index.ts";
 
 export class BusService {

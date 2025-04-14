@@ -1,152 +1,472 @@
-import * as operatorController from "../operatorController.ts";
-import * as operatorService from "../operatorController.ts";
+import type { Request, Response } from "express";
 
-// Create mock request and response objects.
-const createMockReq = (data:any) => ({ ...data });
-const createMockRes = () => {
-  const res:any = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.json = jest.fn().mockReturnValue(res);
-  return res;
+const mockOperatorServiceInstance = {
+  createTrip: jest.fn(),
+  updateTrip: jest.fn(),
+  cancelTrip: jest.fn(),
+  getOperatorBookings: jest.fn(),
 };
 
-jest.mock("../../services/OperatorService.ts");
+const mockAuthServiceInstance = {
+  register: jest.fn(),
+  login: jest.fn(),
+};
 
-describe("operatorController", () => {
-  afterEach(() => {
+jest.mock("../../services/OperatorService", () => {
+  return jest.fn().mockImplementation(() => {
+    return mockOperatorServiceInstance;
+  });
+});
+
+jest.mock("../../services/auth/AuthServiceFactory", () => ({
+  AuthServiceFactory: {
+    createAuthService: jest.fn().mockReturnValue(mockAuthServiceInstance),
+  },
+}));
+
+import {
+  registerOperator,
+  loginOperator,
+  createTrip,
+  updateTrip,
+  cancelTrip,
+  viewOperatorBookings,
+} from "../operatorController.ts";
+
+describe("Operator Controller", () => {
+  let mockRequest: Partial<Request>;
+  let mockResponse: Partial<Response>;
+  let responseJson: jest.Mock;
+  let responseStatus: jest.Mock;
+
+  beforeEach(() => {
+    responseJson = jest.fn();
+    responseStatus = jest.fn().mockReturnValue({ json: responseJson });
+    mockRequest = {
+      body: {},
+      params: {},
+      query: {},
+    };
+    mockResponse = {
+      status: responseStatus,
+      json: responseJson,
+    };
     jest.clearAllMocks();
   });
 
-  describe("createTrip", () => {
-    it("should create a trip and respond with status 201", async () => {
-      const req = createMockReq({ body: { source: "City A", destination: "City B" } });
-      const res = createMockRes();
-      const createdTrip = { _id: "trip123", ...req.body };
+  describe("registerOperator", () => {
+    const registerData = {
+      email: "op@test.com",
+      password: "password123",
+      name: "TestOp",
+    };
 
-      (operatorService.createTrip as jest.Mock).mockResolvedValue(createdTrip);
+    it("should register an operator successfully", async () => {
+      const result = {
+        statusCode: 201,
+        message: "Operator registered",
+        token: "token123",
+      };
+      mockRequest.body = registerData;
+      mockAuthServiceInstance.register.mockResolvedValue(result);
 
-      await operatorController.createTrip(req, res);
-      
-      expect(operatorService.createTrip).toHaveBeenCalledWith(req.body);
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith(createdTrip);
+      await registerOperator(mockRequest as Request, mockResponse as Response);
+
+      expect(mockAuthServiceInstance.register).toHaveBeenCalledWith(
+        registerData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(result.statusCode);
+      expect(responseJson).toHaveBeenCalledWith({
+        message: result.message,
+        token: result.token,
+      });
     });
 
-    it("should respond with 500 if creation fails", async () => {
-      const req = createMockReq({ body: { source: "City A", destination: "City B" } });
-      const res = createMockRes();
+    it("should handle registration failure", async () => {
+      const result = {
+        statusCode: 400,
+        message: "Registration failed",
+        token: null,
+      };
+      mockRequest.body = registerData;
+      mockAuthServiceInstance.register.mockResolvedValue(result);
 
-      (operatorService.createTrip as jest.Mock).mockRejectedValue(new Error("error"));
-      
-      await operatorController.createTrip(req, res);
-      
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: "Failed to create trip." });
+      await registerOperator(mockRequest as Request, mockResponse as Response);
+
+      expect(mockAuthServiceInstance.register).toHaveBeenCalledWith(
+        registerData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(result.statusCode);
+      expect(responseJson).toHaveBeenCalledWith({
+        message: result.message,
+        token: result.token,
+      });
+    });
+  });
+
+  describe("loginOperator", () => {
+    const loginData = { email: "op@test.com", password: "password123" };
+
+    it("should log in an operator successfully", async () => {
+      const result = {
+        statusCode: 200,
+        message: "Login successful",
+        token: "token456",
+      };
+      mockRequest.body = loginData;
+      mockAuthServiceInstance.login.mockResolvedValue(result);
+
+      await loginOperator(mockRequest as Request, mockResponse as Response);
+
+      expect(mockAuthServiceInstance.login).toHaveBeenCalledWith(
+        loginData.email,
+        loginData.password
+      );
+      expect(responseStatus).toHaveBeenCalledWith(result.statusCode);
+      expect(responseJson).toHaveBeenCalledWith({
+        message: result.message,
+        token: result.token,
+      });
+    });
+
+    it("should handle login failure", async () => {
+      const result = {
+        statusCode: 401,
+        message: "Invalid credentials",
+        token: null,
+      };
+      mockRequest.body = loginData;
+      mockAuthServiceInstance.login.mockResolvedValue(result);
+
+      await loginOperator(mockRequest as Request, mockResponse as Response);
+
+      expect(mockAuthServiceInstance.login).toHaveBeenCalledWith(
+        loginData.email,
+        loginData.password
+      );
+      expect(responseStatus).toHaveBeenCalledWith(result.statusCode);
+      expect(responseJson).toHaveBeenCalledWith({
+        message: result.message,
+        token: result.token,
+      });
+    });
+  });
+
+  describe("createTrip", () => {
+    const tripData = {
+      from: "CityA",
+      to: "CityB",
+      busId: "bus1",
+      departureTime: new Date(),
+    };
+    const createdTrip = { id: "trip1", ...tripData };
+
+    it("should create a trip successfully", async () => {
+      mockRequest.body = tripData;
+      mockOperatorServiceInstance.createTrip.mockResolvedValue(createdTrip);
+
+      await createTrip(mockRequest as Request, mockResponse as Response);
+
+      expect(mockOperatorServiceInstance.createTrip).toHaveBeenCalledWith(
+        tripData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(201);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: true,
+        data: createdTrip,
+      });
+    });
+
+    it("should handle trip creation failure with an Error", async () => {
+      const errorMessage = "Database error";
+      mockRequest.body = tripData;
+      mockOperatorServiceInstance.createTrip.mockRejectedValue(
+        new Error(errorMessage)
+      );
+
+      await createTrip(mockRequest as Request, mockResponse as Response);
+
+      expect(mockOperatorServiceInstance.createTrip).toHaveBeenCalledWith(
+        tripData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: errorMessage,
+      });
+    });
+
+    it("should handle trip creation failure with a non-Error", async () => {
+      const errorObject = { code: "INVALID" };
+      mockRequest.body = tripData;
+      mockOperatorServiceInstance.createTrip.mockRejectedValue(errorObject);
+
+      await createTrip(mockRequest as Request, mockResponse as Response);
+
+      expect(mockOperatorServiceInstance.createTrip).toHaveBeenCalledWith(
+        tripData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Failed to create trip: " + errorObject,
+      });
     });
   });
 
   describe("updateTrip", () => {
-    it("should update a trip and return updated trip", async () => {
-      const req = createMockReq({ params: { id: "trip123" }, body: { price: 60 } });
-      const res = createMockRes();
-      const updatedTrip = { _id: "trip123", price: 60 };
+    const tripId = "trip1";
+    const updateData = { capacity: 45 };
+    const updatedTrip = {
+      id: tripId,
+      from: "CityA",
+      to: "CityB",
+      capacity: 45,
+    };
 
-      (operatorService.updateTrip as jest.Mock).mockResolvedValue(updatedTrip);
+    it("should update a trip successfully", async () => {
+      mockRequest.params = { id: tripId };
+      mockRequest.body = updateData;
+      mockOperatorServiceInstance.updateTrip.mockResolvedValue(updatedTrip);
 
-      await operatorController.updateTrip(req, res);
-      
-      expect(operatorService.updateTrip).toHaveBeenCalledWith("trip123", req.body);
-      expect(res.json).toHaveBeenCalledWith(updatedTrip);
+      await updateTrip(mockRequest as Request, mockResponse as Response);
+
+      expect(mockOperatorServiceInstance.updateTrip).toHaveBeenCalledWith(
+        tripId,
+        updateData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(200);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: true,
+        data: updatedTrip,
+      });
     });
 
-    it("should return 404 if trip is not found", async () => {
-      const req = createMockReq({ params: { id: "trip123" }, body: { price: 60 } });
-      const res = createMockRes();
+    it("should return 404 if trip to update is not found", async () => {
+      mockRequest.params = { id: tripId };
+      mockRequest.body = updateData;
+      mockOperatorServiceInstance.updateTrip.mockResolvedValue(null);
 
-      (operatorService.updateTrip as jest.Mock).mockResolvedValue(null);
-      
-      await operatorController.updateTrip(req, res);
-      
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: "Trip not found." });
+      await updateTrip(mockRequest as Request, mockResponse as Response);
+
+      expect(mockOperatorServiceInstance.updateTrip).toHaveBeenCalledWith(
+        tripId,
+        updateData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(404);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Trip not found.",
+      });
     });
 
-    it("should respond with 500 if update fails", async () => {
-      const req = createMockReq({ params: { id: "trip123" }, body: { price: 60 } });
-      const res = createMockRes();
+    it("should handle trip update failure with an Error", async () => {
+      const errorMessage = "Update conflict";
+      mockRequest.params = { id: tripId };
+      mockRequest.body = updateData;
+      mockOperatorServiceInstance.updateTrip.mockRejectedValue(
+        new Error(errorMessage)
+      );
 
-      (operatorService.updateTrip as jest.Mock).mockRejectedValue(new Error("error"));
-      
-      await operatorController.updateTrip(req, res);
-      
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: "Failed to update trip." });
+      await updateTrip(mockRequest as Request, mockResponse as Response);
+
+      expect(mockOperatorServiceInstance.updateTrip).toHaveBeenCalledWith(
+        tripId,
+        updateData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: errorMessage,
+      });
+    });
+
+    it("should handle trip update failure with a non-Error", async () => {
+      const errorObject = "Concurrency issue";
+      mockRequest.params = { id: tripId };
+      mockRequest.body = updateData;
+      mockOperatorServiceInstance.updateTrip.mockRejectedValue(errorObject);
+
+      await updateTrip(mockRequest as Request, mockResponse as Response);
+
+      expect(mockOperatorServiceInstance.updateTrip).toHaveBeenCalledWith(
+        tripId,
+        updateData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Failed to update trip: " + errorObject,
+      });
     });
   });
 
   describe("cancelTrip", () => {
-    it("should cancel a trip and return success message", async () => {
-      const req = createMockReq({ params: { id: "trip123" } });
-      const res = createMockRes();
-      const cancelledTrip = { _id: "trip123" };
+    const tripId = "tripToCancel";
 
-      (operatorService.cancelTrip as jest.Mock).mockResolvedValue(cancelledTrip);
+    it("should cancel a trip successfully", async () => {
+      mockRequest.params = { id: tripId };
+      mockOperatorServiceInstance.cancelTrip.mockResolvedValue({
+        id: tripId,
+        status: "cancelled",
+      });
 
-      await operatorController.cancelTrip(req, res);
-      
-      expect(operatorService.cancelTrip).toHaveBeenCalledWith("trip123");
-      expect(res.json).toHaveBeenCalledWith({ message: "Trip cancelled successfully." });
+      await cancelTrip(mockRequest as Request, mockResponse as Response);
+
+      expect(mockOperatorServiceInstance.cancelTrip).toHaveBeenCalledWith(
+        tripId
+      );
+      expect(responseStatus).toHaveBeenCalledWith(200);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: true,
+        data: tripId,
+      });
     });
 
-    it("should return 404 if trip not found", async () => {
-      const req = createMockReq({ params: { id: "trip123" } });
-      const res = createMockRes();
+    it("should return 404 if trip to cancel is not found", async () => {
+      mockRequest.params = { id: tripId };
+      mockOperatorServiceInstance.cancelTrip.mockResolvedValue(null);
 
-      (operatorService.cancelTrip as jest.Mock).mockResolvedValue(null);
-      
-      await operatorController.cancelTrip(req, res);
-      
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: "Trip not found." });
+      await cancelTrip(mockRequest as Request, mockResponse as Response);
+
+      expect(mockOperatorServiceInstance.cancelTrip).toHaveBeenCalledWith(
+        tripId
+      );
+      expect(responseStatus).toHaveBeenCalledWith(404);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Trip not found.",
+      });
     });
 
-    it("should respond with 500 if cancellation fails", async () => {
-      const req = createMockReq({ params: { id: "trip123" } });
-      const res = createMockRes();
+    it("should handle trip cancellation failure with an Error", async () => {
+      const errorMessage = "Cannot cancel trip";
+      mockRequest.params = { id: tripId };
+      mockOperatorServiceInstance.cancelTrip.mockRejectedValue(
+        new Error(errorMessage)
+      );
 
-      (operatorService.cancelTrip as jest.Mock).mockRejectedValue(new Error("error"));
-      
-      await operatorController.cancelTrip(req, res);
-      
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: "Failed to cancel trip." });
+      await cancelTrip(mockRequest as Request, mockResponse as Response);
+
+      expect(mockOperatorServiceInstance.cancelTrip).toHaveBeenCalledWith(
+        tripId
+      );
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: errorMessage,
+      });
+    });
+
+    it("should handle trip cancellation failure with a non-Error", async () => {
+      const errorObject = { reason: "Already started" };
+      mockRequest.params = { id: tripId };
+      mockOperatorServiceInstance.cancelTrip.mockRejectedValue(errorObject);
+
+      await cancelTrip(mockRequest as Request, mockResponse as Response);
+
+      expect(mockOperatorServiceInstance.cancelTrip).toHaveBeenCalledWith(
+        tripId
+      );
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Failed to cancel trip: " + errorObject,
+      });
     });
   });
 
   describe("viewOperatorBookings", () => {
-    it("should return bookings based on query parameter bus_id", async () => {
-      const req = createMockReq({ query: { bus_id: "bus123" } });
-      const res = createMockRes();
-      const bookings = [{ _id: "booking1" }];
+    const busId = "bus123";
+    const bookings = [
+      { id: "b1", userId: "u1" },
+      { id: "b2", userId: "u2" },
+    ];
 
-      (operatorService.viewOperatorBookings as jest.Mock).mockResolvedValue(bookings);
+    it("should view bookings for a specific bus successfully", async () => {
+      mockRequest.query = { bus_id: busId };
+      mockOperatorServiceInstance.getOperatorBookings.mockResolvedValue(
+        bookings
+      );
 
-      await operatorController.viewOperatorBookings(req, res);
-      
-      expect(operatorService.viewOperatorBookings).toHaveBeenCalledWith("bus123");
-      expect(res.json).toHaveBeenCalledWith(bookings);
+      await viewOperatorBookings(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(
+        mockOperatorServiceInstance.getOperatorBookings
+      ).toHaveBeenCalledWith(busId);
+      expect(responseStatus).toHaveBeenCalledWith(200);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: true,
+        data: bookings,
+      });
     });
 
-    it("should respond with 500 if retrieval fails", async () => {
-      const req = createMockReq({ query: {} });
-      const res = createMockRes();
+    it("should view all bookings if no bus_id is provided", async () => {
+      mockRequest.query = {};
+      mockOperatorServiceInstance.getOperatorBookings.mockResolvedValue(
+        bookings
+      );
 
-      (operatorService.viewOperatorBookings as jest.Mock).mockRejectedValue(new Error("error"));
-      
-      await operatorController.viewOperatorBookings(req, res);
-      
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: "Failed to retrieve bookings." });
+      await viewOperatorBookings(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(
+        mockOperatorServiceInstance.getOperatorBookings
+      ).toHaveBeenCalledWith("");
+      expect(responseStatus).toHaveBeenCalledWith(200);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: true,
+        data: bookings,
+      });
+    });
+
+    it("should handle viewing bookings failure with an Error", async () => {
+      const errorMessage = "Failed to fetch bookings";
+      mockRequest.query = { bus_id: busId };
+      mockOperatorServiceInstance.getOperatorBookings.mockRejectedValue(
+        new Error(errorMessage)
+      );
+
+      await viewOperatorBookings(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(
+        mockOperatorServiceInstance.getOperatorBookings
+      ).toHaveBeenCalledWith(busId);
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: errorMessage,
+      });
+    });
+
+    it("should handle viewing bookings failure with a non-Error", async () => {
+      const errorObject = "DB Timeout";
+      mockRequest.query = { bus_id: busId };
+      mockOperatorServiceInstance.getOperatorBookings.mockRejectedValue(
+        errorObject
+      );
+
+      await viewOperatorBookings(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(
+        mockOperatorServiceInstance.getOperatorBookings
+      ).toHaveBeenCalledWith(busId);
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Error viewing operator bookings: " + errorObject,
+      });
     });
   });
 });

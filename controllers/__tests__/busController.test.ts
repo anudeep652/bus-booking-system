@@ -1,219 +1,353 @@
-// @ts-nocheck
-import { Request, Response } from 'express';
-import * as busController from '../../controllers/busController.ts';
-import * as busService from '../../services/BusService.ts';
-import { jest } from '@jest/globals';
+import type { Request, Response } from "express";
+import {
+  createBus,
+  updateBus,
+  deleteBus,
+  getBusesByOperator,
+} from "../../controllers/busController.ts";
+import { BusService } from "../../services/BusService.ts";
 
-jest.mock('../../services/BusService');
+jest.mock("../../services/BusService");
 
-describe('Bus Controller', () => {
+const mockBusService = BusService as jest.MockedClass<typeof BusService>;
+
+describe("Bus Controller", () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
-  let responseObject: any = {};
+  let responseJson: jest.Mock;
+  let responseStatus: jest.Mock;
 
   beforeEach(() => {
-    responseObject = {};
-    
-    mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockImplementation((result) => {
-        responseObject = result;
-        return mockResponse;
-      })
+    responseJson = jest.fn();
+    responseStatus = jest.fn().mockReturnValue({ json: responseJson });
+    mockRequest = {
+      body: {},
+      params: {},
+      query: {},
     };
-  });
-
-  afterEach(() => {
+    mockResponse = {
+      status: responseStatus,
+      json: responseJson,
+    };
     jest.clearAllMocks();
   });
 
-  describe('createBus', () => {
-    const busData = { 
-      registrationNumber: 'ABC123', 
-      capacity: 40, 
-      model: 'Mercedes Citaro' 
-    };
-    const newBus = { 
-      id: '1', 
-      ...busData 
-    };
-
-    test('should create a new bus and return 201 status', async () => {
-      mockRequest = {
-        body: busData
+  describe("createBus", () => {
+    it("should create a bus and return 201 status", async () => {
+      const busData = {
+        plateNumber: "TS01AB1234",
+        capacity: 50,
+        operator_id: "op1",
       };
-      jest.spyOn(busService, 'createBus').mockResolvedValue(newBus);
+      const createdBus = { id: "bus1", ...busData };
+      mockRequest.body = busData;
+      (mockBusService.prototype.createBus as jest.Mock).mockResolvedValue(
+        createdBus
+      );
 
-      await busController.createBus(mockRequest as Request, mockResponse as Response);
+      await createBus(mockRequest as Request, mockResponse as Response);
 
-      expect(busService.createBus).toHaveBeenCalledWith(busData);
-      expect(mockResponse.status).toHaveBeenCalledWith(201);
-      expect(mockResponse.json).toHaveBeenCalledWith(newBus);
+      expect(mockBusService.prototype.createBus).toHaveBeenCalledWith(busData);
+      expect(responseStatus).toHaveBeenCalledWith(201);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: true,
+        data: createdBus,
+      });
     });
 
-    test('should return 500 status when service throws error', async () => {
-      mockRequest = {
-        body: busData
+    it("should return 500 if bus creation fails with an Error", async () => {
+      const busData = {
+        plateNumber: "TS01AB1234",
+        capacity: 50,
+        operator_id: "op1",
       };
-      const error = new Error('Database error');
-      jest.spyOn(busService, 'createBus').mockRejectedValue(error);
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+      const errorMessage = "Database error";
+      mockRequest.body = busData;
+      (mockBusService.prototype.createBus as jest.Mock).mockRejectedValue(
+        new Error(errorMessage)
+      );
 
-      await busController.createBus(mockRequest as Request, mockResponse as Response);
+      await createBus(mockRequest as Request, mockResponse as Response);
 
-      expect(busService.createBus).toHaveBeenCalledWith(busData);
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Failed to create bus.' });
-      expect(console.error).toHaveBeenCalledWith('Error creating bus:', error);
-    });
-  });
-
-  describe('updateBus', () => {
-    const busId = '1';
-    const updateData = { capacity: 45 };
-    const updatedBus = { 
-      id: busId, 
-      registrationNumber: 'ABC123', 
-      capacity: 45, 
-      model: 'Mercedes Citaro' 
-    };
-
-    test('should update bus and return 200 status', async () => {
-      mockRequest = {
-        params: { id: busId },
-        body: updateData
-      };
-      jest.spyOn(busService, 'updateBus').mockResolvedValue(updatedBus);
-
-      await busController.updateBus(mockRequest as Request, mockResponse as Response);
-
-      expect(busService.updateBus).toHaveBeenCalledWith(busId, updateData);
-      expect(mockResponse.json).toHaveBeenCalledWith(updatedBus);
+      expect(mockBusService.prototype.createBus).toHaveBeenCalledWith(busData);
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: errorMessage,
+      });
     });
 
-    test('should return 404 when bus not found', async () => {
-      mockRequest = {
-        params: { id: busId },
-        body: updateData
+    it("should return 500 if bus creation fails with a non-Error", async () => {
+      const busData = {
+        plateNumber: "TS01AB1234",
+        capacity: 50,
+        operator_id: "op1",
       };
-      jest.spyOn(busService, 'updateBus').mockResolvedValue(null);
+      const errorObject = { code: "UNEXPECTED" };
+      mockRequest.body = busData;
+      (mockBusService.prototype.createBus as jest.Mock).mockRejectedValue(
+        errorObject
+      );
 
-      await busController.updateBus(mockRequest as Request, mockResponse as Response);
+      await createBus(mockRequest as Request, mockResponse as Response);
 
-      expect(busService.updateBus).toHaveBeenCalledWith(busId, updateData);
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Bus not found.' });
-    });
-
-    test('should return 500 status when service throws error', async () => {
-      mockRequest = {
-        params: { id: busId },
-        body: updateData
-      };
-      const error = new Error('Database error');
-      jest.spyOn(busService, 'updateBus').mockRejectedValue(error);
-      jest.spyOn(console, 'error').mockImplementation(() => {});
-
-      await busController.updateBus(mockRequest as Request, mockResponse as Response);
-
-      expect(busService.updateBus).toHaveBeenCalledWith(busId, updateData);
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Failed to update bus.' });
-      expect(console.error).toHaveBeenCalledWith('Error updating bus:', error);
+      expect(mockBusService.prototype.createBus).toHaveBeenCalledWith(busData);
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Failed to create bus: " + errorObject,
+      });
     });
   });
 
-  describe('deleteBus', () => {
-    const busId = '1';
-    const deletedBus = { id: busId };
+  describe("updateBus", () => {
+    const busId = "bus1";
+    const updateData = { capacity: 55 };
 
-    test('should delete bus and return success message', async () => {
-      mockRequest = {
-        params: { id: busId }
-      };
-      jest.spyOn(busService, 'deleteBus').mockResolvedValue(deletedBus);
+    it("should update a bus and return 200 status", async () => {
+      const updatedBus = { id: busId, capacity: 55, plateNumber: "OLDPLATE" };
+      mockRequest.params = { id: busId };
+      mockRequest.body = updateData;
+      (mockBusService.prototype.updateBus as jest.Mock).mockResolvedValue(
+        updatedBus
+      );
 
-      await busController.deleteBus(mockRequest as Request, mockResponse as Response);
+      await updateBus(mockRequest as Request, mockResponse as Response);
 
-      expect(busService.deleteBus).toHaveBeenCalledWith(busId);
-      expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Bus deleted successfully.' });
+      expect(mockBusService.prototype.updateBus).toHaveBeenCalledWith(
+        busId,
+        updateData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(200);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: true,
+        data: updatedBus,
+      });
     });
 
-    test('should return 404 when bus not found', async () => {
-      mockRequest = {
-        params: { id: busId }
-      };
-      jest.spyOn(busService, 'deleteBus').mockResolvedValue(null);
+    it("should return 404 if bus to update is not found", async () => {
+      mockRequest.params = { id: busId };
+      mockRequest.body = updateData;
+      (mockBusService.prototype.updateBus as jest.Mock).mockResolvedValue(null);
 
-      await busController.deleteBus(mockRequest as Request, mockResponse as Response);
+      await updateBus(mockRequest as Request, mockResponse as Response);
 
-      expect(busService.deleteBus).toHaveBeenCalledWith(busId);
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Bus not found.' });
+      expect(mockBusService.prototype.updateBus).toHaveBeenCalledWith(
+        busId,
+        updateData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(404);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Bus not found.",
+      });
     });
 
-    test('should return 500 status when service throws error', async () => {
-      mockRequest = {
-        params: { id: busId }
-      };
-      const error = new Error('Database error');
-      jest.spyOn(busService, 'deleteBus').mockRejectedValue(error);
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+    it("should return 500 if bus update fails with an Error", async () => {
+      const errorMessage = "Update failed";
+      mockRequest.params = { id: busId };
+      mockRequest.body = updateData;
+      (mockBusService.prototype.updateBus as jest.Mock).mockRejectedValue(
+        new Error(errorMessage)
+      );
 
-      await busController.deleteBus(mockRequest as Request, mockResponse as Response);
+      await updateBus(mockRequest as Request, mockResponse as Response);
 
-      expect(busService.deleteBus).toHaveBeenCalledWith(busId);
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Failed to delete bus.' });
-      expect(console.error).toHaveBeenCalledWith('Error deleting bus:', error);
+      expect(mockBusService.prototype.updateBus).toHaveBeenCalledWith(
+        busId,
+        updateData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        message: errorMessage,
+      });
+    });
+
+    it("should return 500 if bus update fails with a non-Error", async () => {
+      const errorObject = "Something strange happened";
+      mockRequest.params = { id: busId };
+      mockRequest.body = updateData;
+      (mockBusService.prototype.updateBus as jest.Mock).mockRejectedValue(
+        errorObject
+      );
+
+      await updateBus(mockRequest as Request, mockResponse as Response);
+
+      expect(mockBusService.prototype.updateBus).toHaveBeenCalledWith(
+        busId,
+        updateData
+      );
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        message: "Failed to update bus: " + errorObject,
+      });
     });
   });
 
-  describe('getBusesByOperator', () => {
-    const operatorId = 'op123';
-    const buses = [
-      { id: '1', registrationNumber: 'ABC123', operatorId },
-      { id: '2', registrationNumber: 'XYZ789', operatorId }
-    ];
+  describe("deleteBus", () => {
+    const busId = "busToDelete";
 
-    test('should return buses for specified operator', async () => {
-      mockRequest = {
-        query: { operator_id: operatorId }
-      };
-      jest.spyOn(busService, 'getBusesByOperator').mockResolvedValue(buses);
+    it("should delete a bus and return 200 status", async () => {
+      const deletedBusMock = { id: busId };
+      mockRequest.params = { id: busId };
+      (mockBusService.prototype.deleteBus as jest.Mock).mockResolvedValue(
+        deletedBusMock
+      );
 
-      await busController.getBusesByOperator(mockRequest as Request, mockResponse as Response);
+      await deleteBus(mockRequest as Request, mockResponse as Response);
 
-      expect(busService.getBusesByOperator).toHaveBeenCalledWith(operatorId);
-      expect(mockResponse.json).toHaveBeenCalledWith(buses);
+      expect(mockBusService.prototype.deleteBus).toHaveBeenCalledWith(busId);
+      expect(responseStatus).not.toHaveBeenCalled();
+      expect(responseJson).toHaveBeenCalledWith({
+        success: true,
+        message: "Bus deleted successfully.",
+      });
     });
 
-    test('should return 400 when operator_id is missing', async () => {
-      mockRequest = {
-        query: {}
-      };
+    it("should return 404 if bus to delete is not found", async () => {
+      mockRequest.params = { id: busId };
+      (mockBusService.prototype.deleteBus as jest.Mock).mockResolvedValue(null);
 
-      await busController.getBusesByOperator(mockRequest as Request, mockResponse as Response);
+      await deleteBus(mockRequest as Request, mockResponse as Response);
 
-      expect(busService.getBusesByOperator).not.toHaveBeenCalled();
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Operator ID is required.' });
+      expect(mockBusService.prototype.deleteBus).toHaveBeenCalledWith(busId);
+      expect(responseStatus).toHaveBeenCalledWith(404);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Bus not found.",
+      });
     });
 
-    test('should return 500 status when service throws error', async () => {
-      mockRequest = {
-        query: { operator_id: operatorId }
-      };
-      const error = new Error('Database error');
-      jest.spyOn(busService, 'getBusesByOperator').mockRejectedValue(error);
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+    it("should return 500 if bus deletion fails with an Error", async () => {
+      const errorMessage = "Deletion error";
+      mockRequest.params = { id: busId };
+      (mockBusService.prototype.deleteBus as jest.Mock).mockRejectedValue(
+        new Error(errorMessage)
+      );
 
-      await busController.getBusesByOperator(mockRequest as Request, mockResponse as Response);
+      await deleteBus(mockRequest as Request, mockResponse as Response);
 
-      expect(busService.getBusesByOperator).toHaveBeenCalledWith(operatorId);
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Failed to fetch buses.' });
-      expect(console.error).toHaveBeenCalledWith('Error fetching buses:', error);
+      expect(mockBusService.prototype.deleteBus).toHaveBeenCalledWith(busId);
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: errorMessage,
+      });
+    });
+
+    it("should return 500 if bus deletion fails with a non-Error", async () => {
+      const errorObject = { detail: "Constraint violation" };
+      mockRequest.params = { id: busId };
+      (mockBusService.prototype.deleteBus as jest.Mock).mockRejectedValue(
+        errorObject
+      );
+
+      await deleteBus(mockRequest as Request, mockResponse as Response);
+
+      expect(mockBusService.prototype.deleteBus).toHaveBeenCalledWith(busId);
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Failed to delete bus: " + errorObject,
+      });
+    });
+  });
+
+  describe("getBusesByOperator", () => {
+    const operatorId = "op123";
+
+    it("should return buses for an operator and 200 status", async () => {
+      const buses = [
+        { id: "bus1", plateNumber: "AA1", operator_id: operatorId },
+        { id: "bus2", plateNumber: "BB2", operator_id: operatorId },
+      ];
+      mockRequest.query = { operator_id: operatorId };
+      (
+        mockBusService.prototype.getBusesByOperator as jest.Mock
+      ).mockResolvedValue(buses);
+
+      await getBusesByOperator(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockBusService.prototype.getBusesByOperator).toHaveBeenCalledWith(
+        operatorId
+      );
+      expect(responseStatus).toHaveBeenCalledWith(200);
+      expect(responseJson).toHaveBeenCalledWith({ success: true, data: buses });
+    });
+
+    it("should return 400 if operator_id query param is missing", async () => {
+      mockRequest.query = {};
+
+      await getBusesByOperator(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(
+        mockBusService.prototype.getBusesByOperator
+      ).not.toHaveBeenCalled();
+      expect(responseStatus).toHaveBeenCalledWith(400);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Operator ID is required.",
+      });
+    });
+
+    it("should return 500 if fetching buses fails with an Error", async () => {
+      const errorMessage = "Fetch error";
+      mockRequest.query = { operator_id: operatorId };
+      (
+        mockBusService.prototype.getBusesByOperator as jest.Mock
+      ).mockRejectedValue(new Error(errorMessage));
+      const consoleErrorSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
+      await getBusesByOperator(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockBusService.prototype.getBusesByOperator).toHaveBeenCalledWith(
+        operatorId
+      );
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: errorMessage,
+      });
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      consoleErrorSpy.mockRestore();
+    });
+
+    it("should return 500 if fetching buses fails with a non-Error", async () => {
+      const errorObject = "Timeout";
+      mockRequest.query = { operator_id: operatorId };
+      (
+        mockBusService.prototype.getBusesByOperator as jest.Mock
+      ).mockRejectedValue(errorObject);
+      const consoleErrorSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
+      await getBusesByOperator(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockBusService.prototype.getBusesByOperator).toHaveBeenCalledWith(
+        operatorId
+      );
+      expect(responseStatus).toHaveBeenCalledWith(500);
+      expect(responseJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Failed to fetch buses: " + errorObject,
+      });
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      consoleErrorSpy.mockRestore();
     });
   });
 });

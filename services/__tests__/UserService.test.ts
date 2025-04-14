@@ -1,107 +1,176 @@
-//@ts-nocheck
-import mongoose from "mongoose";
+// @ts-nocheck
+import { UserService } from "../UserService.ts";
 import { User } from "../../models/userSchema.ts";
-import { UserService } from "../../services/UserService.ts";
+import type { RequireAtLeastOne, User as TUser } from "../../types/index.ts";
+
+jest.mock("../../models/userSchema");
+
+const MockedUser = User as jest.Mocked<typeof User>;
 
 describe("UserService", () => {
   let userService: UserService;
-  let mockUser;
+  let mockFindById: jest.Mock;
+  let mockFindByIdAndUpdate: jest.Mock;
+  let mockSelect: jest.Mock;
+  let mockFindByIdChain: { select: jest.Mock };
+  let mockFindByIdAndUpdateChain: { select: jest.Mock };
 
   beforeEach(() => {
     userService = new UserService();
+    jest.clearAllMocks();
 
-    // Create a mock user for testing
-    mockUser = new User({
-      _id: new mongoose.Types.ObjectId(),
-      name: "Test User",
-      email: "test@example.com",
-      phone: "1234567890",
-    });
+    mockSelect = jest.fn();
+    mockFindById = jest.fn();
+    mockFindByIdAndUpdate = jest.fn();
+
+    mockFindByIdChain = { select: mockSelect };
+    mockFindByIdAndUpdateChain = { select: mockSelect };
+
+    mockFindById.mockReturnValue(mockFindByIdChain);
+    mockFindByIdAndUpdate.mockReturnValue(mockFindByIdAndUpdateChain);
+
+    MockedUser.findById = mockFindById;
+    MockedUser.findByIdAndUpdate = mockFindByIdAndUpdate;
   });
 
   describe("getProfile", () => {
-    it("should successfully retrieve user profile", async () => {
-      // Mock mongoose findById method
-      jest.spyOn(User, "findById").mockResolvedValue(mockUser);
+    const userId = "user123";
+    const mockUserProfile = {
+      _id: userId,
+      name: "Test User",
+      email: "test@example.com",
+    };
 
-      const result = await userService.getProfile(mockUser._id);
+    it("should fetch user profile successfully", async () => {
+      mockSelect.mockResolvedValue(mockUserProfile);
 
-      expect(User.findById).toHaveBeenCalledWith(mockUser._id);
-      expect(result).toEqual(mockUser);
+      const result = await userService.getProfile(userId);
+
+      expect(MockedUser.findById).toHaveBeenCalledWith(userId);
+      expect(mockSelect).toHaveBeenCalledWith("-password");
+      expect(result).toEqual(mockUserProfile);
     });
 
-    it("should throw error when user is not found", async () => {
-      // Mock mongoose findById method to return null
-      jest.spyOn(User, "findById").mockResolvedValue(null);
+    it("should throw an error if user is not found", async () => {
+      mockSelect.mockResolvedValue(null);
 
-      await expect(userService.getProfile(mockUser._id)).rejects.toThrow(
-        "User not found",
+      await expect(userService.getProfile(userId)).rejects.toThrow(
+        "Failed to fetch user profile: User not found"
       );
+      expect(MockedUser.findById).toHaveBeenCalledWith(userId);
+      expect(mockSelect).toHaveBeenCalledWith("-password");
     });
 
-    it("should handle database errors", async () => {
-      // Mock mongoose findById method to throw an error
-      jest
-        .spyOn(User, "findById")
-        .mockRejectedValue(new Error("Database error"));
+    it("should throw an error if findById/select fails", async () => {
+      const error = new Error("Database error");
+      mockSelect.mockRejectedValue(error);
 
-      await expect(userService.getProfile(mockUser._id)).rejects.toThrow(
-        "Failed to fetch user profile",
+      await expect(userService.getProfile(userId)).rejects.toThrow(
+        `Failed to fetch user profile: ${error.message}`
+      );
+      expect(MockedUser.findById).toHaveBeenCalledWith(userId);
+      expect(mockSelect).toHaveBeenCalledWith("-password");
+    });
+
+    it("should throw an error if fetching fails with non-Error object", async () => {
+      const error = "Database find failed string";
+      mockSelect.mockRejectedValue(error);
+
+      await expect(userService.getProfile(userId)).rejects.toThrow(
+        `Failed to fetch user profile: ${error}`
       );
     });
   });
 
   describe("updateProfile", () => {
-    it("should successfully update user profile", async () => {
-      const updateData = { name: "Updated Name", phone: "0987654321" };
+    const userId = "user123";
+    const updateData: RequireAtLeastOne<Omit<TUser, "_id">> = {
+      name: "Updated Name",
+      phone: "1234567890",
+    };
+    const updateDataWithDisallowed = {
+      name: "Updated Name Again",
+      phone: "9876543210",
+      email: "new@example.com",
+      password: "newpassword",
+      role: "admin",
+      status: "inactive",
+    };
+    const allowedUpdates = { name: "Updated Name Again", phone: "9876543210" };
+    const mockUpdatedUser = {
+      _id: userId,
+      name: updateData.name,
+      phone: updateData.phone,
+    };
 
-      // Create a mock updated user
-      const updatedUser = { ...mockUser.toObject(), ...updateData };
+    it("should update user profile successfully with allowed fields", async () => {
+      mockSelect.mockResolvedValue(mockUpdatedUser);
 
-      // Mock mongoose findByIdAndUpdate method
-      jest.spyOn(User, "findByIdAndUpdate").mockResolvedValue(updatedUser);
+      const result = await userService.updateProfile(userId, updateData);
 
-      const result = await userService.updateProfile(mockUser._id, updateData);
-
-      expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
-        mockUser._id,
-        { name: "Updated Name", phone: "0987654321" },
-        { new: true },
+      expect(MockedUser.findByIdAndUpdate).toHaveBeenCalledWith(
+        userId,
+        updateData,
+        { new: true }
       );
-      expect(result).toEqual(updatedUser);
+      expect(mockSelect).toHaveBeenCalledWith("-password");
+      expect(result).toEqual(mockUpdatedUser);
     });
 
-    it("should exclude sensitive fields from update", async () => {
-      const updateData = {
-        name: "Updated Name",
-        email: "newemail@example.com",
-        password: "newpassword",
-        role: "admin",
-      };
+    it("should update user profile successfully ignoring disallowed fields", async () => {
+      const expectedResult = { _id: userId, ...allowedUpdates };
+      mockSelect.mockResolvedValue(expectedResult);
 
-      // Create a mock updated user
-      const updatedUser = { ...mockUser.toObject(), name: "Updated Name" };
-
-      // Mock mongoose findByIdAndUpdate method
-      jest.spyOn(User, "findByIdAndUpdate").mockResolvedValue(updatedUser);
-
-      const result = await userService.updateProfile(mockUser._id, updateData);
-
-      expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
-        mockUser._id,
-        { name: "Updated Name" },
-        { new: true },
+      const result = await userService.updateProfile(
+        userId,
+        updateDataWithDisallowed
       );
-      expect(result).toEqual(updatedUser);
+
+      expect(MockedUser.findByIdAndUpdate).toHaveBeenCalledWith(
+        userId,
+        allowedUpdates,
+        { new: true }
+      );
+      expect(mockSelect).toHaveBeenCalledWith("-password");
+      expect(result).toEqual(expectedResult);
     });
 
-    it("should throw error when user is not found during update", async () => {
-      // Mock mongoose findByIdAndUpdate method to return null
-      jest.spyOn(User, "findByIdAndUpdate").mockResolvedValue(null);
+    it("should throw an error if user to update is not found", async () => {
+      mockSelect.mockResolvedValue(null);
 
       await expect(
-        userService.updateProfile(mockUser._id, { name: "Updated Name" }),
-      ).rejects.toThrow("User not found");
+        userService.updateProfile(userId, updateData)
+      ).rejects.toThrow("Failed to update user profile: User not found");
+      expect(MockedUser.findByIdAndUpdate).toHaveBeenCalledWith(
+        userId,
+        updateData,
+        { new: true }
+      );
+      expect(mockSelect).toHaveBeenCalledWith("-password");
+    });
+
+    it("should throw an error if findByIdAndUpdate/select fails", async () => {
+      const error = new Error("Database update error");
+      mockSelect.mockRejectedValue(error);
+
+      await expect(
+        userService.updateProfile(userId, updateData)
+      ).rejects.toThrow(`Failed to update user profile: ${error.message}`);
+      expect(MockedUser.findByIdAndUpdate).toHaveBeenCalledWith(
+        userId,
+        updateData,
+        { new: true }
+      );
+      expect(mockSelect).toHaveBeenCalledWith("-password");
+    });
+
+    it("should throw an error if updating fails with non-Error object", async () => {
+      const error = "Database update failed string";
+      mockSelect.mockRejectedValue(error);
+
+      await expect(
+        userService.updateProfile(userId, updateData)
+      ).rejects.toThrow(`Failed to update user profile: ${error}`);
     });
   });
 });
