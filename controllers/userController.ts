@@ -1,6 +1,6 @@
 import type { Request, Response, RequestParamHandler } from "express";
-import { AuthServiceFactory } from "../services/auth/AuthServiceFactory.ts";
-import { UserService } from "../services/UserService.ts";
+import { AuthServiceFactory } from "../services/auth/AuthServiceFactory";
+import { UserService } from "../services/UserService";
 
 export const registerUser = async (
   req: Request,

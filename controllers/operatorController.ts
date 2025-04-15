@@ -1,7 +1,7 @@
 import type { Request, Response, RequestParamHandler } from "express";
 
-import { AuthServiceFactory } from "../services/auth/AuthServiceFactory.ts";
-import OperatorService from "../services/OperatorService.ts";
+import { AuthServiceFactory } from "../services/auth/AuthServiceFactory";
+import OperatorService from "../services/OperatorService";
 
 const operatorService = new OperatorService();
 

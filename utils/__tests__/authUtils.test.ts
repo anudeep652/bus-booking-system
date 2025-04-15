@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Types } from "mongoose";
-import { hashPassword, comparePassword, signJwt } from "../authUtils.ts";
+import { hashPassword, comparePassword, signJwt } from "../authUtils";
 
 jest.mock("bcryptjs");
 jest.mock("jsonwebtoken");

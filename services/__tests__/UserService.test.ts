@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { UserService } from "../UserService.ts";
-import { User } from "../../models/userSchema.ts";
-import type { RequireAtLeastOne, User as TUser } from "../../types/index.ts";
+import { UserService } from "../UserService";
+import { User } from "../../models/userSchema";
+import type { RequireAtLeastOne, User as TUser } from "../../types/index";
 
 jest.mock("../../models/userSchema");
 

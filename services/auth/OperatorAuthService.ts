@@ -1,6 +1,6 @@
-import { BaseAuthService } from "./BaseAuthService.ts";
-import { Operator } from "../../models/operatorSchema.ts";
-import type { TAuthData } from "../../types/index.ts";
+import { BaseAuthService } from "./BaseAuthService";
+import { Operator } from "../../models/operatorSchema";
+import type { TAuthData } from "../../types/index";
 
 export class OperatorAuthService extends BaseAuthService {
   constructor() {

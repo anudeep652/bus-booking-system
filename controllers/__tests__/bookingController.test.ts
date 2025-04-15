@@ -4,7 +4,7 @@ const mockGetBookingHistory = jest.fn();
 const mockCreateBooking = jest.fn();
 const mockCancelBooking = jest.fn();
 
-jest.mock("../../services/BookingService.ts", () => {
+jest.mock("../../services/BookingService", () => {
   return {
     BookingService: jest.fn().mockImplementation(() => {
       return {
@@ -35,7 +35,7 @@ import {
   getBookingHistory,
   createBooking,
   cancelBooking,
-} from "../../controllers/bookingController.ts";
+} from "../../controllers/bookingController";
 
 describe("Booking Controller", () => {
   let req: Request;

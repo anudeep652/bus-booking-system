@@ -1,9 +1,9 @@
 // @ts-nocheck
-import { BookingService } from "../BookingService.ts";
-import { User, Trip, Booking } from "../../models/index.ts";
+import { BookingService } from "../BookingService";
+import { User, Trip, Booking } from "../../models/index";
 
-jest.mock("../../models/bookingSchema.ts");
-jest.mock("../../models/index.ts");
+jest.mock("../../models/bookingSchema");
+jest.mock("../../models/index");
 
 describe("BookingService", () => {
   let bookingService: BookingService;

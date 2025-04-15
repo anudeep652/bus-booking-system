@@ -4,8 +4,8 @@ import {
   updateBus,
   deleteBus,
   getBusesByOperator,
-} from "../../controllers/busController.ts";
-import { BusService } from "../../services/BusService.ts";
+} from "../../controllers/busController";
+import { BusService } from "../../services/BusService";
 
 jest.mock("../../services/BusService");
 

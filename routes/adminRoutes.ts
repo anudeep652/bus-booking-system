@@ -1,6 +1,6 @@
 import express from "express";
-import  * as adminController  from "../controllers/adminController.ts";
-import { isAdmin, isAuthenticated } from "../middleware/authMiddleware.ts";
+import * as adminController from "../controllers/adminController";
+import { isAdmin, isAuthenticated } from "../middleware/authMiddleware";
 
 const adminRouter = express.Router();
 
@@ -16,12 +16,17 @@ adminRouter.get("/operators", adminController.listOperators);
 
 adminRouter.put("/users/:id/status", adminController.changeUserStatus);
 
-adminRouter.put("/operators/:id/change-verification", adminController.changeOperatorVerificationStatus);
+adminRouter.put(
+  "/operators/:id/change-verification",
+  adminController.changeOperatorVerificationStatus
+);
 
 adminRouter.get("/trips", adminController.getAllTrips);
 
 adminRouter.get("/reports", adminController.getReports);
 
-adminRouter.put("/trips/:id/cancel", (req, res) => adminController.changeTripStatus(req, res, "cancelled"));
+adminRouter.put("/trips/:id/cancel", (req, res) =>
+  adminController.changeTripStatus(req, res, "cancelled")
+);
 
 export default adminRouter;

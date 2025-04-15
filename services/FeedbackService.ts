@@ -1,4 +1,4 @@
-import { Feedback } from "../models/index.ts";
+import { Feedback } from "../models/index";
 import mongoose from "mongoose";
 
 export class FeedbackService {

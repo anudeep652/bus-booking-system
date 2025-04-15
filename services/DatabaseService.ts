@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
-import { logger } from "./LoggingService.ts";
+import { logger } from "./LoggingService";
 import dotenv from "dotenv";
-dotenv.config();
+import path from "path";
+
+dotenv.config({ path: path.join(path.resolve(), "./.env.development") });
 
 export class DatabaseService {
   private uri: string = process.env.MONGO_URI || "";

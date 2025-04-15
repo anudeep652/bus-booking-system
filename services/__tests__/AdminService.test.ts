@@ -1,12 +1,12 @@
 // @ts-nocheck
-import { AdminService } from "../AdminService.ts";
-import { Trip, User, Operator } from "../../models/index.ts";
+import { AdminService } from "../AdminService";
+import { Trip, User, Operator } from "../../models/index";
 import type {
   User as TUser,
   Operator as TOperator,
   OperatorStatus,
   TripStatus,
-} from "../../types/index.ts";
+} from "../../types/index";
 
 jest.mock("../../models/userSchema");
 jest.mock("../../models/operatorSchema");

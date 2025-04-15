@@ -1,4 +1,4 @@
-import { Trip } from "../models/index.ts";
+import { Trip } from "../models/index";
 
 class TripService {
   async getAllTrips(

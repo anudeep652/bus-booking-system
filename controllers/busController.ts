@@ -1,5 +1,5 @@
 import type { Request, Response, RequestParamHandler } from "express";
-import { BusService } from "../services/BusService.ts";
+import { BusService } from "../services/BusService";
 
 const busService = new BusService();
 

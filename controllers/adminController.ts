@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { AdminService } from "../services/AdminService.ts";
+import { AdminService } from "../services/AdminService";
 import type { TripStatus } from "../types/trip.ts";
-import { AuthServiceFactory } from "../services/auth/AuthServiceFactory.ts";
+import { AuthServiceFactory } from "../services/auth/AuthServiceFactory";
 
 const adminService = new AdminService();
 

@@ -1,5 +1,5 @@
-import { User } from "../models/userSchema.ts";
-import type { RequireAtLeastOne, User as TUser } from "../types/index.ts";
+import { User } from "../models/userSchema";
+import type { RequireAtLeastOne, User as TUser } from "../types/index";
 
 export class UserService {
   async getProfile(userId: string) {

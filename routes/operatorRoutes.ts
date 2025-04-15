@@ -6,17 +6,16 @@ import {
   updateTrip,
   cancelTrip,
   viewOperatorBookings,
-} from "../controllers/operatorController.ts";
-import { isAuthenticated } from "../middleware/authMiddleware.ts";
+} from "../controllers/operatorController";
+import { isAuthenticated } from "../middleware/authMiddleware";
 
 const operatorRouter = express.Router();
-
 
 operatorRouter.post("/register", registerOperator);
 
 operatorRouter.post("/login", loginOperator);
 
-operatorRouter.use(isAuthenticated)
+operatorRouter.use(isAuthenticated);
 operatorRouter.post("/api/trips", createTrip);
 
 operatorRouter.put("/api/trips/:id", updateTrip);

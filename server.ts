@@ -4,22 +4,20 @@ import dotenv from "dotenv";
 //@ts-ignore
 import expressSanitizer from "express-sanitizer";
 import path from "path";
-import { marked } from "marked";
 import fs from "fs";
+import userRoutes from "./routes/userRoutes";
+import operatorRoutes from "./routes/operatorRoutes";
+import busRoutes from "./routes/busRoutes";
+import adminRoutes from "./routes/adminRoutes";
+import bookingRoutes from "./routes/bookingRoutes";
+import feedbackRoutes from "./routes/feedbackRoutes";
 
-import userRoutes from "./routes/userRoutes.ts";
-import operatorRoutes from "./routes/operatorRoutes.ts";
-import busRoutes from "./routes/busRoutes.ts";
-import adminRoutes from "./routes/adminRoutes.ts";
-import bookingRoutes from "./routes/bookingRoutes.ts";
-import feedbackRoutes from "./routes/feedbackRoutes.ts";
-
-import { logger } from "./services/LoggingService.ts";
-import { database } from "./services/DatabaseService.ts";
+import { logger } from "./services/LoggingService";
+import { database } from "./services/DatabaseService";
 
 import { rateLimit } from "express-rate-limit";
 
-dotenv.config();
+dotenv.config({ path: path.join(path.resolve(), "./.env.development") });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -63,6 +61,7 @@ if (
   process.env.NODE_ENV === "development" &&
   process.env.SERVE_DOCS === "true"
 ) {
+  const marked = require("marked");
   app.get("/api/v1/docs/:path*", async (req: Request, res: Response) => {
     console.log(req.params);
     const docPath = path.join(

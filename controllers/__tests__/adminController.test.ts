@@ -7,7 +7,7 @@ const mockGetAllTrips = jest.fn();
 const mockChangeTripStatus = jest.fn();
 const mockGetReports = jest.fn();
 
-jest.mock("../../services/auth/AuthServiceFactory.ts", () => {
+jest.mock("../../services/auth/AuthServiceFactory", () => {
   return {
     AuthServiceFactory: {
       createAuthService: jest.fn().mockImplementation((role: string) => {
@@ -23,7 +23,7 @@ jest.mock("../../services/auth/AuthServiceFactory.ts", () => {
   };
 });
 
-jest.mock("../../services/AdminService.ts", () => {
+jest.mock("../../services/AdminService", () => {
   return {
     AdminService: jest.fn().mockImplementation(() => {
       return {
@@ -49,10 +49,10 @@ import {
   getAllTrips,
   changeTripStatus,
   getReports,
-} from "../adminController.ts";
+} from "../adminController";
 import type { Request, Response } from "express";
-import type { TripStatus } from "../../types/index.ts";
-import { AuthServiceFactory } from "../../services/auth/AuthServiceFactory.ts";
+import type { TripStatus } from "../../types/index";
+import { AuthServiceFactory } from "../../services/auth/AuthServiceFactory";
 
 const mockLogin = jest.fn();
 const mockRegister = jest.fn();

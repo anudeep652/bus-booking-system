@@ -1,6 +1,6 @@
-import { BaseAuthService } from "./BaseAuthService.ts";
-import { User } from "../../models/userSchema.ts";
-import type { TAuthData } from "../../types/index.ts";
+import { BaseAuthService } from "./BaseAuthService";
+import { User } from "../../models/userSchema";
+import type { TAuthData } from "../../types/index";
 
 export class UserAuthService extends BaseAuthService {
   constructor(role: "user" | "admin" = "user") {

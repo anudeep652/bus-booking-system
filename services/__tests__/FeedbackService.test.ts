@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { FeedbackService } from "../../services/FeedbackService.ts";
-import { Feedback } from "../../models/feedbackSchema.ts";
+import { FeedbackService } from "../../services/FeedbackService";
+import { Feedback } from "../../models/feedbackSchema";
 import mongoose from "mongoose";
 
 jest.mock("../../models/feedbackSchema");

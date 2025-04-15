@@ -1,4 +1,4 @@
-import { Trip, Booking } from "../models/index.ts";
+import { Trip, Booking } from "../models/index";
 
 class OperatorService {
   /**

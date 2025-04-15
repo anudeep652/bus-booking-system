@@ -1,13 +1,5 @@
-import type {
-  IAuthService,
-  TAuthResult,
-  TAuthData,
-} from "../../types/index.ts";
-import {
-  comparePassword,
-  hashPassword,
-  signJwt,
-} from "../../utils/authUtils.ts";
+import type { IAuthService, TAuthResult, TAuthData } from "../../types/index";
+import { comparePassword, hashPassword, signJwt } from "../../utils/authUtils";
 import { Model } from "mongoose";
 
 export abstract class BaseAuthService implements IAuthService {

@@ -1,6 +1,6 @@
-import { OperatorAuthService } from "../OperatorAuthService.ts";
-import { Operator } from "../../../models/operatorSchema.ts";
-import * as authUtils from "../../../utils/authUtils.ts";
+import { OperatorAuthService } from "../OperatorAuthService";
+import { Operator } from "../../../models/operatorSchema";
+import * as authUtils from "../../../utils/authUtils";
 
 jest.mock("../../../models/operatorSchema");
 jest.mock("../../../utils/authUtils");

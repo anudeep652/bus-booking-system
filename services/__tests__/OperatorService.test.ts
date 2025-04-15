@@ -1,6 +1,6 @@
 // @ts-nocheck
-import OperatorService from "../../services/OperatorService.ts";
-import { Trip, Booking } from "../../models/index.ts";
+import OperatorService from "../../services/OperatorService";
+import { Trip, Booking } from "../../models/index";
 
 jest.mock("../../models/index", () => ({
   Trip: {

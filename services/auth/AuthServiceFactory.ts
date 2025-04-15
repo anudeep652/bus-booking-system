@@ -1,6 +1,6 @@
-import type { IAuthService } from "../../types/index.ts";
-import { UserAuthService } from "./UserAuthService.ts";
-import { OperatorAuthService } from "./OperatorAuthService.ts";
+import type { IAuthService } from "../../types/index";
+import { UserAuthService } from "./UserAuthService";
+import { OperatorAuthService } from "./OperatorAuthService";
 
 export class AuthServiceFactory {
   static createAuthService(type: "user" | "operator" | "admin"): IAuthService {

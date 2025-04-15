@@ -4,8 +4,8 @@ import {
   registerUser,
   getProfile,
   updateProfile,
-} from "../controllers/userController.ts";
-import { isAuthenticated } from "../middleware/authMiddleware.ts";
+} from "../controllers/userController";
+import { isAuthenticated } from "../middleware/authMiddleware";
 
 const userRouter = express.Router();
 

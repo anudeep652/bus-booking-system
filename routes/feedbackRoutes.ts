@@ -3,8 +3,8 @@ import {
   submitFeedback,
   getTripFeedback,
   getUserFeedback,
-} from "../controllers/feedbackContoller.ts";
-import { isAuthenticated } from "../middleware/authMiddleware.ts";
+} from "../controllers/feedbackContoller";
+import { isAuthenticated } from "../middleware/authMiddleware";
 
 const feedbackRouter = express.Router();
 

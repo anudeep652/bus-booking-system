@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { Request, Response } from "express";
-import { AuthServiceFactory } from "../../services/auth/AuthServiceFactory.ts";
-import { UserService } from "../../services/UserService.ts";
+import { AuthServiceFactory } from "../../services/auth/AuthServiceFactory";
+import { UserService } from "../../services/UserService";
 import {
   registerUser,
   loginUser,
   getProfile,
   updateProfile,
-} from "../userController.ts";
+} from "../userController";
 
 jest.mock("../../services/auth/AuthServiceFactory");
 

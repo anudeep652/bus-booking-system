@@ -1,8 +1,8 @@
-import { BusService } from "../BusService.ts";
-import { Bus } from "../../models/busSchema.ts";
-import type { RequireAtLeastOne, TBus } from "../../types/index.ts";
+import { BusService } from "../BusService";
+import { Bus } from "../../models/busSchema";
+import type { RequireAtLeastOne, TBus } from "../../types/index";
 
-jest.mock("../../models/busSchema.ts");
+jest.mock("../../models/busSchema");
 
 const mockBusCreate = Bus.create as jest.Mock;
 const mockBusFindByIdAndUpdate = Bus.findByIdAndUpdate as jest.Mock;

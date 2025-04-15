@@ -1,10 +1,10 @@
-import { Trip, User, Operator } from "../models/index.ts";
+import { Trip, User, Operator } from "../models/index";
 import type {
   OperatorStatus,
   Operator as TOperator,
   TripStatus,
   User as TUser,
-} from "../types/index.ts";
+} from "../types/index";
 
 export class AdminService {
   async getAllTrips(

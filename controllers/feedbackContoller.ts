@@ -1,5 +1,5 @@
 import type { Request, Response, RequestParamHandler } from "express";
-import { FeedbackService } from "../services/FeedbackService.ts";
+import { FeedbackService } from "../services/FeedbackService";
 
 const feedbackService = new FeedbackService();
 

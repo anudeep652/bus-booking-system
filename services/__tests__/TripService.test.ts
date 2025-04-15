@@ -1,5 +1,5 @@
-import tripService from "../../services/TripService.ts";
-import { Trip } from "../../models/tripSchema.ts";
+import tripService from "../../services/TripService";
+import { Trip } from "../../models/tripSchema";
 
 jest.mock("../../models/tripSchema");
 

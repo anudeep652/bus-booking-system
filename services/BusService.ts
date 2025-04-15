@@ -1,5 +1,5 @@
-import { Bus } from "../models/index.ts";
-import type { RequireAtLeastOne, TBus } from "../types/index.ts";
+import { Bus } from "../models/index";
+import type { RequireAtLeastOne, TBus } from "../types/index";
 
 export class BusService {
   async createBus(busData: TBus) {

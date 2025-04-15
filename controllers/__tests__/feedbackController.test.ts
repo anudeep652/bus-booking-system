@@ -4,8 +4,8 @@ import {
   submitFeedback,
   getTripFeedback,
   getUserFeedback,
-} from "../feedbackContoller.ts";
-import { FeedbackService } from "../../services/FeedbackService.ts";
+} from "../feedbackContoller";
+import { FeedbackService } from "../../services/FeedbackService";
 
 jest.mock("../../services/FeedbackService");
 

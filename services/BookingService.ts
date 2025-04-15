@@ -1,4 +1,4 @@
-import { User, Trip, Booking } from "../models/index.ts";
+import { User, Trip, Booking } from "../models/index";
 
 export class BookingService {
   async getBookingHistory(requestedUserId: string) {

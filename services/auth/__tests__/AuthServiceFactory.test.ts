@@ -1,6 +1,6 @@
-import { AuthServiceFactory } from "../AuthServiceFactory.ts";
-import { UserAuthService } from "../UserAuthService.ts";
-import { OperatorAuthService } from "../OperatorAuthService.ts";
+import { AuthServiceFactory } from "../AuthServiceFactory";
+import { UserAuthService } from "../UserAuthService";
+import { OperatorAuthService } from "../OperatorAuthService";
 
 jest.mock("../UserAuthService");
 jest.mock("../OperatorAuthService");

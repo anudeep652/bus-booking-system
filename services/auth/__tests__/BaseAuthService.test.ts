@@ -1,13 +1,13 @@
-import type { TAuthData } from "../../../types/index.ts";
+import type { TAuthData } from "../../../types/index";
 import { Model } from "mongoose";
 import {
   hashPassword,
   comparePassword,
   signJwt,
-} from "../../../utils/authUtils.ts";
-import { BaseAuthService } from "../BaseAuthService.ts";
+} from "../../../utils/authUtils";
+import { BaseAuthService } from "../BaseAuthService";
 
-jest.mock("../../../utils/authUtils.ts", () => ({
+jest.mock("../../../utils/authUtils", () => ({
   hashPassword: jest.fn(),
   comparePassword: jest.fn(),
   signJwt: jest.fn(),

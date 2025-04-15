@@ -31,7 +31,7 @@ import {
   updateTrip,
   cancelTrip,
   viewOperatorBookings,
-} from "../operatorController.ts";
+} from "../operatorController";
 
 describe("Operator Controller", () => {
   let mockRequest: Partial<Request>;
