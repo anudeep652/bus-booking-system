@@ -58,6 +58,15 @@ describe("BookingService", () => {
         "Failed to fetch booking history: Database connection error"
       );
     });
+    test("should handle generic errors properly", async () => {
+      (User.findById as jest.Mock).mockImplementationOnce(() => {
+        throw "Network failure";
+      });
+
+      await expect(
+        bookingService.getBookingHistory(mockUserId)
+      ).rejects.toThrow("Failed to fetch booking history: Network failure");
+    });
   });
 
   describe("createBooking", () => {
@@ -107,12 +116,11 @@ describe("BookingService", () => {
     });
 
     test("should throw error when trip not found", async () => {
-      (User.findById as jest.Mock<typeof User>).mockResolvedValue({
-        _id: mockUserId,
-        name: "user",
-      });
+      jest.clearAllMocks();
 
-      (Trip.findById as jest.Mock<typeof Trip>).mockResolvedValue(null);
+      (User.findById as jest.Mock).mockResolvedValueOnce(mockUser);
+
+      (Trip.findById as jest.Mock).mockResolvedValueOnce(null);
 
       await expect(
         bookingService.createBooking(mockUserId, bookingData)
@@ -134,6 +142,15 @@ describe("BookingService", () => {
       await expect(
         bookingService.createBooking(mockUserId, bookingData)
       ).rejects.toThrow("Failed to create booking: Save failed");
+    });
+    test("should handle generic errors properly", async () => {
+      (User.findById as jest.Mock).mockImplementationOnce(() => {
+        throw "Network failure";
+      });
+
+      await expect(
+        bookingService.createBooking(mockUserId, bookingData)
+      ).rejects.toThrow("Failed to create booking: Network failure");
     });
   });
 
@@ -204,6 +221,15 @@ describe("BookingService", () => {
       await expect(
         bookingService.cancelBooking(mockBookingId, mockUserId)
       ).rejects.toThrow("Failed to cancel booking: Database error");
+    });
+    test("should handle generic errors properly", async () => {
+      (User.findById as jest.Mock).mockImplementationOnce(() => {
+        throw "Network failure";
+      });
+
+      await expect(
+        bookingService.cancelBooking(mockBookingId, mockUserId)
+      ).rejects.toThrow("Failed to cancel booking: Network failure");
     });
   });
 });
