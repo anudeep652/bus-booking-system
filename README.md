@@ -1,4 +1,4 @@
-# Bus Ticket Booking System
+# Bus Ticket Booking System API
 
 ## Overview
 
