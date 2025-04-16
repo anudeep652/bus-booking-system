@@ -118,7 +118,7 @@ describe("BookingService", () => {
     test("should throw error when trip not found", async () => {
       jest.clearAllMocks();
 
-      (User.findById as jest.Mock).mockResolvedValueOnce(mockUser);
+      (User.findById as jest.Mock).mockResolvedValue(mockUser);
 
       (Trip.findById as jest.Mock).mockResolvedValueOnce(null);
 
