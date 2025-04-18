@@ -4,29 +4,43 @@
 
 The **Bus Ticket Booking System** is a web-based application that allows users to book bus tickets, operators to manage their trips, and admins to oversee the platform. This system includes authentication, user roles, and multiple functionalities for users, operators, and administrators.
 
-## Usage using Docker
+## Usage using Docker compose
 
 ### for development
 
-build the image
+create a .env.development file
 
-```docker
-docker build -t bus-booking-api-dev -f Dockerfile.dev  .
+```
+MONGO_URI=<MONGO_URI>
+PORT=8000
+JWT_SECRET=<JWT_SECRET>
+SERVE_DOCS=true
+NODE_ENV=development
 ```
 
-Run the container
+Run the dev container
 
-```docker
-docker run -it --rm \
- -v $(pwd):/app \
- -v /app/node_modules \
- --env-file .env.development \
- --env MONGO_URI=mongodb://host.docker.internal:27017/bus-booking-system \
- -p 8000:8000 \
- bus-booking-api-dev
+```
+docker compose up app_dev
+```
+
+remove the dev container and db
+
+```
+docker compose down app_dev mongo
 ```
 
 ### for production
+
+create a .env.production file
+
+```
+MONGO_URI=<MONGO_URI>
+PORT=8000
+JWT_SECRET=<JWT_SECRET>
+SERVE_DOCSfalse
+NODE_ENV=production
+```
 
 build the project
 
@@ -34,20 +48,19 @@ build the project
 yarn build
 ```
 
-build the image
+Run the prod container
 
-```docker
-docker build -t bus-booking-api-prod -f Dockerfile.prod  .
+```
+docker compose up app_prod
 ```
 
-Run the container
+remove the prod container and db
 
-```docker
-docker run -d \
-  --env-file .env.production \
-  -p 8000:8000 \
-  bus-booking-api-prod
 ```
+docker compose down app_prod mongo
+```
+
+> since both `dev` and `prod` containers depends on `mongo`, `mongo` container will start automatically when we start the `dev` or `prod` containers but we have to explicitely remove `mongo` when we removing `dev` or `prod` containers
 
 ## Frontend Modules
 

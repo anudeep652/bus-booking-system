@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  app_dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env.development
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/bus-booking-system
+    depends_on:
+      - mongo
+
+  app_prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.production
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/bus-booking-system
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
