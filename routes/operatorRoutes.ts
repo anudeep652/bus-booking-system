@@ -7,7 +7,7 @@ import {
   cancelTrip,
   viewOperatorBookings,
 } from "../controllers/operatorController";
-import { isAuthenticated } from "../middleware/authMiddleware";
+import { isAuthenticated, isOperator } from "../middleware/authMiddleware";
 
 const operatorRouter = express.Router();
 
@@ -16,12 +16,13 @@ operatorRouter.post("/register", registerOperator);
 operatorRouter.post("/login", loginOperator);
 
 operatorRouter.use(isAuthenticated);
-operatorRouter.post("/api/trips", createTrip);
+operatorRouter.use(isOperator);
+operatorRouter.post("/trips", createTrip);
 
-operatorRouter.put("/api/trips/:id", updateTrip);
+operatorRouter.put("/trips/:id", updateTrip);
 
-operatorRouter.delete("/api/trips/:id", cancelTrip);
+operatorRouter.delete("/trips/:id", cancelTrip);
 
-operatorRouter.get("/api/bookings/operator", viewOperatorBookings);
+operatorRouter.get("/bookings/operator", viewOperatorBookings);
 
 export default operatorRouter;

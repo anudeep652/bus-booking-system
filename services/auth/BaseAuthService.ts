@@ -67,6 +67,14 @@ export abstract class BaseAuthService implements IAuthService {
         };
       }
 
+      if (entity.role !== this.role && this.role !== "operator") {
+        return {
+          success: false,
+          message: `Invalid credentials`,
+          statusCode: 401,
+        };
+      }
+
       const isMatch = await comparePassword(password, entity.password);
       if (!isMatch) {
         return {

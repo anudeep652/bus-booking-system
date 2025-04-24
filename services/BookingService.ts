@@ -1,4 +1,5 @@
 import { User, Trip, Booking } from "../models/index";
+import mongoose from "mongoose";
 
 export class BookingService {
   async getBookingHistory(requestedUserId: string) {
@@ -43,7 +44,10 @@ export class BookingService {
       const newBooking = new Booking({
         user_id: requestedUserId,
         trip_id: bookingData.trip_id,
-        seat_numbers: bookingData.seat_numbers,
+        seats: bookingData.seat_numbers.map((n) => ({
+          seat_number: n,
+          status: "booked",
+        })),
         payment_status: "pending",
         booking_status: "confirmed",
       });
@@ -93,6 +97,57 @@ export class BookingService {
           error instanceof Error ? error.message : error
         }`
       );
+    }
+  }
+
+  async cancelSeats(bookingId: string, seats: [number]) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const booking = await Booking.findById(bookingId).session(session);
+      if (!booking) throw new Error("Booking not found");
+
+      const trip = await Trip.findById(booking.trip_id).session(session);
+      if (!trip) throw new Error("Trip not found");
+
+      let cancelledCount = 0;
+
+      booking.seats.forEach((seat) => {
+        if (seats.includes(seat.seat_number) && seat.status === "booked") {
+          seat.status = "cancelled";
+          cancelledCount++;
+        }
+      });
+
+      if (cancelledCount === 0) {
+        throw new Error("No valid seats to cancel");
+      }
+
+      const remainingActiveSeats = booking.seats.filter(
+        (seat) => seat.status === "booked"
+      ).length;
+
+      if (remainingActiveSeats === 0) {
+        booking.booking_status = "cancelled";
+        booking.payment_status = "refunded";
+      } else {
+        booking.booking_status = "partially_cancelled";
+        booking.payment_status = "partially_refunded";
+      }
+
+      trip.available_seats += cancelledCount;
+
+      await booking.save();
+      await trip.save();
+
+      await session.commitTransaction();
+      return booking;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
   }
 }

@@ -1,9 +1,12 @@
 import type { Request, Response } from "express";
 import { BookingService } from "../services/BookingService";
+import { IRequestWithMiddlewareUser } from "../types";
 
 const bookingService = new BookingService();
-
-export const getBookingHistory = async (req: Request, res: Response) => {
+export const getBookingHistory = async (
+  req: IRequestWithMiddlewareUser,
+  res: Response
+) => {
   try {
     const { id: requestedUserId } = req.params;
 
@@ -25,9 +28,12 @@ export const getBookingHistory = async (req: Request, res: Response) => {
   }
 };
 
-export const createBooking = async (req: Request, res: Response) => {
+export const createBooking = async (
+  req: IRequestWithMiddlewareUser,
+  res: Response
+) => {
   try {
-    const { id: requestedUserId } = req.params;
+    const { userId: requestedUserId } = req.user;
 
     const { trip_id, seat_numbers } = req.body;
 
@@ -52,7 +58,10 @@ export const createBooking = async (req: Request, res: Response) => {
   }
 };
 
-export const cancelBooking = async (req: Request, res: Response) => {
+export const cancelBooking = async (
+  req: IRequestWithMiddlewareUser,
+  res: Response
+) => {
   try {
     const { id: requestedUserId } = req.params;
 
@@ -66,6 +75,33 @@ export const cancelBooking = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       data: cancelledBooking,
+    });
+  } catch (error) {
+    console.error("Booking cancellation error:", error);
+    res.status(400).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to cancel booking, Unknown error occured: " + error,
+    });
+  }
+};
+
+export const cancelSeats = async (
+  req: IRequestWithMiddlewareUser,
+  res: Response
+) => {
+  try {
+    const { seat_numbers, bookingId } = req.body;
+
+    const cancelSeat = await bookingService.cancelSeats(
+      bookingId,
+      seat_numbers
+    );
+    res.status(200).json({
+      success: true,
+      data: cancelSeat,
     });
   } catch (error) {
     console.error("Booking cancellation error:", error);

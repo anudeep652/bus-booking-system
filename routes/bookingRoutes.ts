@@ -1,3 +1,4 @@
+// @ts-nocheck
 import express from "express";
 import * as bookingController from "../controllers/bookingController";
 import { isAuthenticated } from "../middleware/authMiddleware";
@@ -8,11 +9,13 @@ bookingRouter.use(isAuthenticated);
 
 bookingRouter.get("/:id/history", bookingController.getBookingHistory);
 
-bookingRouter.post("/:id/book", bookingController.createBooking);
+bookingRouter.post("/book", bookingController.createBooking);
 
 bookingRouter.delete(
   "/:id/bookings/:bookingId",
   bookingController.cancelBooking
 );
+
+bookingRouter.put("/cancel-seats", bookingController.cancelSeats);
 
 export default bookingRouter;

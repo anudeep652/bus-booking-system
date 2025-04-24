@@ -45,7 +45,7 @@ class TripService {
         tripId,
         {
           status: "cancelled",
-          available_seats: 0, // Ensure no more bookings can be made
+          available_seats: 0,
         },
         { new: true }
       );
