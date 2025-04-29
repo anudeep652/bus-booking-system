@@ -1,6 +1,6 @@
 import { Trip } from "../models/index";
 
-class TripService {
+export class TripService {
   async getAllTrips(
     page: number = 1,
     limit: number = 10
@@ -90,6 +90,7 @@ class TripService {
     endDate?: Date;
   }): Promise<any[]> {
     try {
+      console.log("this is the filters: ", filters);
       const query: any = {};
 
       if (filters.source) {
@@ -112,7 +113,11 @@ class TripService {
         if (filters.endDate) query.departure_time.$lte = filters.endDate;
       }
 
-      return await Trip.find(query).populate("bus_id", "bus_number bus_type");
+      const trips = await Trip.find(query).populate(
+        "bus_id",
+        "bus_number bus_type"
+      );
+      return [trips];
     } catch (error) {
       throw new Error(
         `Error filtering trips: ${
@@ -122,5 +127,3 @@ class TripService {
     }
   }
 }
-
-export default new TripService();
