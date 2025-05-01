@@ -38,6 +38,8 @@ export abstract class BaseAuthService implements IAuthService {
         message: `${this.role} registered successfully`,
         token,
         statusCode: 201,
+        name: entity.name,
+        id: entity._id,
       };
     } catch (error) {
       return {
@@ -91,6 +93,8 @@ export abstract class BaseAuthService implements IAuthService {
         message: "Login successful",
         token,
         statusCode: 200,
+        name: entity.name,
+        id: entity._id,
       };
     } catch (error) {
       return {

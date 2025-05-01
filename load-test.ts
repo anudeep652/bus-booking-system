@@ -60,7 +60,7 @@ export function testLoginUser() {
 
 export function testSeatBooking() {
   const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDhmNDA2Yjk4NDhiMGI1YzRhNWZhNCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1OTM1MTQ0LCJleHAiOjE3NDYwMjE1NDR9.AhuxLa4rRs49OpAI8u8zvOVTrOviB8nakQ5xsKGWfjA";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDhmNDA2Yjk4NDhiMGI1YzRhNWZhNCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ2MDIxNzU2LCJleHAiOjE3NDYxMDgxNTZ9.oiFMULSBzXy4GhTG3YvGyFOFZFOyEJgHYSzmHzHw8YY";
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
@@ -82,7 +82,7 @@ export function testSeatBooking() {
 
 export function testTripSearching() {
   const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDhmNDA2Yjk4NDhiMGI1YzRhNWZhNCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1OTM1MTQ0LCJleHAiOjE3NDYwMjE1NDR9.AhuxLa4rRs49OpAI8u8zvOVTrOviB8nakQ5xsKGWfjA";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDhmNDA2Yjk4NDhiMGI1YzRhNWZhNCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ2MDIxNzU2LCJleHAiOjE3NDYxMDgxNTZ9.oiFMULSBzXy4GhTG3YvGyFOFZFOyEJgHYSzmHzHw8YY";
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",

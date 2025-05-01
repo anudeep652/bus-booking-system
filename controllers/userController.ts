@@ -11,6 +11,11 @@ export const registerUser = async (
   return res.status(result.statusCode).json({
     message: result.message,
     token: result.token,
+    user: {
+      name: result.name,
+      id: result.id,
+      email: req.body.email,
+    },
   });
 };
 
@@ -22,6 +27,11 @@ export const loginUser = async (
   const { email, password } = req.body;
   const result = await authService.login(email, password);
   return res.status(result.statusCode).json({
+    user: {
+      name: result.name,
+      id: result.id,
+      email: email,
+    },
     message: result.message,
     token: result.token,
   });

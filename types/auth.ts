@@ -3,6 +3,8 @@ export type TAuthResult = {
   message: string;
   token?: string;
   statusCode: number;
+  name?: string;
+  id?: string;
 };
 
 export type TAuthData = {

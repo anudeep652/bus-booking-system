@@ -117,7 +117,7 @@ export class TripService {
         "bus_id",
         "bus_number bus_type"
       );
-      return [trips];
+      return trips;
     } catch (error) {
       throw new Error(
         `Error filtering trips: ${
