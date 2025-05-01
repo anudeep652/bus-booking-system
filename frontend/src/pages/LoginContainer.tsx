@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import {
   selectIsAuthenticated,
   selectAuthError,
+  selectAuthLoading,
 } from "../features/auth/authSlice";
 import { loginUser } from "../features/auth/authServices";
 import { TLoginError, TUserRole } from "../types/index";
@@ -67,9 +68,11 @@ const loginReducer = (
 export default function LoginContainer() {
   const [state, dispatchReducer] = useReducer(loginReducer, initialLoginState);
   const [_login, { isLoading }] = useLoginMutation();
+  console.log("isLoading", isLoading);
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const authError = useAppSelector(selectAuthError);
+  const loading = useAppSelector(selectAuthLoading);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -150,7 +153,7 @@ export default function LoginContainer() {
             error={state.errors.password}
             disabled={isLoading}
           />
-          <Button onClick={() => {}} type="submit" isLoading={isLoading}>
+          <Button onClick={() => {}} type="submit" isLoading={loading}>
             {isLoading ? "Signing In..." : "Sign In"}
           </Button>
         </form>

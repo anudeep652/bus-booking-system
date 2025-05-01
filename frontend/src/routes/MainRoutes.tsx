@@ -4,8 +4,10 @@ import AuthRoutes from "./AuthRoutes";
 import ProtectedRoute from "../components/auth/ProtectedRoutes";
 import { useAppSelector } from "../app/hooks";
 import { selectIsAuthenticated, selectRole } from "../features/auth/authSlice";
+import Home from "../pages/Home";
+import BusSearchResults from "../pages/BusSearchResults";
 
-const Dashboard = () => <div>Dashboard</div>;
+const Dashboard = () => <Home />;
 const UserBookings = () => <div>User Bookings</div>;
 const AdminPanel = () => <div>Admin Panel</div>;
 const OperatorPanel = () => <div>Operator Panel</div>;
@@ -15,6 +17,7 @@ const MainRoutes: React.FC = () => {
   const role = useAppSelector(selectRole);
 
   const getDashboardPath = () => {
+    console.log("Role:", role);
     switch (role) {
       case "admin":
         console.log("Admin role detected");
@@ -45,6 +48,7 @@ const MainRoutes: React.FC = () => {
       <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/bookings" element={<UserBookings />} />
+        <Route path="/bus/search" element={<BusSearchResults />} />
       </Route>
 
       {/* User specific routes */}

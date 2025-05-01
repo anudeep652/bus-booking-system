@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { authApi, LoginRequest, RegisterRequest } from "./authApi";
+import { authApi } from "./authApi";
 import {
   loginSuccess,
   logout,
@@ -8,10 +8,11 @@ import {
   setLoading,
 } from "./authSlice";
 import { store } from "../../app/store";
+import { TLoginRequest, TRegisterRequest } from "../../types";
 
 export const loginUser = createAsyncThunk(
   "auth/login",
-  async (credentials: LoginRequest, { dispatch, rejectWithValue }) => {
+  async (credentials: TLoginRequest, { dispatch, rejectWithValue }) => {
     try {
       dispatch(setLoading(true));
       const result = await store
@@ -20,12 +21,7 @@ export const loginUser = createAsyncThunk(
 
       dispatch(
         loginSuccess({
-          user: {
-            email: "",
-            id: "",
-            name: "Anudeep",
-            phone: "2739",
-          },
+          user: result.user,
           role: credentials.role,
           token: result.token,
         })
@@ -47,7 +43,7 @@ export const loginUser = createAsyncThunk(
 
 export const registerUser = createAsyncThunk(
   "auth/register",
-  async (userData: RegisterRequest, { dispatch, rejectWithValue }) => {
+  async (userData: TRegisterRequest, { dispatch, rejectWithValue }) => {
     try {
       dispatch(setLoading(true));
       let result = await store

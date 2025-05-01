@@ -18,7 +18,7 @@ function App() {
   // );
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && window.location.pathname !== "/register") {
       dispatch(logout());
       navigate("/login");
     }

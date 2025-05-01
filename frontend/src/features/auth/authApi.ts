@@ -1,28 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { UserData } from "./authSlice";
-import { TUserRole } from "../../types";
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-  role: TUserRole;
-}
-
-export interface RegisterRequest {
-  name: string;
-  email: string;
-  phone: string;
-  password: string;
-  role: TUserRole;
-  adminCode?: string;
-  employeeId?: string;
-}
-
-export interface AuthResponse {
-  user: UserData;
-  token: string;
-  message?: string;
-}
+import {
+  TAuthResponse,
+  TLoginRequest,
+  TRegisterRequest,
+  TUserData,
+} from "../../types";
 
 export const authApi = createApi({
   reducerPath: "authApi",
@@ -39,7 +21,7 @@ export const authApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    login: builder.mutation<AuthResponse, LoginRequest>({
+    login: builder.mutation<TAuthResponse, TLoginRequest>({
       query: (credentials) => ({
         url: `/${credentials.role}/login`,
         method: "POST",
@@ -47,7 +29,7 @@ export const authApi = createApi({
       }),
     }),
 
-    register: builder.mutation<AuthResponse, RegisterRequest>({
+    register: builder.mutation<TAuthResponse, TRegisterRequest>({
       query: (userData) => ({
         url: `/${userData.role}/register`,
         method: "POST",
@@ -55,13 +37,13 @@ export const authApi = createApi({
       }),
     }),
 
-    getCurrentUser: builder.query<UserData, void>({
-      query: () => "/auth/me",
+    getCurrentUser: builder.query<TUserData, void>({
+      query: () => "/me",
     }),
 
     logout: builder.mutation<{ success: boolean }, void>({
       query: () => ({
-        url: "/auth/logout",
+        url: "/logout",
         method: "POST",
       }),
     }),

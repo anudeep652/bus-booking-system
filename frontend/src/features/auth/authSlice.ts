@@ -1,37 +1,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
-import { TUserRole } from "../../types";
+import { TAuthState, TLoginSuccessPayload, TUserRole } from "../../types";
 
-export interface UserData {
-  id: string;
-  name?: string;
-  email: string;
-  phone?: string;
-}
-
-export interface AuthState {
-  user: UserData | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-  role: TUserRole | null;
-}
-
-const initialState: AuthState = {
-  user: null,
+const initialState: TAuthState = {
+  user: localStorage.getItem("user")
+    ? (JSON.parse(localStorage.getItem("user") as string) as TAuthState["user"])
+    : null,
   token: localStorage.getItem("token"),
   isAuthenticated: !!localStorage.getItem("token"),
   isLoading: false,
   error: null,
   role: localStorage.getItem("role") as TUserRole | null,
 };
-
-interface LoginSuccessPayload {
-  user: UserData;
-  token: string;
-  role: TUserRole;
-}
 
 export const authSlice = createSlice({
   name: "auth",
@@ -45,7 +25,7 @@ export const authSlice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
-    loginSuccess: (state, action: PayloadAction<LoginSuccessPayload>) => {
+    loginSuccess: (state, action: PayloadAction<TLoginSuccessPayload>) => {
       state.isAuthenticated = true;
       state.user = action.payload.user;
       state.token = action.payload.token;
@@ -56,7 +36,7 @@ export const authSlice = createSlice({
       localStorage.setItem("user", JSON.stringify(action.payload.user));
       localStorage.setItem("role", action.payload.role);
     },
-    registerSuccess: (state, action: PayloadAction<LoginSuccessPayload>) => {
+    registerSuccess: (state, action: PayloadAction<TLoginSuccessPayload>) => {
       state.isAuthenticated = true;
       state.user = action.payload.user;
       state.token = action.payload.token;

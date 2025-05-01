@@ -237,7 +237,7 @@ export default function RegisterContainer() {
             <InputField
               id="name"
               label="Full Name"
-              placeholder="Enter your full name"
+              placeholder="full name"
               value={state.name}
               onChange={handleChange}
               icon={<User size={18} className="text-gray-400" />}
@@ -249,7 +249,7 @@ export default function RegisterContainer() {
               id="email"
               label="Email Address"
               type="email"
-              placeholder="Your email address"
+              placeholder="email address"
               value={state.email}
               onChange={handleChange}
               icon={<Mail size={18} className="text-gray-400" />}
@@ -263,7 +263,7 @@ export default function RegisterContainer() {
               id="phone"
               label="Phone Number"
               type="tel"
-              placeholder="Your phone number"
+              placeholder="phone number"
               value={state.phone}
               onChange={handleChange}
               icon={<Phone size={18} className="text-gray-400" />}
@@ -275,7 +275,7 @@ export default function RegisterContainer() {
               id="password"
               label="Password"
               type="password"
-              placeholder="Create a password"
+              placeholder="password"
               value={state.password}
               onChange={handleChange}
               icon={<Lock size={18} className="text-gray-400" />}
@@ -288,7 +288,7 @@ export default function RegisterContainer() {
             id="confirmPassword"
             label="Confirm Password"
             type="password"
-            placeholder="Confirm your password"
+            placeholder="Confirm password"
             value={state.confirmPassword}
             onChange={handleChange}
             icon={<Lock size={18} className="text-gray-400" />}

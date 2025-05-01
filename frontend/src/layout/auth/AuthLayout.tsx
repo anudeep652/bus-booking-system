@@ -20,7 +20,7 @@ export const AuthLayout = ({
               <Bus size={64} className="text-indigo-600" />
             </div>
           </div>
-          <h2 className="text-4xl font-bold text-white mb-6">TravelEase</h2>
+          <h2 className="text-4xl font-bold text-white mb-6">BusBooker</h2>
           <p className="text-xl text-white opacity-90 mb-8">
             Your journey begins with a single click
           </p>

@@ -3,14 +3,23 @@ import { setupListeners } from "@reduxjs/toolkit/query";
 import authReducer from "../features/auth/authSlice";
 import { authApi } from "../features/auth/authApi";
 import { authMiddleware } from "../features/auth/authMiddleware";
+import { busReducer } from "../features/bus/busSlice";
+import { busApi } from "../features/bus/busApi";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     [authApi.reducerPath]: authApi.reducer,
+    bus: busReducer,
+    [busApi.reducerPath]: busApi.reducer,
   },
+
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authApi.middleware, authMiddleware),
+    getDefaultMiddleware().concat(
+      authApi.middleware,
+      busApi.middleware,
+      authMiddleware
+    ),
 });
 
 setupListeners(store.dispatch);
