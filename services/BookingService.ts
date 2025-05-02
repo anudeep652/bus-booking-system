@@ -23,22 +23,44 @@ export class BookingService {
     }
   }
 
+  // created a unique index on trip_id and seat_number to prevent duplicate bookings
+  // db.bookings.createIndex( { trip_id: 1, "seats.seat_number": 1 }, { unique: true, partialFilterExpression: { "seats.status": "booked" } } );
+
   async createBooking(
     requestedUserId: string,
-    bookingData: {
-      trip_id: string;
-      seat_numbers: number[];
-    }
+    bookingData: { trip_id: string; seat_numbers: number[] }
   ) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-      const user = await User.findById(requestedUserId);
-      if (!user) {
-        throw new Error("User not found");
+      const user = await User.findById(requestedUserId).session(session);
+      if (!user) throw new Error("User not found");
+
+      const seatsRequested = bookingData.seat_numbers.length;
+      const conflict = await Booking.findOne({
+        user_id: requestedUserId,
+        trip_id: bookingData.trip_id,
+        "seats.seat_number": { $in: bookingData.seat_numbers },
+        booking_status: "confirmed",
+      }).session(session);
+
+      if (conflict) {
+        throw new Error("You've already booked one or more of those seats");
       }
 
-      const trip = await Trip.findById(bookingData.trip_id);
+      const trip = await Trip.findOneAndUpdate(
+        { _id: bookingData.trip_id, available_seats: { $gte: seatsRequested } },
+        { $inc: { available_seats: -seatsRequested } },
+        { new: true, session }
+      );
       if (!trip) {
-        throw new Error("Trip not found");
+        const exists = await Trip.exists({ _id: bookingData.trip_id }).session(
+          session
+        );
+        throw new Error(
+          exists ? "Not enough seats available" : "Trip not found"
+        );
       }
 
       const newBooking = new Booking({
@@ -51,19 +73,20 @@ export class BookingService {
         payment_status: "pending",
         booking_status: "confirmed",
       });
+      await newBooking.save({ session });
 
-      await newBooking.save();
-
-      await newBooking.populate("trip_id", "name destination date price");
-      await newBooking.populate("user_id", "name email");
-
-      return newBooking;
-    } catch (error) {
-      throw new Error(
-        `Failed to create booking: ${
-          error instanceof Error ? error.message : error
-        }`
+      await session.commitTransaction();
+      await newBooking.populate(
+        "trip_id",
+        "bus_id source destination departure_time price"
       );
+      await newBooking.populate("user_id", "name email");
+      return newBooking;
+    } catch (err: any) {
+      await session.abortTransaction();
+      throw new Error(`Booking failed: ${err.message}`);
+    } finally {
+      session.endSession();
     }
   }
 

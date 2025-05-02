@@ -107,7 +107,6 @@ if (
 async function startServer() {
   try {
     await database.connect();
-
     app.listen(PORT, () => {
       logger.info(`Server is running on port ${PORT}`);
     });
