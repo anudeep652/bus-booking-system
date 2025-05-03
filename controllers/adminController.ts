@@ -12,6 +12,11 @@ export async function loginAdmin(req: Request, res: Response): Promise<void> {
   res.status(result.statusCode).json({
     message: result.message,
     token: result.token,
+    user: {
+      id: result.id,
+      name: result.name,
+      email: email,
+    },
   });
 }
 
@@ -24,6 +29,11 @@ export async function registerAdmin(
   res.status(result.statusCode).json({
     message: result.message,
     token: result.token,
+    user: {
+      id: result.id,
+      name: result.name,
+      email: req.body.email,
+    },
   });
 }
 

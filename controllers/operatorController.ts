@@ -14,6 +14,11 @@ export const registerOperator = async (
   return res.status(result.statusCode).json({
     message: result.message,
     token: result.token,
+    user: {
+      id: result.id,
+      name: result.name,
+      email: req.body.email,
+    },
   });
 };
 
@@ -27,6 +32,11 @@ export const loginOperator = async (
   return res.status(result.statusCode).json({
     message: result.message,
     token: result.token,
+    user: {
+      id: result.id,
+      name: result.name,
+      email: email,
+    },
   });
 };
 

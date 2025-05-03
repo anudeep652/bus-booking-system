@@ -82,9 +82,11 @@ export class BookingService {
       );
       await newBooking.populate("user_id", "name email");
       return newBooking;
-    } catch (err: any) {
+    } catch (err) {
       await session.abortTransaction();
-      throw new Error(`Booking failed: ${err.message}`);
+      throw new Error(
+        `Booking failed: ${err instanceof Error ? err.message : err}`
+      );
     } finally {
       session.endSession();
     }
