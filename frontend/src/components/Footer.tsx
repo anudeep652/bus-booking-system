@@ -24,7 +24,6 @@ const Footer = () => {
       { name: "Help Center", href: "#" },
       { name: "Safety Center", href: "#" },
       { name: "Cancellation Options", href: "#" },
-      { name: "COVID-19 Response", href: "#" },
       { name: "Accessibility", href: "#" },
     ],
     legal: [
@@ -60,7 +59,7 @@ const Footer = () => {
             <div className="space-y-2">
               <div className="flex items-center text-sm text-indigo-200">
                 <Phone size={16} className="mr-2" />
-                <span>+1 (800) 123-4567</span>
+                <span>+91 63xxxxxxxx</span>
               </div>
               <div className="flex items-center text-sm text-indigo-200">
                 <Mail size={16} className="mr-2" />
@@ -68,7 +67,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center text-sm text-indigo-200">
                 <MapPin size={16} className="mr-2" />
-                <span>123 Travel Street, Transit City</span>
+                <span>1st street, Coimbatore</span>
               </div>
             </div>
           </div>

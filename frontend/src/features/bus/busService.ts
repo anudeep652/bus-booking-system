@@ -2,10 +2,11 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { setBuses, setLoading } from "./busSlice";
 import { store } from "../../app/store";
 import { busApi } from "./busApi";
+import { TBusSearch } from "../../types/bus";
 
 export const getBusses = createAsyncThunk(
   "bus/getBuses",
-  async (params: any, { dispatch, rejectWithValue }) => {
+  async (params: TBusSearch, { dispatch, rejectWithValue }) => {
     try {
       dispatch(setLoading(true));
       const result = await store

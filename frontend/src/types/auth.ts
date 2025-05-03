@@ -12,8 +12,6 @@ export type TRegisterRequest = {
   phone: string;
   password: string;
   role: TUserRole;
-  adminCode?: string;
-  employeeId?: string;
 };
 
 export type TAuthResponse = {
@@ -53,6 +51,35 @@ export type TLoginError = {
 export type TRegisterError = TLoginError & {
   phone?: string;
   confirmPassword?: string;
-  adminCode?: string;
-  employeeId?: string;
 };
+
+export type TRegisterState = {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+  role: TUserRole;
+  errors: TRegisterError;
+  isValid: boolean;
+  companyName: string;
+};
+
+export type TRegisterAction =
+  | { type: "SET_FIELD"; field: keyof TRegisterState; value: string }
+  | { type: "SET_ROLE"; value: TUserRole }
+  | { type: "VALIDATE" }
+  | { type: "SET_VALIDATION_RESULT"; isValid: boolean };
+
+export type TLoginState = {
+  email: string;
+  password: string;
+  role: TUserRole;
+  errors: TLoginError;
+  isValid: boolean;
+};
+
+export type TLoginAction =
+  | { type: "SET_FIELD"; field: keyof TLoginState; value: string }
+  | { type: "SET_ROLE"; value: TUserRole }
+  | { type: "VALIDATE" };

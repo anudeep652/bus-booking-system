@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
+type TInputFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  id: string;
+  label: string;
+  type?: string;
+  placeholder?: string;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  icon?: React.ReactNode;
+  error?: string;
+  forgotPasswordLink?: React.ReactNode;
+};
+
 export const InputField = ({
   id,
   label,
@@ -12,7 +24,7 @@ export const InputField = ({
   error,
   forgotPasswordLink = null,
   ...otherProps
-}: any & { otherProps: React.InputHTMLAttributes<HTMLInputElement> }) => {
+}: TInputFieldProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {

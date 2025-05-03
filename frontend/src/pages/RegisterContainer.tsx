@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, User, Phone } from "lucide-react";
+import { Mail, Lock, User, Phone, Building2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { AuthLayout } from "../layout/auth/AuthLayout";
 import { InputField } from "../components/auth/InputField";
@@ -13,25 +13,31 @@ import {
   selectAuthError,
 } from "../features/auth/authSlice";
 import { registerUser } from "../features/auth/authServices";
-import { TRegisterError, TUserRole } from "../types";
+import {
+  TRegisterAction,
+  TRegisterError,
+  TRegisterState,
+  TUserRole,
+} from "../types";
+import {
+  EMAIL_REGEX,
+  PHONE_REGEX,
+  REMOVE_WHITESPACE_FROM_PHONE_REGEX,
+} from "../utils";
 
-const initialRegisterState = {
+const initialRegisterState: TRegisterState = {
   name: "",
   email: "",
   phone: "",
   password: "",
   confirmPassword: "",
   role: "user",
-  adminCode: "",
-  employeeId: "",
   errors: {},
   isValid: false,
+  companyName: "",
 };
 
-const registerReducer = (
-  state: typeof initialRegisterState & { errors: TRegisterError },
-  action: any
-) => {
+const registerReducer = (state: TRegisterState, action: TRegisterAction) => {
   switch (action.type) {
     case "SET_FIELD":
       return {
@@ -53,11 +59,15 @@ const registerReducer = (
       if (!state.name) errors.name = "Full name is required";
 
       if (!state.email) errors.email = "Email is required";
-      else if (!/\S+@\S+\.\S+/.test(state.email))
+      else if (!EMAIL_REGEX.test(state.email))
         errors.email = "Email is invalid";
 
       if (!state.phone) errors.phone = "Phone number is required";
-      else if (!/^\d{10}$/.test(state.phone.replace(/[^0-9]/g, ""))) {
+      else if (
+        !PHONE_REGEX.test(
+          state.phone.replace(REMOVE_WHITESPACE_FROM_PHONE_REGEX, "")
+        )
+      ) {
         errors.phone = "Phone number is invalid";
       }
 
@@ -70,13 +80,6 @@ const registerReducer = (
         errors.confirmPassword = "Please confirm your password";
       else if (state.password !== state.confirmPassword) {
         errors.confirmPassword = "Passwords do not match";
-      }
-
-      if (state.role === "admin" && !state.adminCode) {
-        errors.adminCode = "Admin verification code is required";
-      }
-      if (state.role === "operator" && !state.employeeId) {
-        errors.employeeId = "Employee ID is required";
       }
 
       return {
@@ -120,7 +123,7 @@ export default function RegisterContainer() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatchReducer({
       type: "SET_FIELD",
-      field: e.target.id,
+      field: e.target.id as keyof TRegisterState,
       value: e.target.value,
     });
   };
@@ -157,13 +160,6 @@ export default function RegisterContainer() {
       errors.confirmPassword = "Passwords do not match";
     }
 
-    if (state.role === "admin" && !state.adminCode) {
-      errors.adminCode = "Admin verification code is required";
-    }
-    if (state.role === "operator" && !state.employeeId) {
-      errors.employeeId = "Employee ID is required";
-    }
-
     const isValid = Object.keys(errors).length === 0;
 
     if (isValid) {
@@ -174,8 +170,7 @@ export default function RegisterContainer() {
           phone: state.phone,
           password: state.password,
           role: state.role,
-          ...(state.role === "admin" && { adminCode: state.adminCode }),
-          ...(state.role === "operator" && { employeeId: state.employeeId }),
+          company_name: state.companyName,
         };
 
         await dispatch(registerUser(registerData)).unwrap();
@@ -188,37 +183,6 @@ export default function RegisterContainer() {
         type: "VALIDATE",
       });
     }
-  };
-
-  const renderRoleSpecificFields = () => {
-    if (state.role === "admin") {
-      return (
-        <InputField
-          id="adminCode"
-          label="Admin Code"
-          type="text"
-          placeholder="Enter admin verification code"
-          value={state.adminCode || ""}
-          onChange={handleChange}
-          error={state.errors.adminCode}
-          disabled={isLoading}
-        />
-      );
-    } else if (state.role === "operator") {
-      return (
-        <InputField
-          id="employeeId"
-          label="Employee ID"
-          type="text"
-          placeholder="Enter your employee ID"
-          value={state.employeeId || ""}
-          onChange={handleChange}
-          error={state.errors.employeeId}
-          disabled={isLoading}
-        />
-      );
-    }
-    return null;
   };
 
   return (
@@ -258,7 +222,11 @@ export default function RegisterContainer() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            className={`grid grid-cols-1  gap-4 ${
+              state.role !== "operator" ? "grid-cols-1" : "md:grid-cols-2"
+            }`}
+          >
             <InputField
               id="phone"
               label="Phone Number"
@@ -270,7 +238,21 @@ export default function RegisterContainer() {
               error={state.errors.phone}
               disabled={isLoading}
             />
-
+            {state.role === "operator" && (
+              <InputField
+                id="companyName"
+                label="Company name"
+                type="text"
+                placeholder="Company name"
+                value={state.companyName}
+                onChange={handleChange}
+                icon={<Building2 size={18} className="text-gray-400" />}
+                error={state.errors.confirmPassword}
+                disabled={isLoading}
+              />
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
               id="password"
               label="Password"
@@ -282,22 +264,18 @@ export default function RegisterContainer() {
               error={state.errors.password}
               disabled={isLoading}
             />
+            <InputField
+              id="confirmPassword"
+              label="Confirm Password"
+              type="password"
+              placeholder="Confirm password"
+              value={state.confirmPassword}
+              onChange={handleChange}
+              icon={<Lock size={18} className="text-gray-400" />}
+              error={state.errors.confirmPassword}
+              disabled={isLoading}
+            />
           </div>
-
-          <InputField
-            id="confirmPassword"
-            label="Confirm Password"
-            type="password"
-            placeholder="Confirm password"
-            value={state.confirmPassword}
-            onChange={handleChange}
-            icon={<Lock size={18} className="text-gray-400" />}
-            error={state.errors.confirmPassword}
-            disabled={isLoading}
-          />
-
-          {renderRoleSpecificFields()}
-
           <Button
             onClick={() => {}}
             type="submit"

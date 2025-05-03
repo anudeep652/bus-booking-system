@@ -14,9 +14,15 @@ import {
   selectAuthLoading,
 } from "../features/auth/authSlice";
 import { loginUser } from "../features/auth/authServices";
-import { TLoginError, TUserRole } from "../types/index";
+import {
+  TLoginAction,
+  TLoginError,
+  TLoginState,
+  TUserRole,
+} from "../types/index";
+import { EMAIL_REGEX } from "../utils";
 
-const initialLoginState = {
+const initialLoginState: TLoginState = {
   email: "",
   password: "",
   role: "user",
@@ -25,9 +31,9 @@ const initialLoginState = {
 };
 
 const loginReducer = (
-  state: typeof initialLoginState & { errors: TLoginError },
-  action: any
-) => {
+  state: TLoginState,
+  action: TLoginAction
+): TLoginState => {
   switch (action.type) {
     case "SET_FIELD":
       return {
@@ -47,7 +53,7 @@ const loginReducer = (
       const errors: TLoginError = {};
       if (!state.email) {
         errors.email = "Email is required";
-      } else if (!/\S+@\S+\.\S+/.test(state.email)) {
+      } else if (!EMAIL_REGEX.test(state.email)) {
         errors.email = "Email is invalid";
       }
       if (!state.password) {
@@ -90,7 +96,7 @@ export default function LoginContainer() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatchReducer({
       type: "SET_FIELD",
-      field: e.target.id,
+      field: e.target.id as keyof TLoginState,
       value: e.target.value,
     });
   };

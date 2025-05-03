@@ -4,11 +4,11 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { store } from "./store";
 
-interface AppProviderProps {
+type TAppProviderProps = {
   children: React.ReactNode;
-}
+};
 
-export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+export const AppProvider: React.FC<TAppProviderProps> = ({ children }) => {
   return (
     <Provider store={store}>
       <Router>

@@ -1,20 +1,10 @@
-import { fetchBaseQuery } from "@reduxjs/toolkit/query";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { TBusSearch, TBusSearchResults } from "../../types/bus";
+import { createBaseQuery } from "../baseQuery";
 
 export const busApi = createApi({
   reducerPath: "busApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as any).auth.token;
-
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: createBaseQuery(),
   endpoints: (builder) => ({
     getBuses: builder.query<TBusSearchResults, TBusSearch>({
       query: ({

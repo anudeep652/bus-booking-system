@@ -5,7 +5,7 @@ import { TBus } from "../../types/bus";
 const initialState: {
   isLoading: boolean;
   error: string | null;
-  bus: any | null;
+  bus: TBus | null;
   buses: TBus[];
 } = {
   isLoading: false,

@@ -22,7 +22,7 @@ const BusSearchResults = () => {
   const buses = useAppSelector(selectBuses);
   return (
     <UserLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 my-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 my-10 gap-5 flex flex-col">
         {buses.map((bus) => (
           <BusCard bus={bus} key={bus.id} />
         ))}
