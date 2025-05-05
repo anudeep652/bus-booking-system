@@ -53,8 +53,8 @@ const Footer = () => {
               <span className="text-lg font-bold">BusBooker</span>
             </div>
             <p className="text-indigo-200 text-sm mb-4">
-              Making bus travel easy, comfortable, and affordable since 2020.
-              Book your next journey with confidence.
+              Making bus travel easy, comfortable, and affordable. Book your
+              next journey with confidence.
             </p>
             <div className="space-y-2">
               <div className="flex items-center text-sm text-indigo-200">

@@ -1,27 +1,25 @@
-import { useState } from "react";
-import {
-  Search,
-  Calendar,
-  MapPin,
-  Bus,
-  ArrowRight,
-  BanknoteArrowDown,
-  BanknoteArrowUp,
-} from "lucide-react";
+import React, { useState } from "react";
+import { Search, MapPin, Bus, ArrowRight, FilterX, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { TBusSearch, TBusSearchParams, TBusType } from "../../types/bus";
 
 const BusSearch = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const defaultValues: TBusSearch = {
     source: "",
     destination: "",
     startDate: "",
     endDate: "",
-    minPrice: "",
-    maxPrice: "",
-  });
+    priceRange: [0, 5000],
+    ratings: 0,
+    busType: [],
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [formData, setFormData] = useState<TBusSearch>({ ...defaultValues });
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -29,11 +27,62 @@ const BusSearch = () => {
     });
   };
 
+  const handleBusTypeChange = (type: TBusType) => {
+    setFormData((prev) => {
+      const currentBusTypes = [...prev.busType];
+      if (currentBusTypes.includes(type)) {
+        return {
+          ...prev,
+          busType: currentBusTypes.filter((t) => t !== type),
+        };
+      } else {
+        return {
+          ...prev,
+          busType: [...currentBusTypes, type],
+        };
+      }
+    });
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      priceRange:
+        name === "minPrice"
+          ? [parseInt(value), prev.priceRange[1]]
+          : [prev.priceRange[0], parseInt(value)],
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
-    navigate("/bus/search?" + new URLSearchParams(formData).toString());
     if (e) {
       e.preventDefault();
     }
+
+    const searchParams: Partial<TBusSearchParams> = {};
+
+    if (formData.source !== defaultValues.source)
+      searchParams.source = formData.source;
+    if (formData.destination !== defaultValues.destination)
+      searchParams.destination = formData.destination;
+    if (formData.startDate !== defaultValues.startDate)
+      searchParams.startDate = formData.startDate;
+    if (formData.endDate !== defaultValues.endDate)
+      searchParams.endDate = formData.endDate;
+
+    if (formData.priceRange[0] !== defaultValues.priceRange[0])
+      searchParams.minPrice = formData.priceRange[0].toString();
+    if (formData.priceRange[1] !== defaultValues.priceRange[1])
+      searchParams.maxPrice = formData.priceRange[1].toString();
+
+    if (formData.ratings !== defaultValues.ratings)
+      searchParams.ratings = formData.ratings.toString();
+
+    if (formData.busType.length > 0)
+      searchParams.busType = formData.busType.join(",");
+
+    navigate("/bus/search?" + new URLSearchParams(searchParams).toString());
     console.log("Searching for buses with data:", formData);
   };
 
@@ -42,6 +91,13 @@ const BusSearch = () => {
     { from: "CBE", to: "BLR" },
     { from: "Mumbai", to: "Delhi" },
     { from: "Madurai", to: "CBE" },
+  ];
+
+  const busTypes: { id: TBusType; label: string }[] = [
+    { id: "ac", label: "AC" },
+    { id: "nonAc", label: "Non AC" },
+    { id: "sleeper", label: "Sleeper" },
+    { id: "seater", label: "Seater" },
   ];
 
   return (
@@ -96,85 +152,118 @@ const BusSearch = () => {
               </div>
             </div>
 
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-3">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Start date
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar size={18} className="text-violet-500" />
-                </div>
+              <div className="grid grid-cols-1 gap-2">
                 <input
-                  type="date"
+                  type="datetime-local"
                   name="startDate"
                   value={formData.startDate}
                   onChange={handleChange}
-                  className="pl-10 block w-full rounded-md border-gray-300 border p-2 focus:ring-violet-500 focus:border-violet-500"
+                  className="block w-full rounded-md border-gray-300 border p-2 focus:ring-violet-500 focus:border-violet-500"
                 />
               </div>
             </div>
 
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-3">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 End date (Optional)
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar size={18} className="text-violet-500" />
-                </div>
+              <div className="grid grid-cols-1 gap-2">
                 <input
-                  type="date"
+                  type="datetime-local"
                   name="endDate"
                   value={formData.endDate}
                   onChange={handleChange}
-                  className="pl-10 block w-full rounded-md border-gray-300 border p-2 focus:ring-violet-500 focus:border-violet-500"
+                  className="pl-5 block w-full rounded-md border-gray-300 border p-2 focus:ring-violet-500 focus:border-violet-500"
                 />
               </div>
             </div>
-            <div className="lg:col-span-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                minimum price
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <BanknoteArrowDown size={18} className="text-violet-500" />
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+              <FilterX size={18} className="mr-2 text-violet-500" />
+              Filters
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Price Range
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="number"
+                    name="minPrice"
+                    value={formData.priceRange[0]}
+                    onChange={handlePriceChange}
+                    placeholder="Min"
+                    className="w-full rounded-md border-gray-300 border p-2 focus:ring-violet-500 focus:border-violet-500"
+                  />
+                  <span className="text-gray-500">-</span>
+                  <input
+                    type="number"
+                    name="maxPrice"
+                    value={formData.priceRange[1]}
+                    onChange={handlePriceChange}
+                    placeholder="Max"
+                    className="w-full rounded-md border-gray-300 border p-2 focus:ring-violet-500 focus:border-violet-500"
+                  />
                 </div>
-                <input
-                  type="number"
-                  name="minPrice"
-                  value={formData.minPrice}
-                  onChange={handleChange}
-                  placeholder="minimum price"
-                  className="pl-10 block w-full rounded-md border-gray-300 border p-2 focus:ring-violet-500 focus:border-violet-500"
-                />
               </div>
-            </div>
-            <div className="lg:col-span-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                maximum price
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <BanknoteArrowUp size={18} className="text-violet-500" />
-                </div>
-                <input
-                  type="number"
-                  name="maxPrice"
-                  value={formData.maxPrice}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                  <Star size={18} className="mr-1 text-yellow-400" />
+                  Minimum Rating
+                </label>
+                <select
+                  name="ratings"
+                  value={formData.ratings}
                   onChange={handleChange}
-                  placeholder="maximum price"
-                  className="pl-10 block w-full rounded-md border-gray-300 border p-2 focus:ring-violet-500 focus:border-violet-500"
-                />
+                  className="w-full rounded-md border-gray-300 border p-2 focus:ring-violet-500 focus:border-violet-500"
+                >
+                  <option value="0">Any Rating</option>
+                  <option value="2">2+ Stars</option>
+                  <option value="3">3+ Stars</option>
+                  <option value="4">4+ Stars</option>
+                  <option value="5">5 Stars</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                  <Bus size={18} className="mr-1 text-violet-500" />
+                  Bus Type
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {busTypes.map((type) => (
+                    <button
+                      key={type.id}
+                      onClick={() => handleBusTypeChange(type.id)}
+                      className={`px-3 py-1 text-sm rounded-full transition-all ${
+                        formData.busType.includes(type.id)
+                          ? "bg-violet-600 text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="lg:col-span-1 flex items-end">
+            <div className="mt-4 flex md:justify-end ">
               <button
                 onClick={handleSubmit}
-                className="w-full bg-indigo-600 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center"
+                className="w-full md:w-auto bg-indigo-600 hover:bg-violet-700 text-white font-bold py-3 px-6 rounded-md transition duration-300 flex items-center justify-center"
               >
-                <Search size={18} className="mr-1" />
-                Search
+                <Search size={20} className="mr-2" />
+                Search Buses
               </button>
             </div>
           </div>

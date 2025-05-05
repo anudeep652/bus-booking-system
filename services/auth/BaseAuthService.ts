@@ -50,21 +50,37 @@ export abstract class BaseAuthService implements IAuthService {
     }
   }
 
-  async login(email: string, password: string): Promise<TAuthResult> {
+  async login(
+    email: string,
+    phone: string,
+    password: string
+  ): Promise<TAuthResult> {
     try {
-      if (!email || !password) {
+      if (!email && !phone) {
         return {
           success: false,
-          message: "Email and password are required",
+          message: "Email or phone is required",
+          statusCode: 400,
+        };
+      }
+      if (!password) {
+        return {
+          success: false,
+          message: "password is required",
           statusCode: 400,
         };
       }
 
-      const entity = await this.model.findOne({ email });
+      let entity;
+      if (email) {
+        entity = await this.model.findOne({ email });
+      } else {
+        entity = await this.model.findOne({ phone });
+      }
       if (!entity) {
         return {
           success: false,
-          message: "No user with the given email found",
+          message: "No user with the given details found",
           statusCode: 401,
         };
       }

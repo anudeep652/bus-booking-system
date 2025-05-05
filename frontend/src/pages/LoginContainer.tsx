@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Phone } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { AuthLayout } from "../layout/auth/AuthLayout";
 import { InputField } from "../components/auth/InputField";
@@ -26,6 +26,7 @@ const initialLoginState: TLoginState = {
   email: "",
   password: "",
   role: "user",
+  phone: "",
   errors: {},
   isValid: false,
 };
@@ -51,11 +52,13 @@ const loginReducer = (
       };
     case "VALIDATE":
       const errors: TLoginError = {};
-      if (!state.email) {
-        errors.email = "Email is required";
-      } else if (!EMAIL_REGEX.test(state.email)) {
+      if (!state.email && !state.phone) {
+        errors.email = "Email or Phone is required";
+        errors.phone = "Phone or Email is required";
+      } else if (state.email && !EMAIL_REGEX.test(state.email)) {
         errors.email = "Email is invalid";
       }
+
       if (!state.password) {
         errors.password = "Password is required";
       } else if (state.password.length < 6) {
@@ -117,6 +120,7 @@ export default function LoginContainer() {
         await dispatch(
           loginUser({
             email: state.email,
+            phone: state.phone,
             password: state.password,
             role: state.role,
           })
@@ -146,6 +150,22 @@ export default function LoginContainer() {
             onChange={handleChange}
             icon={<Mail size={18} className="text-gray-400" />}
             error={state.errors.email}
+            disabled={isLoading}
+          />
+          <div className="flex justify-center items-center my-2">
+            <hr className="w-[50%] text-gray-300" />
+            <p className="text-center px-2 text-gray-500 text-sm">or</p>
+            <hr className="w-[50%] text-gray-300" />
+          </div>
+          <InputField
+            id="phone"
+            label="Phone number"
+            type="number"
+            placeholder="Phone number"
+            value={state.phone}
+            onChange={handleChange}
+            icon={<Phone size={18} className="text-gray-400" />}
+            error={state.errors.phone}
             disabled={isLoading}
           />
           <InputField

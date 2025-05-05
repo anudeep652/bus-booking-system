@@ -71,6 +71,10 @@ const registerReducer = (state: TRegisterState, action: TRegisterAction) => {
         errors.phone = "Phone number is invalid";
       }
 
+      if (state.role === "operator" && !state.companyName) {
+        errors.companyName = "Company name is required";
+      }
+
       if (!state.password) errors.password = "Password is required";
       else if (state.password.length < 6) {
         errors.password = "Password must be at least 6 characters";
@@ -136,33 +140,7 @@ export default function RegisterContainer() {
     e.preventDefault();
     dispatchReducer({ type: "VALIDATE" });
 
-    const errors: TRegisterError = {};
-
-    if (!state.name) errors.name = "Full name is required";
-
-    if (!state.email) errors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(state.email))
-      errors.email = "Email is invalid";
-
-    if (!state.phone) errors.phone = "Phone number is required";
-    else if (!/^\d{10}$/.test(state.phone.replace(/[^0-9]/g, ""))) {
-      errors.phone = "Phone number is invalid";
-    }
-
-    if (!state.password) errors.password = "Password is required";
-    else if (state.password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
-    }
-
-    if (!state.confirmPassword)
-      errors.confirmPassword = "Please confirm your password";
-    else if (state.password !== state.confirmPassword) {
-      errors.confirmPassword = "Passwords do not match";
-    }
-
-    const isValid = Object.keys(errors).length === 0;
-
-    if (isValid) {
+    if (state.isValid) {
       try {
         const registerData = {
           name: state.name,
@@ -247,7 +225,7 @@ export default function RegisterContainer() {
                 value={state.companyName}
                 onChange={handleChange}
                 icon={<Building2 size={18} className="text-gray-400" />}
-                error={state.errors.confirmPassword}
+                error={state.errors.companyName}
                 disabled={isLoading}
               />
             )}

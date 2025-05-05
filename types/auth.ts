@@ -15,5 +15,5 @@ export type TAuthData = {
 
 export interface IAuthService {
   register(data: TAuthData): Promise<TAuthResult>;
-  login(email: string, password: string): Promise<TAuthResult>;
+  login(password: string, email?: string, phone?: string): Promise<TAuthResult>;
 }

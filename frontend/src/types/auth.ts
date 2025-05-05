@@ -1,9 +1,10 @@
 import { TUserRole } from ".";
 
 export type TLoginRequest = {
-  email: string;
   password: string;
   role: TUserRole;
+  email?: string;
+  phone?: string;
 };
 
 export type TRegisterRequest = {
@@ -42,15 +43,12 @@ export type TLoginSuccessPayload = {
   role: TUserRole;
 };
 
-export type TLoginError = {
-  name?: string;
-  email?: string;
-  password?: string;
-};
+export type TLoginError = Partial<TLoginRequest>;
 
 export type TRegisterError = TLoginError & {
-  phone?: string;
+  name?: string;
   confirmPassword?: string;
+  companyName?: string;
 };
 
 export type TRegisterState = {
@@ -75,6 +73,7 @@ export type TLoginState = {
   email: string;
   password: string;
   role: TUserRole;
+  phone: string;
   errors: TLoginError;
   isValid: boolean;
 };

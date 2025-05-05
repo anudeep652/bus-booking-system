@@ -13,6 +13,7 @@ export const searchTrips = async (
       success: true,
       data: trips.map((trip) => ({
         id: trip._id,
+        busId: trip.bus_id._id,
         busNumber: trip.bus_id.bus_number,
         busType: trip.bus_id.bus_type,
         departureTime: trip.departure_time,

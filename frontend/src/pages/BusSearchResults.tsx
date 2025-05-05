@@ -4,21 +4,13 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { getBusses } from "../features/bus/busService";
 import { selectBuses } from "../features/bus/busSlice";
 import BusCard from "../components/bus/BusCard";
+import { TBusSearchParams } from "../types/bus";
 
 const BusSearchResults = () => {
   const p = useSearchParams();
   const dispatch = useAppDispatch();
-  console.log(p[0].get("source"));
-  dispatch(
-    getBusses({
-      source: p[0].get("source") || "",
-      destination: p[0].get("destination") || "",
-      startDate: p[0].get("startDate") || "",
-      endDate: p[0].get("endDate") || "",
-      minPrice: p[0].get("minPrice") || "",
-      maxPrice: p[0].get("maxPrice") || "",
-    })
-  );
+  dispatch(getBusses(Object.fromEntries(p[0].entries()) as TBusSearchParams));
+
   const buses = useAppSelector(selectBuses);
   return (
     <UserLayout>
