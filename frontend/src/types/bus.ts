@@ -37,3 +37,8 @@ export type TBusSearchResults = {
   success: boolean;
   data: TBus[];
 };
+
+export type TbusSeatSummary = {
+  selectedSeats: number[];
+  busDetails: TBus | null;
+};

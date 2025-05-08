@@ -6,6 +6,7 @@ import {
   selectRole,
 } from "../../features/auth/authSlice";
 import { TUserRole } from "../../types";
+import UserLayout from "../../layout/user/UserLayout";
 
 interface ProtectedRouteProps {
   allowedRoles: TUserRole[];
@@ -19,7 +20,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <UserLayout>
+        <Outlet />
+      </UserLayout>
+    </>
+  );
 };
 
 export default ProtectedRoute;

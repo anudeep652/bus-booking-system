@@ -12,7 +12,6 @@ export const getBusses = createAsyncThunk(
       const result = await store
         .dispatch(busApi.endpoints.getBuses.initiate(params))
         .unwrap();
-      console.log(result);
       dispatch(setBuses(result.data));
     } catch (error) {
       dispatch(setLoading(false));

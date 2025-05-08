@@ -1,4 +1,5 @@
 import { Trip } from "../models/index";
+import { BookingService } from "./BookingService";
 
 export class TripService {
   async getAllTrips(
@@ -64,14 +65,32 @@ export class TripService {
     try {
       const trip = await Trip.findById(tripId).populate(
         "bus_id",
-        "bus_number bus_type capacity"
+        "bus_number bus_type total_seats"
       );
+      const bookingService = new BookingService();
+      console.log("this is trip", trip);
+
+      const bookings = await bookingService.getBookingsByTripId(tripId);
+      const bookedSeats = bookings.reduce((acc: number[], booking: any) => {
+        const seats = booking.seats.map((seat: any) => seat.seat_number);
+        return acc.concat(seats);
+      }, []);
+
+      console.log("this is booked seats", bookedSeats);
 
       if (!trip) {
         throw new Error("Trip not found");
       }
 
-      return trip;
+      const tripDetails = {
+        // @ts-ignore
+        totalSeats: trip.bus_id?.total_seats,
+        seatsPerRow: 4,
+        pricePerSeat: trip.price,
+        unavailableSeats: bookedSeats,
+      };
+
+      return tripDetails;
     } catch (error) {
       throw new Error(
         `Error fetching trip details: ${
@@ -171,6 +190,7 @@ export class TripService {
           ratings: 1,
           departure_time: 1,
           arrival_time: 1,
+          available_seats: 1,
           bus_id: {
             _id: "$busDetail._id",
             bus_number: "$busDetail.bus_number",

@@ -16,7 +16,7 @@ export const Button = ({
   variant?: "primary" | "secondary" | "outline";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
-  onClick: () => void;
+  onClick?: (...args: any) => void;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
   return (
     <button

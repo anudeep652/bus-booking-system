@@ -61,13 +61,15 @@ export type TRegisterState = {
   errors: TRegisterError;
   isValid: boolean;
   companyName: string;
+  submitAttempted: boolean;
 };
 
 export type TRegisterAction =
   | { type: "SET_FIELD"; field: keyof TRegisterState; value: string }
   | { type: "SET_ROLE"; value: TUserRole }
   | { type: "VALIDATE" }
-  | { type: "SET_VALIDATION_RESULT"; isValid: boolean };
+  | { type: "SET_VALIDATION_RESULT"; isValid: boolean }
+  | { type: "SET_SUBMIT_ATTEMPTED"; value: boolean };
 
 export type TLoginState = {
   email: string;
@@ -76,9 +78,12 @@ export type TLoginState = {
   phone: string;
   errors: TLoginError;
   isValid: boolean;
+  submitAttempted: boolean;
 };
 
 export type TLoginAction =
   | { type: "SET_FIELD"; field: keyof TLoginState; value: string }
   | { type: "SET_ROLE"; value: TUserRole }
-  | { type: "VALIDATE" };
+  | { type: "VALIDATE" }
+  | { type: "RESET" }
+  | { type: "SET_SUBMIT_ATTEMPTED"; value: boolean };

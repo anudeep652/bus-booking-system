@@ -40,7 +40,7 @@ const Navbar = () => {
               <div className="h-8 w-8 rounded-md bg-indigo-600 flex items-center justify-center mr-2">
                 <span className="font-bold text-white">BB</span>
               </div>
-              <span className="text-lg font-bold text-indigo-800">
+              <span className="text-lg font-bold text-indigo-600">
                 BusBooker
               </span>
             </div>

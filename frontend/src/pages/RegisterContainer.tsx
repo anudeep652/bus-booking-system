@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import {
   selectIsAuthenticated,
   selectAuthError,
+  clearError,
 } from "../features/auth/authSlice";
 import { registerUser } from "../features/auth/authServices";
 import {
@@ -35,6 +36,7 @@ const initialRegisterState: TRegisterState = {
   errors: {},
   isValid: false,
   companyName: "",
+  submitAttempted: false,
 };
 
 const registerReducer = (state: TRegisterState, action: TRegisterAction) => {
@@ -58,12 +60,18 @@ const registerReducer = (state: TRegisterState, action: TRegisterAction) => {
 
       if (!state.name) errors.name = "Full name is required";
 
-      if (!state.email) errors.email = "Email is required";
-      else if (!EMAIL_REGEX.test(state.email))
+      if (!state.email && !state.phone) {
+        errors.email = "Email or Phone is required";
+        errors.phone = "Phone or Email is required";
+      } else if (state.email && !EMAIL_REGEX.test(state.email)) {
+        errors.email = "Email is invalid";
+      }
+
+      if (state.email && !EMAIL_REGEX.test(state.email))
         errors.email = "Email is invalid";
 
-      if (!state.phone) errors.phone = "Phone number is required";
-      else if (
+      if (
+        state.phone &&
         !PHONE_REGEX.test(
           state.phone.replace(REMOVE_WHITESPACE_FROM_PHONE_REGEX, "")
         )
@@ -91,6 +99,11 @@ const registerReducer = (state: TRegisterState, action: TRegisterAction) => {
         errors,
         isValid: Object.keys(errors).length === 0,
       };
+    case "SET_SUBMIT_ATTEMPTED":
+      return {
+        ...state,
+        submitAttempted: action.value,
+      };
     case "SET_VALIDATION_RESULT":
       return {
         ...state,
@@ -106,7 +119,7 @@ export default function RegisterContainer() {
     registerReducer,
     initialRegisterState
   );
-  const [register, { isLoading }] = useRegisterMutation();
+  const [_, { isLoading }] = useRegisterMutation();
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const authError = useAppSelector(selectAuthError);
@@ -119,8 +132,49 @@ export default function RegisterContainer() {
   }, [isAuthenticated, navigate]);
 
   useEffect(() => {
+    if (!state.submitAttempted) {
+      return;
+    }
+
+    if (state.isValid) {
+      const performRegister = async () => {
+        try {
+          const registerData = {
+            name: state.name,
+            email: state.email,
+            phone: state.phone,
+            password: state.password,
+            role: state.role,
+            company_name: state.companyName,
+          };
+
+          await dispatch(registerUser(registerData)).unwrap();
+          toast.success("Registration successful!");
+        } catch (err) {
+          console.error(err);
+          dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });
+        }
+      };
+
+      performRegister();
+    } else {
+      dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });
+    }
+  }, [
+    state.isValid,
+    state.submitAttempted,
+    state.email,
+    state.phone,
+    state.password,
+    state.role,
+    dispatch,
+    navigate,
+  ]);
+
+  useEffect(() => {
     if (authError) {
       toast.error(authError);
+      dispatch(clearError());
     }
   }, [authError]);
 
@@ -139,28 +193,7 @@ export default function RegisterContainer() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatchReducer({ type: "VALIDATE" });
-
-    if (state.isValid) {
-      try {
-        const registerData = {
-          name: state.name,
-          email: state.email,
-          phone: state.phone,
-          password: state.password,
-          role: state.role,
-          company_name: state.companyName,
-        };
-
-        await dispatch(registerUser(registerData)).unwrap();
-        toast.success("Registration successful!");
-      } catch (err) {
-        console.error(err);
-      }
-    } else {
-      dispatchReducer({
-        type: "VALIDATE",
-      });
-    }
+    dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: true });
   };
 
   return (
@@ -246,7 +279,7 @@ export default function RegisterContainer() {
               id="confirmPassword"
               label="Confirm Password"
               type="password"
-              placeholder="Confirm password"
+              placeholder="Confirm "
               value={state.confirmPassword}
               onChange={handleChange}
               icon={<Lock size={18} className="text-gray-400" />}
@@ -254,12 +287,7 @@ export default function RegisterContainer() {
               disabled={isLoading}
             />
           </div>
-          <Button
-            onClick={() => {}}
-            type="submit"
-            isLoading={isLoading}
-            className="w-full"
-          >
+          <Button type="submit" isLoading={isLoading} className="w-full">
             {isLoading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>

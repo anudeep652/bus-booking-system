@@ -7,7 +7,7 @@ const bookingRouter = express.Router();
 
 bookingRouter.use(isAuthenticated);
 
-bookingRouter.get("/:id/history", bookingController.getBookingHistory);
+bookingRouter.get("/history", bookingController.getBookingHistory);
 
 bookingRouter.post("/book", bookingController.createBooking);
 

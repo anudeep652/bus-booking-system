@@ -1,12 +1,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { TBusSearch, TBusSearchResults } from "../../types/bus";
+import { TBusSearchParams, TBusSearchResults } from "../../types/bus";
 import { createBaseQuery } from "../baseQuery";
 
 export const busApi = createApi({
   reducerPath: "busApi",
   baseQuery: createBaseQuery(),
   endpoints: (builder) => ({
-    getBuses: builder.query<TBusSearchResults, TBusSearch>({
+    getBuses: builder.query<TBusSearchResults, TBusSearchParams>({
       query: ({
         source,
         destination,
@@ -29,6 +29,13 @@ export const busApi = createApi({
     getBusById: builder.query({
       query: (id) => `/buses/${id}`,
     }),
+    getTripDetailById: builder.query({
+      query: (id) => `/trip/${id}`,
+    }),
   }),
 });
-export const { useGetBusesQuery, useGetBusByIdQuery } = busApi;
+export const {
+  useGetBusesQuery,
+  useGetBusByIdQuery,
+  useGetTripDetailByIdQuery,
+} = busApi;

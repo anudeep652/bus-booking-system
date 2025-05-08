@@ -8,7 +8,7 @@ export const getBookingHistory = async (
   res: Response
 ) => {
   try {
-    const { id: requestedUserId } = req.params;
+    const { userId: requestedUserId } = req.user;
 
     const bookings = await bookingService.getBookingHistory(requestedUserId);
 

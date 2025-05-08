@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Search, MapPin, Bus, ArrowRight, FilterX, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { TBusSearch, TBusSearchParams, TBusType } from "../../types/bus";
+import { TBusSearch, TBusSearchParams, TBusType } from "../../types";
 
 const BusSearch = () => {
   const navigate = useNavigate();

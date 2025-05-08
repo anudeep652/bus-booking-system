@@ -1,49 +1,38 @@
 import { Calendar, Clock, Users, Moon, Sun } from "lucide-react";
-import { TBus } from "../../types/bus";
-
-const BusTypeIcon = ({ type }: { type: string }) => {
-  switch (type.toLowerCase()) {
-    case "sleeper":
-      return <Moon className="h-5 w-5" />;
-    case "ac":
-      return <Sun className="h-5 w-5" />;
-    default:
-      return <Sun className="h-5 w-5" />;
-  }
-};
-
-const getTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
-};
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
-
-const getJourneyTime = (departure: string, arrival: string) => {
-  const departureDate = new Date(departure);
-  const arrivalDate = new Date(arrival);
-
-  const diffInHours =
-    Math.abs(arrivalDate.getTime() - departureDate.getTime()) / 36e5;
-
-  if (diffInHours < 1) {
-    return `${Math.round(diffInHours * 60)}m`;
-  }
-
-  const hours = Math.floor(diffInHours);
-  const minutes = Math.round((diffInHours - hours) * 60);
-
-  return `${hours}h ${minutes}m`;
-};
+import { TBus } from "../../types";
+import { useNavigate } from "react-router-dom";
+import { formatDate, getJourneyTime } from "../../utils";
+import { useAppDispatch } from "../../app/hooks";
+import { setBus } from "../../features/bus/busSlice";
 
 const BusCard = ({ bus }: { bus: TBus }) => {
+  const BusTypeIcon = ({ type }: { type: string }) => {
+    switch (type.toLowerCase()) {
+      case "sleeper":
+        return <Moon className="h-5 w-5" />;
+      case "ac":
+        return <Sun className="h-5 w-5" />;
+      default:
+        return <Sun className="h-5 w-5" />;
+    }
+  };
+
+  const getTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getHours()}:${date
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const handleClick = () => {
+    dispatch(setBus(bus));
+    navigate(`/book-bus/${bus.id}`);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="p-4 sm:p-6">
@@ -101,7 +90,10 @@ const BusCard = ({ bus }: { bus: TBus }) => {
             </div>
           </div>
 
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md transition-colors w-full sm:w-auto">
+          <button
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md transition-colors w-full sm:w-auto"
+            onClick={handleClick}
+          >
             Select Seats
           </button>
         </div>

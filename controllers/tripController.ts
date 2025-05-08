@@ -34,3 +34,21 @@ export const searchTrips = async (
     });
   }
 };
+
+export const getTripDetail = async (
+  req: Request,
+  res: Response
+): Promise<ReturnType<RequestParamHandler>> => {
+  try {
+    const trip = await tripService.getTripById(req.params.tripId);
+    res.status(200).json({ trip });
+  } catch (error) {
+    res.status(404).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to retrieve user profile: " + error,
+    });
+  }
+};

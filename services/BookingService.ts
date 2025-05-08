@@ -23,6 +23,23 @@ export class BookingService {
     }
   }
 
+  async getBookingsByTripId(tripId: string) {
+    try {
+      const booking = await Booking.find({ trip_id: tripId });
+      if (!booking) {
+        throw new Error("booking not found");
+      }
+      const bookings = await Booking.find({ trip_id: tripId });
+      return bookings;
+    } catch (error) {
+      throw new Error(
+        `Failed to fetch bookings for trip: ${
+          error instanceof Error ? error.message : error
+        }`
+      );
+    }
+  }
+
   // created a unique index on trip_id and seat_number to prevent duplicate bookings
   // db.bookings.createIndex( { trip_id: 1, "seats.seat_number": 1 }, { unique: true, partialFilterExpression: { "seats.status": "booked" } } );
 

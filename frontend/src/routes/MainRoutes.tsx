@@ -6,6 +6,8 @@ import { useAppSelector } from "../app/hooks";
 import { selectIsAuthenticated, selectRole } from "../features/auth/authSlice";
 import Home from "../pages/Home";
 import BusSearchResults from "../pages/BusSearchResults";
+import BookBus from "../pages/BookBus";
+import BookingSuccess from "../pages/BookingSuccess";
 
 const Dashboard = () => <Home />;
 const UserBookings = () => <div>User Bookings</div>;
@@ -15,6 +17,8 @@ const OperatorPanel = () => <div>Operator Panel</div>;
 const MainRoutes: React.FC = () => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const role = useAppSelector(selectRole);
+
+  console.log("Is Authenticated:", isAuthenticated);
 
   const getDashboardPath = () => {
     console.log("Role:", role);
@@ -49,6 +53,8 @@ const MainRoutes: React.FC = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/bookings" element={<UserBookings />} />
         <Route path="/bus/search" element={<BusSearchResults />} />
+        <Route path="/book-bus/:id" element={<BookBus />} />
+        <Route path="/success" element={<BookingSuccess />} />
       </Route>
 
       {/* User specific routes */}

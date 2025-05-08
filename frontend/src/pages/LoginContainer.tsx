@@ -12,6 +12,7 @@ import {
   selectIsAuthenticated,
   selectAuthError,
   selectAuthLoading,
+  clearError,
 } from "../features/auth/authSlice";
 import { loginUser } from "../features/auth/authServices";
 import {
@@ -29,6 +30,7 @@ const initialLoginState: TLoginState = {
   phone: "",
   errors: {},
   isValid: false,
+  submitAttempted: false,
 };
 
 const loginReducer = (
@@ -69,15 +71,23 @@ const loginReducer = (
         errors,
         isValid: Object.keys(errors).length === 0,
       };
+    case "SET_SUBMIT_ATTEMPTED":
+      return {
+        ...state,
+        submitAttempted: action.value,
+      };
+    case "RESET":
+      return initialLoginState;
     default:
       return state;
   }
 };
 
 export default function LoginContainer() {
-  const [state, dispatchReducer] = useReducer(loginReducer, initialLoginState);
+  const [state, dispatchReducer] = useReducer(loginReducer, {
+    ...initialLoginState,
+  });
   const [_login, { isLoading }] = useLoginMutation();
-  console.log("isLoading", isLoading);
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const authError = useAppSelector(selectAuthError);
@@ -91,8 +101,52 @@ export default function LoginContainer() {
   }, [isAuthenticated, navigate]);
 
   useEffect(() => {
+    if (!state.submitAttempted) {
+      return;
+    }
+
+    if (state.isValid) {
+      const performLogin = async () => {
+        try {
+          await dispatch(
+            loginUser({
+              email: state.email,
+              phone: state.phone,
+              password: state.password,
+              role: state.role,
+            })
+          ).unwrap();
+          toast.success("Login successful!");
+          navigate("/");
+          dispatchReducer({ type: "RESET" });
+        } catch (err: any) {
+          console.error("Login submission failed:", err);
+          dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });
+        }
+      };
+
+      performLogin();
+    } else {
+      dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });
+    }
+  }, [
+    state.isValid,
+    state.submitAttempted,
+    state.email,
+    state.phone,
+    state.password,
+    state.role,
+    dispatch,
+    navigate,
+  ]);
+
+  useEffect(() => {
     if (authError) {
       toast.error(authError);
+      if (state.submitAttempted) {
+        dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });
+      }
+      dispatch(clearError());
     }
   }, [authError]);
 
@@ -111,32 +165,17 @@ export default function LoginContainer() {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    console.log("Submitting form");
     e.preventDefault();
     dispatchReducer({ type: "VALIDATE" });
-
-    if (state.isValid) {
-      try {
-        await dispatch(
-          loginUser({
-            email: state.email,
-            phone: state.phone,
-            password: state.password,
-            role: state.role,
-          })
-        ).unwrap();
-        toast.success("Login successful!");
-        navigate("/");
-      } catch (err) {
-        console.error(err);
-      }
-    }
+    dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: true });
   };
 
   return (
     <AuthLayout title="Welcome Back" subtitle="Sign in to access your account">
       <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-        <form onSubmit={handleSubmit}>
+        <form>
           <RoleSelector
             selectedRole={state.role}
             onRoleChange={handleRoleChange}
@@ -179,7 +218,11 @@ export default function LoginContainer() {
             error={state.errors.password}
             disabled={isLoading}
           />
-          <Button onClick={() => {}} type="submit" isLoading={loading}>
+          <Button
+            onClick={async (e) => await handleSubmit(e)}
+            // type="submit"
+            isLoading={loading}
+          >
             {isLoading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
