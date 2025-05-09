@@ -2,8 +2,8 @@ import { useState } from "react";
 import { SeatSummary } from "./SeatSummary";
 import { useAppSelector } from "../../app/hooks";
 import { selectBus } from "../../features/bus/busSlice";
-import { useGetTripDetailByIdQuery } from "../../features/bus/busApi";
 import { useParams } from "react-router-dom";
+import { useGetTripDetailByIdQuery } from "../../features/booking/bookingApi";
 
 export default function BusSeatSelector() {
   const bus = useAppSelector(selectBus);
@@ -116,7 +116,13 @@ export default function BusSeatSelector() {
         </div>
 
         <div className="md:w-72 md:sticky md:top-6 md:self-start mb-6 md:mb-0 order-first md:order-last">
-          <SeatSummary selectedSeats={selectedSeats} busDetails={bus} />
+          <SeatSummary
+            selectedSeats={selectedSeats}
+            busDetails={bus}
+            clearSelectedSeats={() => {
+              setSelectedSeats([]);
+            }}
+          />
         </div>
       </div>
     </div>

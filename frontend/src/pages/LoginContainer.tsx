@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Phone } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -8,13 +8,7 @@ import { RoleSelector } from "../components/auth/RoleSelector";
 import { Button } from "../components/Button";
 import { useLoginMutation } from "../features/auth/authApi";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import {
-  selectIsAuthenticated,
-  selectAuthError,
-  selectAuthLoading,
-  clearError,
-} from "../features/auth/authSlice";
-import { loginUser } from "../features/auth/authServices";
+import { selectIsAuthenticated } from "../features/auth/authSlice";
 import {
   TLoginAction,
   TLoginError,
@@ -87,11 +81,10 @@ export default function LoginContainer() {
   const [state, dispatchReducer] = useReducer(loginReducer, {
     ...initialLoginState,
   });
-  const [_login, { isLoading }] = useLoginMutation();
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const authError = useAppSelector(selectAuthError);
-  const loading = useAppSelector(selectAuthLoading);
+  const [loginUser, { isLoading, isError }] = useLoginMutation();
+  const [loading, setLoading] = useState(isLoading);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -106,23 +99,26 @@ export default function LoginContainer() {
     }
 
     if (state.isValid) {
+      setLoading(true);
       const performLogin = async () => {
-        try {
-          await dispatch(
-            loginUser({
-              email: state.email,
-              phone: state.phone,
-              password: state.password,
-              role: state.role,
-            })
-          ).unwrap();
-          toast.success("Login successful!");
-          navigate("/");
-          dispatchReducer({ type: "RESET" });
-        } catch (err: any) {
-          console.error("Login submission failed:", err);
-          dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });
-        }
+        loginUser({
+          email: state.email,
+          phone: state.phone,
+          password: state.password,
+          role: state.role,
+        })
+          .unwrap()
+          .then(() => {
+            toast.success("Login successful!");
+            navigate("/");
+            dispatchReducer({ type: "RESET" });
+          })
+          .catch((err) => {
+            console.error("Login submission failed:", err);
+            toast.error(err.data.message);
+            dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });
+          })
+          .finally(() => setLoading(false));
       };
 
       performLogin();
@@ -141,14 +137,10 @@ export default function LoginContainer() {
   ]);
 
   useEffect(() => {
-    if (authError) {
-      toast.error(authError);
-      if (state.submitAttempted) {
-        dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });
-      }
-      dispatch(clearError());
+    if (state.submitAttempted) {
+      dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });
     }
-  }, [authError]);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatchReducer({
@@ -165,8 +157,7 @@ export default function LoginContainer() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    console.log("Submitting form");
+  const handleSubmit = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     dispatchReducer({ type: "VALIDATE" });
     dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: true });
@@ -189,7 +180,7 @@ export default function LoginContainer() {
             onChange={handleChange}
             icon={<Mail size={18} className="text-gray-400" />}
             error={state.errors.email}
-            disabled={isLoading}
+            disabled={loading}
           />
           <div className="flex justify-center items-center my-2">
             <hr className="w-[50%] text-gray-300" />
@@ -205,7 +196,7 @@ export default function LoginContainer() {
             onChange={handleChange}
             icon={<Phone size={18} className="text-gray-400" />}
             error={state.errors.phone}
-            disabled={isLoading}
+            disabled={loading}
           />
           <InputField
             id="password"
@@ -216,14 +207,14 @@ export default function LoginContainer() {
             onChange={handleChange}
             icon={<Lock size={18} className="text-gray-400" />}
             error={state.errors.password}
-            disabled={isLoading}
+            disabled={loading}
           />
           <Button
-            onClick={async (e) => await handleSubmit(e)}
+            onClick={handleSubmit}
             // type="submit"
             isLoading={loading}
           >
-            {isLoading ? "Signing In..." : "Sign In"}
+            {loading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
       </div>

@@ -1,25 +1,29 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { getBusses } from "../features/bus/busService";
-import { selectBuses } from "../features/bus/busSlice";
 import BusCard from "../components/bus/BusCard";
 import { TBusSearchParams } from "../types";
-import { useEffect } from "react";
+import { useGetBusesQuery } from "../features/bus/busApi";
 
 const BusSearchResults = () => {
   const [p, _] = useSearchParams();
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { data, isLoading } = useGetBusesQuery(
+    Object.fromEntries(p.entries()) as TBusSearchParams
+  );
 
-  console.log(Object.fromEntries(p.entries()));
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-7xl min-h-screen flex items-center justify-center">
+        <div className="text-lg font-medium text-gray-700">
+          Loading buses...
+        </div>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    dispatch(getBusses(Object.fromEntries(p.entries()) as TBusSearchParams));
-  }, [dispatch]);
+  const buses = data?.data || [];
 
-  const buses = useAppSelector(selectBuses);
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 my-10 gap-5 flex flex-col">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 my-10 gap-5 flex flex-col min-h-screen">
       {buses.map((bus) => (
         <BusCard bus={bus} key={bus.id} />
       ))}
@@ -32,7 +36,6 @@ const BusSearchResults = () => {
               navigate("/");
             }}
           >
-            {" "}
             Go to search page
           </button>
         </div>

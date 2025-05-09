@@ -18,6 +18,7 @@ export const registerOperator = async (
       id: result.id,
       name: result.name,
       email: req.body.email,
+      role: "operator",
     },
   });
 };
@@ -36,6 +37,7 @@ export const loginOperator = async (
       id: result.id,
       name: result.name,
       email: email,
+      role: "operator",
     },
   });
 };

@@ -9,7 +9,7 @@ export class OperatorAuthService extends BaseAuthService {
 
   protected validateRegistrationData(data: TAuthData): string | null {
     const { company_name, email, phone, password } = data;
-    if (!company_name || !email || !phone || !password) {
+    if (!company_name || (!email && !phone) || !password) {
       return "Company name, email, phone, and password are required";
     }
     return null;

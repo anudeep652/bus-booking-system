@@ -17,6 +17,18 @@ export const authApi = createApi({
         method: "POST",
         body: credentials,
       }),
+      transformErrorResponse: (response: { status: number; data: any }) => {
+        if (response.status === 401) {
+          return {
+            status: response.status,
+            data: { message: "Invalid credentials" },
+          };
+        }
+        return {
+          status: response.status,
+          data: response.data || { message: "An error occurred during login" },
+        };
+      },
     }),
 
     register: builder.mutation<TAuthResponse, TRegisterRequest>({

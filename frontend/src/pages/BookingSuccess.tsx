@@ -1,20 +1,15 @@
 import { useEffect } from "react";
 import { Check, Home, Printer, Share2 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../app/hooks";
-import { setSuccess } from "../features/booking/bookingSlice";
 
 const BookingSuccess = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const location = useLocation();
   const success = location.state?.success ?? null;
 
   useEffect(() => {
     if (!success) {
       navigate("/");
-    } else {
-      dispatch(setSuccess(false));
     }
   }, []);
 

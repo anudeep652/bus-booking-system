@@ -15,6 +15,7 @@ export const registerUser = async (
       name: result.name,
       id: result.id,
       email: req.body.email,
+      role: "user",
     },
   });
 };
@@ -31,6 +32,7 @@ export const loginUser = async (
       name: result.name,
       id: result.id,
       email: email,
+      role: "user",
     },
     message: result.message,
     token: result.token,

@@ -19,6 +19,7 @@ export type TAuthResponse = {
   user: TUserData;
   token: string;
   message?: string;
+  role: TUserRole;
 };
 
 export type TUserData = {
@@ -26,15 +27,13 @@ export type TUserData = {
   name?: string;
   email: string;
   phone?: string;
+  role?: TUserRole;
 };
 
 export type TAuthState = {
   user: TUserData | null;
   token: string | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-  role: TUserRole | null;
 };
 
 export type TLoginSuccessPayload = {
@@ -86,4 +85,7 @@ export type TLoginAction =
   | { type: "SET_ROLE"; value: TUserRole }
   | { type: "VALIDATE" }
   | { type: "RESET" }
-  | { type: "SET_SUBMIT_ATTEMPTED"; value: boolean };
+  | {
+      type: "SET_SUBMIT_ATTEMPTED";
+      value: boolean;
+    };

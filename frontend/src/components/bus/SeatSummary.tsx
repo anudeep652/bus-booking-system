@@ -1,25 +1,17 @@
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { bookBusService } from "../../features/booking/bookingService";
-import { selectBookingSuccess } from "../../features/booking/bookingSlice";
 import { TbusSeatSummary } from "../../types";
 import { formatDateTime } from "../../utils";
 import { useNavigate } from "react-router-dom";
+import { useBookBusMutation } from "../../features/booking/bookingApi";
+import { Button } from "../Button";
+import toast from "react-hot-toast";
 
-export const SeatSummary = ({ selectedSeats, busDetails }: TbusSeatSummary) => {
-  const dispatch = useAppDispatch();
-  const success = useAppSelector(selectBookingSuccess);
+export const SeatSummary = ({
+  selectedSeats,
+  busDetails,
+  clearSelectedSeats,
+}: TbusSeatSummary) => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (success) {
-      navigate("/success", {
-        state: {
-          success: true,
-        },
-      });
-    }
-  }, [success]);
+  const [bookBus, { isLoading, isSuccess }] = useBookBusMutation();
 
   if (!busDetails) {
     return (
@@ -33,9 +25,21 @@ export const SeatSummary = ({ selectedSeats, busDetails }: TbusSeatSummary) => {
   const totalPrice = selectedSeats.length * busDetails.price;
 
   const handleClick = () => {
-    dispatch(
-      bookBusService({ trip_id: busDetails.id, seat_numbers: selectedSeats })
-    );
+    bookBus({
+      trip_id: busDetails.id,
+      seat_numbers: selectedSeats,
+      timestamp: new Date().toLocaleDateString(),
+    })
+      .unwrap()
+      .then(() => {
+        navigate("/success", { state: { success: true } });
+      })
+      .catch((err) => {
+        toast.error(err.data.message);
+      })
+      .finally(() => {
+        clearSelectedSeats();
+      });
   };
 
   return (
@@ -109,8 +113,9 @@ export const SeatSummary = ({ selectedSeats, busDetails }: TbusSeatSummary) => {
         </div>
       </div>
 
-      <button
+      <Button
         onClick={handleClick}
+        isLoading={isLoading}
         className={`w-full py-3 rounded-md font-medium ${
           selectedSeats.length > 0
             ? "bg-indigo-600 text-white hover:bg-indigo-700"
@@ -119,7 +124,7 @@ export const SeatSummary = ({ selectedSeats, busDetails }: TbusSeatSummary) => {
         disabled={selectedSeats.length === 0}
       >
         Proceed to Checkout
-      </button>
+      </Button>
     </div>
   );
 };

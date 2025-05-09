@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Phone, Building2 } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -8,12 +8,7 @@ import { RoleSelector } from "../components/auth/RoleSelector";
 import { Button } from "../components/Button";
 import { useRegisterMutation } from "../features/auth/authApi";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import {
-  selectIsAuthenticated,
-  selectAuthError,
-  clearError,
-} from "../features/auth/authSlice";
-import { registerUser } from "../features/auth/authServices";
+import { selectIsAuthenticated } from "../features/auth/authSlice";
 import {
   TRegisterAction,
   TRegisterError,
@@ -119,10 +114,10 @@ export default function RegisterContainer() {
     registerReducer,
     initialRegisterState
   );
-  const [_, { isLoading }] = useRegisterMutation();
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const authError = useAppSelector(selectAuthError);
+  const [registerUser, { isLoading }] = useRegisterMutation();
+  const [loading, setLoading] = useState(isLoading);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -138,22 +133,27 @@ export default function RegisterContainer() {
 
     if (state.isValid) {
       const performRegister = async () => {
-        try {
-          const registerData = {
-            name: state.name,
-            email: state.email,
-            phone: state.phone,
-            password: state.password,
-            role: state.role,
-            company_name: state.companyName,
-          };
+        setLoading(true);
+        const registerData = {
+          name: state.name,
+          email: state.email,
+          phone: state.phone,
+          password: state.password,
+          role: state.role,
+          company_name: state.companyName,
+        };
 
-          await dispatch(registerUser(registerData)).unwrap();
-          toast.success("Registration successful!");
-        } catch (err) {
-          console.error(err);
-          dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });
-        }
+        registerUser(registerData)
+          .unwrap()
+          .then(() => {
+            toast.success("Registration successful!");
+          })
+          .catch((err) => {
+            console.error(err);
+            toast.error(err);
+            dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });
+          })
+          .finally(() => setLoading(false));
       };
 
       performRegister();
@@ -170,13 +170,6 @@ export default function RegisterContainer() {
     dispatch,
     navigate,
   ]);
-
-  useEffect(() => {
-    if (authError) {
-      toast.error(authError);
-      dispatch(clearError());
-    }
-  }, [authError]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatchReducer({
@@ -217,7 +210,7 @@ export default function RegisterContainer() {
               onChange={handleChange}
               icon={<User size={18} className="text-gray-400" />}
               error={state.errors.name}
-              disabled={isLoading}
+              disabled={loading}
             />
 
             <InputField
@@ -229,7 +222,7 @@ export default function RegisterContainer() {
               onChange={handleChange}
               icon={<Mail size={18} className="text-gray-400" />}
               error={state.errors.email}
-              disabled={isLoading}
+              disabled={loading}
             />
           </div>
 
@@ -247,7 +240,7 @@ export default function RegisterContainer() {
               onChange={handleChange}
               icon={<Phone size={18} className="text-gray-400" />}
               error={state.errors.phone}
-              disabled={isLoading}
+              disabled={loading}
             />
             {state.role === "operator" && (
               <InputField
@@ -259,7 +252,7 @@ export default function RegisterContainer() {
                 onChange={handleChange}
                 icon={<Building2 size={18} className="text-gray-400" />}
                 error={state.errors.companyName}
-                disabled={isLoading}
+                disabled={loading}
               />
             )}
           </div>
@@ -273,7 +266,7 @@ export default function RegisterContainer() {
               onChange={handleChange}
               icon={<Lock size={18} className="text-gray-400" />}
               error={state.errors.password}
-              disabled={isLoading}
+              disabled={loading}
             />
             <InputField
               id="confirmPassword"
@@ -284,11 +277,11 @@ export default function RegisterContainer() {
               onChange={handleChange}
               icon={<Lock size={18} className="text-gray-400" />}
               error={state.errors.confirmPassword}
-              disabled={isLoading}
+              disabled={loading}
             />
           </div>
-          <Button type="submit" isLoading={isLoading} className="w-full">
-            {isLoading ? "Creating Account..." : "Create Account"}
+          <Button type="submit" isLoading={loading} className="w-full">
+            {loading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
       </div>

@@ -4,17 +4,26 @@ import { createBaseQuery } from "../baseQuery";
 export const bookingApi = createApi({
   reducerPath: "bookingApi",
   baseQuery: createBaseQuery(),
-  tagTypes: ["Booking"],
+  tagTypes: ["Trip"],
   endpoints: (builder) => ({
-    bookBus: builder.mutation({
+    bookBus: builder.mutation<
+      any,
+      { trip_id: string; seat_numbers: number[]; timestamp: string }
+    >({
       query: (data) => ({
         url: "/booking/book",
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Booking"],
+
+      invalidatesTags: ["Trip"],
+    }),
+
+    getTripDetailById: builder.query({
+      query: (id) => `/trip/${id}`,
+      providesTags: ["Trip"],
     }),
   }),
 });
 
-export const { useBookBusMutation } = bookingApi;
+export const { useBookBusMutation, useGetTripDetailByIdQuery } = bookingApi;

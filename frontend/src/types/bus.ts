@@ -41,4 +41,5 @@ export type TBusSearchResults = {
 export type TbusSeatSummary = {
   selectedSeats: number[];
   busDetails: TBus | null;
+  clearSelectedSeats: () => void;
 };

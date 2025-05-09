@@ -2,8 +2,8 @@ import React from "react";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../app/hooks";
-import { logoutUser } from "../../features/auth/authServices";
 import { Button } from "../Button";
+import { logout } from "../../features/auth/authSlice";
 
 interface LogoutButtonProps {
   variant?: "primary" | "secondary" | "outline";
@@ -20,7 +20,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await dispatch(logoutUser());
+    dispatch(logout());
     navigate("/login");
   };
 

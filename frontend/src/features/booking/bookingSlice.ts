@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
+import { bookingApi } from "./bookingApi";
 
 const initialState = {
   bookings: [],
@@ -16,23 +17,16 @@ export const bookingSlice = createSlice({
     setBookings: (state, action) => {
       state.bookings = action.payload;
     },
-    setLoading: (state, action) => {
-      state.loading = action.payload;
-    },
-    setError: (state, action) => {
-      state.error = action.payload;
-    },
-    setSuccess: (state, action) => {
-      state.success = action.payload;
-    },
-    setMessage: (state, action) => {
-      state.message = action.payload;
-    },
+  },
+  extraReducers: (builder) => {
+    builder.addMatcher(
+      bookingApi.endpoints.bookBus.matchFulfilled,
+      bookingSlice.caseReducers.setBookings
+    );
   },
 });
 
-export const { setBookings, setLoading, setError, setSuccess, setMessage } =
-  bookingSlice.actions;
+export const { setBookings } = bookingSlice.actions;
 export const selectBookings = (state: RootState) => state.booking.bookings;
 export const selectBookingLoading = (state: RootState) => state.booking.loading;
 export const selectBookingError = (state: RootState) => state.booking.error;

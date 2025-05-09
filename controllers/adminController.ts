@@ -16,6 +16,7 @@ export async function loginAdmin(req: Request, res: Response): Promise<void> {
       id: result.id,
       name: result.name,
       email: email,
+      role: "admin",
     },
   });
 }
@@ -33,6 +34,7 @@ export async function registerAdmin(
       id: result.id,
       name: result.name,
       email: req.body.email,
+      role: "admin",
     },
   });
 }

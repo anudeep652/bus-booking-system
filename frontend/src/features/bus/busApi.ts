@@ -5,8 +5,10 @@ import { createBaseQuery } from "../baseQuery";
 export const busApi = createApi({
   reducerPath: "busApi",
   baseQuery: createBaseQuery(),
+  tagTypes: ["Bus"],
   endpoints: (builder) => ({
     getBuses: builder.query<TBusSearchResults, TBusSearchParams>({
+      providesTags: ["Bus"],
       query: ({
         source,
         destination,
@@ -31,13 +33,6 @@ export const busApi = createApi({
     getBusById: builder.query({
       query: (id) => `/buses/${id}`,
     }),
-    getTripDetailById: builder.query({
-      query: (id) => `/trip/${id}`,
-    }),
   }),
 });
-export const {
-  useGetBusesQuery,
-  useGetBusByIdQuery,
-  useGetTripDetailByIdQuery,
-} = busApi;
+export const { useGetBusesQuery, useGetBusByIdQuery } = busApi;
