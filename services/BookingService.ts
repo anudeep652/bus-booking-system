@@ -102,7 +102,14 @@ export class BookingService {
     } catch (err) {
       await session.abortTransaction();
       throw new Error(
-        `Booking failed: ${err instanceof Error ? err.message : err}`
+        `Booking failed: ${
+          err instanceof Error
+            ? err.message.includes("duplicate key error") ||
+              err.message.includes("WriteConflict")
+              ? "seats already booked, please try aother seats"
+              : err.message
+            : err
+        }`
       );
     } finally {
       session.endSession();

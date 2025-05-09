@@ -4,6 +4,7 @@ import { createBaseQuery } from "../baseQuery";
 export const bookingApi = createApi({
   reducerPath: "bookingApi",
   baseQuery: createBaseQuery(),
+  tagTypes: ["Booking"],
   endpoints: (builder) => ({
     bookBus: builder.mutation({
       query: (data) => ({
@@ -11,6 +12,7 @@ export const bookingApi = createApi({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["Booking"],
     }),
   }),
 });

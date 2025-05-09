@@ -116,6 +116,8 @@ export class TripService {
       const busTypeValues = busTypes.filter(
         (type) => type !== "ac" && type !== "nonAc"
       );
+
+      console.log(filters.busType);
       const hasAcFilter = busTypes.includes("ac") || busTypes.includes("nonAc");
 
       const pipeline: any[] = [

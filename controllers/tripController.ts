@@ -8,6 +8,7 @@ export const searchTrips = async (
   res: Response
 ): Promise<ReturnType<RequestParamHandler>> => {
   try {
+    console.log(req.params);
     const trips = await tripService.filterTrips(req.query);
     res.status(200).json({
       success: true,

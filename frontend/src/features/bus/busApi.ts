@@ -14,6 +14,7 @@ export const busApi = createApi({
         endDate,
         minPrice,
         maxPrice,
+        busType,
       }) => ({
         url: "/trip/search",
         params: {
@@ -23,6 +24,7 @@ export const busApi = createApi({
           endDate,
           minPrice,
           maxPrice,
+          busType,
         },
       }),
     }),

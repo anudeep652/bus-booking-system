@@ -20,10 +20,10 @@ export const store = configureStore({
 
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
+      authMiddleware,
       authApi.middleware,
       busApi.middleware,
-      bookingApi.middleware,
-      authMiddleware
+      bookingApi.middleware
     ),
 });
 

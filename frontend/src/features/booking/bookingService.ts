@@ -16,8 +16,14 @@ export const bookBusService = createAsyncThunk(
       }
       return result;
     } catch (error) {
-      dispatch(setError("Booking failed: " + error));
-      return rejectWithValue("Failed to book bus");
+      let errorMessage = "booking failed, please try again";
+
+      if (typeof error === "object" && error !== null && "data" in error) {
+        errorMessage = (error.data as any)?.message || errorMessage;
+      }
+
+      dispatch(setError(errorMessage));
+      return rejectWithValue(errorMessage);
     }
   }
 );
