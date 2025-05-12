@@ -8,6 +8,7 @@ import Home from "../pages/Home";
 import BusSearchResults from "../pages/BusSearchResults";
 import BookBus from "../pages/BookBus";
 import BookingSuccess from "../pages/BookingSuccess";
+import BookingHistory from "../pages/BookingHistory";
 
 const Dashboard = () => <Home />;
 const UserBookings = () => <div>User Bookings</div>;
@@ -55,6 +56,7 @@ const MainRoutes: React.FC = () => {
         <Route path="/bus/search" element={<BusSearchResults />} />
         <Route path="/book-bus/:id" element={<BookBus />} />
         <Route path="/success" element={<BookingSuccess />} />
+        <Route path="/history" element={<BookingHistory />} />
       </Route>
 
       {/* User specific routes */}

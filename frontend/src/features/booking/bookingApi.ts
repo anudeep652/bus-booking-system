@@ -23,7 +23,16 @@ export const bookingApi = createApi({
       query: (id) => `/trip/${id}`,
       providesTags: ["Trip"],
     }),
+
+    getUserTripHistory: builder.query<any, any>({
+      query: () => "/booking/history",
+      providesTags: ["Trip"],
+    }),
   }),
 });
 
-export const { useBookBusMutation, useGetTripDetailByIdQuery } = bookingApi;
+export const {
+  useBookBusMutation,
+  useGetTripDetailByIdQuery,
+  useGetUserTripHistoryQuery,
+} = bookingApi;

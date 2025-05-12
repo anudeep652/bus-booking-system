@@ -10,10 +10,20 @@ export class BookingService {
       }
 
       const bookings = await Booking.find({ user_id: requestedUserId })
-        .populate("trip_id", "name destination date price")
-        .populate("user_id", "name email");
+        .populate({
+          path: "trip_id",
+          match: { status: "completed" },
+          select: "source destination departure_time arrival_time price status",
+        })
+        .populate("user_id", "name email")
+        .sort({ "trip_id.departure_time": -1 })
+        .limit(5);
 
-      return bookings;
+      const completedTripBookings = bookings.filter(
+        (booking) => booking.trip_id !== null
+      );
+
+      return completedTripBookings;
     } catch (error) {
       throw new Error(
         `Failed to fetch booking history: ${
