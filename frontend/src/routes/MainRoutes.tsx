@@ -9,9 +9,9 @@ import BusSearchResults from "../pages/BusSearchResults";
 import BookBus from "../pages/BookBus";
 import BookingSuccess from "../pages/BookingSuccess";
 import BookingHistory from "../pages/BookingHistory";
+import { Bookings } from "../pages/Bookings";
 
 const Dashboard = () => <Home />;
-const UserBookings = () => <div>User Bookings</div>;
 const AdminPanel = () => <div>Admin Panel</div>;
 const OperatorPanel = () => <div>Operator Panel</div>;
 
@@ -52,11 +52,11 @@ const MainRoutes: React.FC = () => {
       {/* Protected routes for all authenticated users */}
       <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/bookings" element={<UserBookings />} />
         <Route path="/bus/search" element={<BusSearchResults />} />
         <Route path="/book-bus/:id" element={<BookBus />} />
         <Route path="/success" element={<BookingSuccess />} />
         <Route path="/history" element={<BookingHistory />} />
+        <Route path="/bookings" element={<Bookings />} />
       </Route>
 
       {/* User specific routes */}

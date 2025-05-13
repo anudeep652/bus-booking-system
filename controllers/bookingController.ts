@@ -5,12 +5,16 @@ import { IRequestWithMiddlewareUser } from "../types";
 const bookingService = new BookingService();
 export const getBookingHistory = async (
   req: IRequestWithMiddlewareUser,
-  res: Response
+  res: Response,
+  type: "history" | "current"
 ) => {
   try {
     const { userId: requestedUserId } = req.user;
 
-    const bookings = await bookingService.getBookingHistory(requestedUserId);
+    const bookings = await bookingService.getBookingHistory(
+      requestedUserId,
+      type
+    );
 
     res.status(200).json({
       success: true,
@@ -63,9 +67,9 @@ export const cancelBooking = async (
   res: Response
 ) => {
   try {
-    const { id: requestedUserId } = req.params;
+    const { userId: requestedUserId } = req.user;
 
-    const { bookingId } = req.params;
+    const { bookingId } = req.body;
 
     const cancelledBooking = await bookingService.cancelBooking(
       bookingId,
@@ -93,7 +97,7 @@ export const cancelSeats = async (
   res: Response
 ) => {
   try {
-    const { seat_numbers, bookingId } = req.body;
+    const { seatNumbers: seat_numbers, bookingId } = req.body;
 
     const cancelSeat = await bookingService.cancelSeats(
       bookingId,

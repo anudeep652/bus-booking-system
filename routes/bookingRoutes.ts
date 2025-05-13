@@ -7,14 +7,16 @@ const bookingRouter = express.Router();
 
 bookingRouter.use(isAuthenticated);
 
-bookingRouter.get("/history", bookingController.getBookingHistory);
+bookingRouter.get("/history", (req, res) =>
+  bookingController.getBookingHistory(req, res, "history")
+);
+bookingRouter.get("/bookings", (req, res) =>
+  bookingController.getBookingHistory(req, res, "current")
+);
 
 bookingRouter.post("/book", bookingController.createBooking);
 
-bookingRouter.delete(
-  "/:id/bookings/:bookingId",
-  bookingController.cancelBooking
-);
+bookingRouter.put("/cancel", bookingController.cancelBooking);
 
 bookingRouter.put("/cancel-seats", bookingController.cancelSeats);
 

@@ -43,3 +43,15 @@ export const getPaymentStatusDetails = (status: string) => {
       };
   }
 };
+
+export const formatDateShort = (dateString: string): string => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
+};

@@ -26,7 +26,7 @@ const Navbar = () => {
 
   const menuItems = [
     { label: "Home", icon: <Home size={18} />, href: "/" },
-    { label: "My Bookings", icon: <Ticket size={18} />, href: "#" },
+    { label: "My Bookings", icon: <Ticket size={18} />, href: "/bookings" },
     { label: "Trip History", icon: <Clock size={18} />, href: "/history" },
     { label: "Help & Support", icon: <HelpCircle size={18} />, href: "#" },
   ];

@@ -4,7 +4,7 @@ import { createBaseQuery } from "../baseQuery";
 export const bookingApi = createApi({
   reducerPath: "bookingApi",
   baseQuery: createBaseQuery(),
-  tagTypes: ["Trip"],
+  tagTypes: ["Booking", "Trip"],
   endpoints: (builder) => ({
     bookBus: builder.mutation<
       any,
@@ -16,17 +16,34 @@ export const bookingApi = createApi({
         body: data,
       }),
 
-      invalidatesTags: ["Trip"],
+      invalidatesTags: ["Booking"],
     }),
 
     getTripDetailById: builder.query({
       query: (id) => `/trip/${id}`,
-      providesTags: ["Trip"],
     }),
 
     getUserTripHistory: builder.query<any, any>({
       query: () => "/booking/history",
-      providesTags: ["Trip"],
+    }),
+
+    getUserCurrentBookings: builder.query({
+      query: () => "/booking/bookings",
+      providesTags: ["Booking"],
+    }),
+
+    cancelBooking: builder.mutation({
+      query: (data) => ({ url: "/booking/cancel", body: data, method: "PUT" }),
+      invalidatesTags: ["Booking"],
+    }),
+
+    cancelSeats: builder.mutation({
+      query: (data) => ({
+        url: "/booking/cancel-seats",
+        body: data,
+        method: "PUT",
+      }),
+      invalidatesTags: ["Booking"],
     }),
   }),
 });
@@ -35,4 +52,7 @@ export const {
   useBookBusMutation,
   useGetTripDetailByIdQuery,
   useGetUserTripHistoryQuery,
+  useGetUserCurrentBookingsQuery,
+  useCancelBookingMutation,
+  useCancelSeatsMutation,
 } = bookingApi;

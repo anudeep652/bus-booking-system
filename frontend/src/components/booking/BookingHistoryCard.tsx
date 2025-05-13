@@ -98,7 +98,7 @@ export const BookingHistoryCard: React.FC<{ booking: TBooking }> = ({
           </span>
         </div>
         <div className={`font-medium ${paymentStatusDetails.color}`}>
-          {paymentStatusDetails.label}
+          payment {paymentStatusDetails.label}
         </div>
       </div>
 

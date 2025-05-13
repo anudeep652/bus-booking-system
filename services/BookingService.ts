@@ -2,17 +2,23 @@ import { User, Trip, Booking } from "../models/index";
 import mongoose from "mongoose";
 
 export class BookingService {
-  async getBookingHistory(requestedUserId: string) {
+  async getBookingHistory(
+    requestedUserId: string,
+    type: "history" | "current"
+  ) {
     try {
       const user = await User.findById(requestedUserId);
       if (!user) {
         throw new Error("User not found");
       }
 
-      const bookings = await Booking.find({ user_id: requestedUserId })
+      const bookings = await Booking.find({
+        user_id: requestedUserId,
+        booking_status: { $nin: ["cancelled"] },
+      })
         .populate({
           path: "trip_id",
-          match: { status: "completed" },
+          match: { status: type === "history" ? "completed" : "scheduled" },
           select: "source destination departure_time arrival_time price status",
         })
         .populate("user_id", "name email")
