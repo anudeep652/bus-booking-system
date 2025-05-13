@@ -72,7 +72,9 @@ export class TripService {
 
       const bookings = await bookingService.getBookingsByTripId(tripId);
       const bookedSeats = bookings.reduce((acc: number[], booking: any) => {
-        const seats = booking.seats.map((seat: any) => seat.seat_number);
+        const seats = booking.seats
+          .filter((seat: any) => seat.status === "booked")
+          .map((s: any) => s.seat_number);
         return acc.concat(seats);
       }, []);
 

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useBookBusMutation } from "../../features/booking/bookingApi";
 import { Button } from "../Button";
 import toast from "react-hot-toast";
+import { generateTicketPDF } from "../booking/GenerateBookingTicket";
 
 export const SeatSummary = ({
   selectedSeats,
@@ -31,8 +32,12 @@ export const SeatSummary = ({
       timestamp: new Date().toLocaleDateString(),
     })
       .unwrap()
-      .then(() => {
-        navigate("/success", { state: { success: true } });
+      .then((resp) => {
+        generateTicketPDF(resp.data);
+
+        setTimeout(() => {
+          navigate("/success", { state: { success: true } });
+        }, 100);
       })
       .catch((err) => {
         toast.error(err.data.message);

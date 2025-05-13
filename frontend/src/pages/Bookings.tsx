@@ -6,6 +6,7 @@ import {
   useGetUserCurrentBookingsQuery,
 } from "../features/booking/bookingApi";
 import { TBooking } from "../types";
+import toast from "react-hot-toast";
 
 const Bookings = () => {
   const { data, isLoading } = useGetUserCurrentBookingsQuery({});
@@ -25,9 +26,13 @@ const Bookings = () => {
   const onCancelBooking = async (bookingId: string) => {
     console.log("this is booking id: ", bookingId);
     await cancelBooking({ bookingId });
+    toast.success("Successfully cancelled the booking");
   };
   const onCancelSeats = async (bookingId: string, seatNumbers: number[]) => {
     console.log("cancelling seats: ", seatNumbers);
+    toast.success(
+      "Successfully cancelled seat numbers: " + seatNumbers.join(",")
+    );
     await cancelSeats({ bookingId, seatNumbers });
   };
   const bookings: TBooking[] = data.data;

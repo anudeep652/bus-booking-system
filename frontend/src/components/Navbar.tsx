@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Menu,
   X,
@@ -15,21 +15,45 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { logout, selectUser } from "../features/auth/authSlice";
 
 const Navbar = () => {
+  const menuItems = [
+    {
+      label: "Home",
+      icon: <Home size={18} />,
+      href: "/",
+      identifier: "/dashboard",
+    },
+    {
+      label: "My Bookings",
+      icon: <Ticket size={18} />,
+      href: "/bookings",
+      identifier: "/bookings",
+    },
+    {
+      label: "Trip History",
+      icon: <Clock size={18} />,
+      href: "/history",
+      identifier: "/history",
+    },
+    {
+      label: "Help & Support",
+      icon: <HelpCircle size={18} />,
+      href: "#",
+      identifier: "/help",
+    },
+  ];
   const [isOpen, setIsOpen] = useState(false);
   const [notificationCount, setNotificationCount] = useState(2);
   const dispatch = useAppDispatch();
   const userSelector = useAppSelector(selectUser);
+  const [currentPage, setCurrentPage] = useState("/");
+
+  useEffect(() => {
+    setCurrentPage(location.pathname);
+  }, []);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
-
-  const menuItems = [
-    { label: "Home", icon: <Home size={18} />, href: "/" },
-    { label: "My Bookings", icon: <Ticket size={18} />, href: "/bookings" },
-    { label: "Trip History", icon: <Clock size={18} />, href: "/history" },
-    { label: "Help & Support", icon: <HelpCircle size={18} />, href: "#" },
-  ];
 
   return (
     <nav className="bg-white shadow-md">
@@ -52,7 +76,10 @@ const Navbar = () => {
                 <a
                   key={index}
                   href={item.href}
-                  className="text-gray-600 hover:text-violet-700 hover:border-b-2 hover:border-violet-600 px-1 py-2 text-sm font-medium flex items-center transition-colors duration-200"
+                  className={`${
+                    currentPage === item.identifier &&
+                    "text-violet-700 border-b-2 border-violet-600"
+                  } text-gray-600 hover:text-violet-700 hover:border-b-2 hover:border-violet-600 px-1 py-2 text-sm font-medium flex items-center transition-colors duration-200`}
                 >
                   <span className="mr-1">{item.icon}</span>
                   {item.label}

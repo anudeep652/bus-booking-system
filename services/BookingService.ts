@@ -103,7 +103,7 @@ export class BookingService {
           seat_number: n,
           status: "booked",
         })),
-        payment_status: "pending",
+        payment_status: "paid",
         booking_status: "confirmed",
       });
       await newBooking.save({ session });
