@@ -45,7 +45,7 @@ const Navbar = () => {
   const [notificationCount, setNotificationCount] = useState(2);
   const dispatch = useAppDispatch();
   const userSelector = useAppSelector(selectUser);
-  const [currentPage, setCurrentPage] = useState("/");
+  const [currentPage, setCurrentPage] = useState("");
 
   useEffect(() => {
     setCurrentPage(location.pathname);
@@ -78,8 +78,8 @@ const Navbar = () => {
                   href={item.href}
                   className={`${
                     currentPage === item.identifier &&
-                    "text-violet-700 border-b-2 border-violet-600"
-                  } text-gray-600 hover:text-violet-700 hover:border-b-2 hover:border-violet-600 px-1 py-2 text-sm font-medium flex items-center transition-colors duration-200`}
+                    "text-indigo-700 border-b-2 border-indigo-600"
+                  } text-gray-600 hover:text-indigo-700 hover:border-b-2 hover:border-indigo-600 px-1 py-2 text-sm font-medium flex items-center transition-colors duration-200`}
                 >
                   <span className="mr-1">{item.icon}</span>
                   {item.label}

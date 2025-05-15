@@ -115,7 +115,10 @@ const BusSearch = () => {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
             <div className="lg:col-span-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-1"
+                htmlFor="from"
+              >
                 From
               </label>
               <div className="relative">
@@ -123,6 +126,7 @@ const BusSearch = () => {
                   <MapPin size={18} className="text-violet-500" />
                 </div>
                 <input
+                  id="from"
                   type="text"
                   name="source"
                   value={formData.source}
@@ -134,7 +138,10 @@ const BusSearch = () => {
             </div>
 
             <div className="lg:col-span-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-1"
+                htmlFor="to"
+              >
                 To
               </label>
               <div className="relative">
@@ -142,6 +149,7 @@ const BusSearch = () => {
                   <MapPin size={18} className="text-violet-500" />
                 </div>
                 <input
+                  id="to"
                   type="text"
                   name="destination"
                   value={formData.destination}
@@ -153,11 +161,15 @@ const BusSearch = () => {
             </div>
 
             <div className="lg:col-span-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-1"
+                htmlFor="startDate"
+              >
                 Start date
               </label>
               <div className="grid grid-cols-1 gap-2">
                 <input
+                  id="startDate"
                   type="datetime-local"
                   name="startDate"
                   value={formData.startDate}
@@ -168,11 +180,15 @@ const BusSearch = () => {
             </div>
 
             <div className="lg:col-span-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-1"
+                htmlFor="endDate"
+              >
                 End date (Optional)
               </label>
               <div className="grid grid-cols-1 gap-2">
                 <input
+                  id="endDate"
                   type="datetime-local"
                   name="endDate"
                   value={formData.endDate}
@@ -216,11 +232,15 @@ const BusSearch = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <label
+                  htmlFor="rating"
+                  className="block text-sm font-medium text-gray-700 mb-2 flex items-center"
+                >
                   <Star size={18} className="mr-1 text-yellow-400" />
                   Minimum Rating
                 </label>
                 <select
+                  id="rating"
                   name="ratings"
                   value={formData.ratings}
                   onChange={handleChange}
@@ -283,10 +303,10 @@ const BusSearch = () => {
                       destination: route.to,
                     });
                   }}
-                  className="flex items-center justify-between p-2 text-sm bg-violet-50 hover:bg-violet-100 rounded-md text-violet-800 transition duration-300"
+                  className="flex items-center justify-between p-2 text-sm bg-indigo-50 hover:bg-indigo-100 rounded-md text-indigo-800 transition duration-300"
                 >
                   <div className="flex items-center">
-                    <Bus size={16} className="mr-2 text-violet-600" />
+                    <Bus size={16} className="mr-2 text-indigo-600" />
                     <span>{route.from}</span>
                   </div>
                   <ArrowRight size={14} className="mx-1 text-violet-400" />
@@ -299,13 +319,13 @@ const BusSearch = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
           <div className="bg-white bg-opacity-90 rounded-lg p-4 shadow">
-            <div className="text-violet-700 font-bold mb-2">Save Up to 30%</div>
+            <div className="text-indigo-700 font-bold mb-2">Save Up to 30%</div>
             <p className="text-sm text-gray-600">
               Book return tickets and save on your journey
             </p>
           </div>
           <div className="bg-white bg-opacity-90 rounded-lg p-4 shadow">
-            <div className="text-violet-700 font-bold mb-2">
+            <div className="text-indigo-700 font-bold mb-2">
               Flexible Booking
             </div>
             <p className="text-sm text-gray-600">
@@ -313,7 +333,7 @@ const BusSearch = () => {
             </p>
           </div>
           <div className="bg-white bg-opacity-90 rounded-lg p-4 shadow">
-            <div className="text-violet-700 font-bold mb-2">24/7 Support</div>
+            <div className="text-indigo-700 font-bold mb-2">24/7 Support</div>
             <p className="text-sm text-gray-600">
               Our team is here to help whenever you need
             </p>

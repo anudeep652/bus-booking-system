@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
-import { TAuthState, TLoginSuccessPayload, TUserRole } from "../../types";
+import { TAuthState, TLoginSuccessPayload } from "../../types";
 import { authApi } from "./authApi";
 
 const initialState: TAuthState = {
