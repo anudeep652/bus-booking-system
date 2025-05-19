@@ -42,7 +42,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-indigo-600 text-white ">
+    <footer className="bg-indigo-600 text-white " role="contentinfo">
       <div className="max-w-6xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -76,7 +76,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link, index) => (
-                <li key={index}>
+                <li key={index} role="li">
                   <a
                     href={link.href}
                     className="text-indigo-200 hover:text-white text-sm transition duration-150 ease-in-out"
@@ -94,6 +94,7 @@ const Footer = () => {
               {footerLinks.support.map((link, index) => (
                 <li key={index}>
                   <a
+                    role="link"
                     href={link.href}
                     className="text-indigo-200 hover:text-white text-sm transition duration-150 ease-in-out"
                   >
@@ -110,6 +111,7 @@ const Footer = () => {
               {footerLinks.legal.map((link, index) => (
                 <li key={index}>
                   <a
+                    role="link"
                     href={link.href}
                     className="text-indigo-200 hover:text-white text-sm transition duration-150 ease-in-out"
                   >
@@ -123,6 +125,7 @@ const Footer = () => {
             <div className="flex space-x-4">
               {socialLinks.map((social, index) => (
                 <a
+                  role="link"
                   key={index}
                   href={social.href}
                   className="bg-indigo-500 hover:bg-indigo-400 h-8 w-8 rounded-full flex items-center justify-center transition duration-150 ease-in-out"

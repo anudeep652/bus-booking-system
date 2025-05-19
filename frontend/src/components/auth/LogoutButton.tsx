@@ -26,6 +26,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
 
   return (
     <Button
+      role="button"
       variant={variant}
       size={size}
       onClick={handleLogout}

@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 import { bookingApi } from "./bookingApi";
 
-const initialState = {
+export const initialState = {
   bookings: [],
   loading: false,
   error: null,

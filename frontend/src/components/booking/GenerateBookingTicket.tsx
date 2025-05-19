@@ -68,12 +68,12 @@ const styles = StyleSheet.create({
   },
 });
 
-const TicketDocument = ({ ticketData }) => {
-  const formatDate = (dateString) => {
+export const TicketDocument = ({ ticketData }) => {
+  const formatDate = (dateString: string | number | Date) => {
     try {
       const date = new Date(dateString);
 
-      const options = {
+      const options: Intl.DateTimeFormatOptions = {
         month: "short",
         day: "2-digit",
         year: "numeric",
@@ -82,7 +82,7 @@ const TicketDocument = ({ ticketData }) => {
         hour12: true,
       };
 
-      return date.toLocaleDateString("en-US", options);
+      return date.toLocaleString("en-US", options);
     } catch (error) {
       return dateString;
     }
@@ -144,7 +144,7 @@ const TicketDocument = ({ ticketData }) => {
               <View>
                 <Text style={styles.label}>Departure:</Text>
                 <Text style={styles.value}>
-                  {formatDate(ticketData.trip_id.departure_time)}
+                  {String(formatDate(ticketData.trip_id.departure_time))}
                 </Text>
               </View>
               <View>

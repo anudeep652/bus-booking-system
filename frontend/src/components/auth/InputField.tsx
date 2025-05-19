@@ -49,6 +49,7 @@ export const InputField = ({
           </div>
         )}
         <input
+          role="textbox"
           type={inputType}
           id={id}
           value={value}
