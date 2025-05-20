@@ -257,10 +257,8 @@ describe("SeatSummary Component", () => {
     jest.useRealTimers();
   });
 
-  test("should show error toast and clear seats on booking failure", async () => {
-    mockUnwrap.mockReturnValue(
-      Promise.reject({ data: { message: "Booking failed" } })
-    );
+  test("should show error toast and clear selected seats when booking fails", async () => {
+    mockUnwrap.mockRejectedValue({ message: "Booking failed" });
 
     const { container } = render(
       <SeatSummary

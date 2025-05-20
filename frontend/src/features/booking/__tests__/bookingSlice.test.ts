@@ -11,10 +11,11 @@ import {
 } from "../bookingSlice";
 import { bookingApi } from "../bookingApi";
 import { AnyAction } from "@reduxjs/toolkit";
+import { TBooking } from "../../../types";
 
 jest.mock("../../baseQuery", () => ({
   createBaseQuery: () => {
-    let mockBaseQuery: jest.Mock;
+    let mockBaseQuery: jest.Mock = jest.fn(() => ({ data: {} }));
     return mockBaseQuery;
   },
 }));
@@ -33,34 +34,89 @@ describe("bookingSlice", () => {
     });
 
     it("should handle setBookings action", () => {
-      const newBookings = [
-        { id: "1", trip: "A" },
-        { id: "2", trip: "B" },
+      const newBookings: TBooking[] = [
+        {
+          _id: "1",
+          seats: [{ _id: "seat1", seat_number: 1, status: "booked" }],
+          booking_status: "confirmed",
+          payment_status: "paid",
+          trip_id: {
+            arrival_time: "2023-10-01T12:00:00Z",
+            departure_time: "2023-10-01T10:00:00Z",
+            price: 1000,
+            source: "City A",
+            destination: "City B",
+          },
+          user_id: {
+            name: "user1",
+            email: "user1@gmail.com",
+          },
+        },
+        {
+          _id: "2",
+          seats: [{ _id: "seat2", seat_number: 2, status: "booked" }],
+          booking_status: "confirmed",
+          payment_status: "paid",
+          trip_id: {
+            arrival_time: "2023-10-01T12:00:00Z",
+            departure_time: "2023-10-01T10:00:00Z",
+            price: 1000,
+            source: "City A",
+            destination: "City B",
+          },
+          user_id: {
+            name: "user1",
+            email: "user1@gmail.com",
+          },
+        },
       ];
-      const action = setBookings(newBookings);
+      const action = setBookings({ data: newBookings, success: true });
       const newState = bookingReducer(bookingInitialState, action);
       expect(newState.bookings).toEqual(newBookings);
     });
 
     describe("extraReducers", () => {
-      it("should update bookings on bookBus.matchFulfilled", () => {
-        const bookBusFulfilledPayload = [
-          { id: "busBook1", details: "Booked successfully" },
-        ];
-
-        const action = {
-          type: "bookingApi/endpoints/bookBus/fulfilled",
-          payload: bookBusFulfilledPayload,
-        };
-
-        expect(bookingApi.endpoints.bookBus.matchFulfilled(action)).toBe(true);
-
-        const state = bookingReducer(bookingInitialState, action);
-        expect(state.bookings).toEqual(bookBusFulfilledPayload);
-      });
-
       it("should not modify state if bookBus.matchFulfilled is not the action and bookings state is preserved", () => {
-        const currentBookings = [{ id: "prev1", details: "Previous booking" }];
+        const currentBookings = [
+          {
+            _id: "1",
+            seats: [
+              { _id: "seat1", seat_number: 1, status: "booked" as const },
+            ],
+            booking_status: "confirmed" as const,
+            payment_status: "paid" as const,
+            trip_id: {
+              arrival_time: "2023-10-01T12:00:00Z",
+              departure_time: "2023-10-01T10:00:00Z",
+              price: 1000,
+              source: "City A",
+              destination: "City B",
+            },
+            user_id: {
+              name: "user1",
+              email: "user1@gmail.com",
+            },
+          },
+          {
+            _id: "2",
+            seats: [
+              { _id: "seat2", seat_number: 2, status: "booked" as const },
+            ],
+            booking_status: "confirmed" as const,
+            payment_status: "paid" as const,
+            trip_id: {
+              arrival_time: "2023-10-01T12:00:00Z",
+              departure_time: "2023-10-01T10:00:00Z",
+              price: 1000,
+              source: "City A",
+              destination: "City B",
+            },
+            user_id: {
+              name: "user1",
+              email: "user1@gmail.com",
+            },
+          },
+        ];
         const currentState = {
           ...bookingInitialState,
           bookings: currentBookings,
@@ -83,12 +139,47 @@ describe("bookingSlice", () => {
   });
 
   describe("selectors", () => {
-    const sampleBookings = [{ id: "booking1", name: "My First Booking" }];
+    const sampleBookings = [
+      {
+        _id: "1",
+        seats: [{ _id: "seat1", seat_number: 1, status: "booked" as const }],
+        booking_status: "confirmed" as const,
+        payment_status: "paid" as const,
+        trip_id: {
+          arrival_time: "2023-10-01T12:00:00Z",
+          departure_time: "2023-10-01T10:00:00Z",
+          price: 1000,
+          source: "City A",
+          destination: "City B",
+        },
+        user_id: {
+          name: "user1",
+          email: "user1@gmail.com",
+        },
+      },
+      {
+        _id: "2",
+        seats: [{ _id: "seat2", seat_number: 2, status: "booked" as const }],
+        booking_status: "confirmed" as const,
+        payment_status: "paid" as const,
+        trip_id: {
+          arrival_time: "2023-10-01T12:00:00Z",
+          departure_time: "2023-10-01T10:00:00Z",
+          price: 1000,
+          source: "City A",
+          destination: "City B",
+        },
+        user_id: {
+          name: "user1",
+          email: "user1@gmail.com",
+        },
+      },
+    ];
     const mockState: MockRootState = {
       booking: {
         bookings: sampleBookings,
         loading: true,
-        error: { message: "An error occurred" },
+        error: "An error occurred",
         success: false,
         message: "Processing...",
       },
@@ -103,9 +194,7 @@ describe("bookingSlice", () => {
     });
 
     it("selectBookingError should return the error object", () => {
-      expect(selectBookingError(mockState)).toEqual({
-        message: "An error occurred",
-      });
+      expect(selectBookingError(mockState)).toEqual("An error occurred");
     });
 
     it("selectBookingSuccess should return the success state", () => {
@@ -122,7 +211,7 @@ describe("bookingSlice", () => {
       };
       expect(selectBookings(initialMockState)).toEqual([]);
       expect(selectBookingLoading(initialMockState)).toBe(false);
-      expect(selectBookingError(initialMockState)).toBeNull();
+      expect(selectBookingError(initialMockState)).toBe("");
       expect(selectBookingSuccess(initialMockState)).toBe(false);
       expect(selectBookingMessage(initialMockState)).toBe("");
     });

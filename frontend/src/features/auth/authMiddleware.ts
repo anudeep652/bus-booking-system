@@ -7,7 +7,7 @@ export const authMiddleware =
   (action: { payload: { status: number } }) => {
     if (
       // authApi.endpoints.getCurrentUser.matchRejected(action) &&
-      action.payload?.status === 401
+      action?.payload?.status === 401
     ) {
       store.dispatch(logout());
     } else {

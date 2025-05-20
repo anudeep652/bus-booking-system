@@ -18,6 +18,7 @@ import {
   useCancelBookingMutation,
   useCancelSeatsMutation,
 } from "../bookingApi";
+import { store } from "../../../app/store";
 
 const mockTripDetails = {
   id: "trip-1",
@@ -490,6 +491,67 @@ describe("Booking API", () => {
 
       expect(callArgs).toMatchObject({
         url: "/booking/cancel",
+        method: "PUT",
+        body: cancelData,
+      });
+    });
+  });
+
+  describe("Booking API Integration Tests", () => {
+    let store;
+    let api = bookingApi;
+
+    beforeEach(() => {
+      jest.resetModules();
+
+      const mockBaseQuery = jest.fn((request) => {
+        return Promise.resolve({ data: { request } });
+      });
+
+      jest.mock("../../baseQuery", () => ({
+        createBaseQuery: () => mockBaseQuery,
+      }));
+
+      const { bookingApi: importedApi } = require("../bookingApi");
+      api = importedApi;
+
+      store = configureStore({
+        reducer: {
+          [api.reducerPath]: api.reducer,
+        },
+        middleware: (getDefaultMiddleware) =>
+          getDefaultMiddleware().concat(api.middleware),
+      });
+    });
+
+    test("getUserTripHistory sends correct request", async () => {
+      const result = await store.dispatch(
+        api.endpoints.getUserTripHistory.initiate({})
+      );
+
+      expect(result.data.request).toBe("/booking/history");
+    });
+
+    test("getUserCurrentBookings sends correct request", async () => {
+      const result = await store.dispatch(
+        api.endpoints.getUserCurrentBookings.initiate({})
+      );
+
+      expect(result.data.request).toBe("/booking/bookings");
+    });
+
+    test("cancelSeats sends correct request", async () => {
+      const cancelData = {
+        bookingId: "booking-3",
+        seatNumbers: [10],
+      };
+
+      const result = await store.dispatch(
+        api.endpoints.cancelSeats.initiate(cancelData)
+      );
+
+      expect(result.data.request).toEqual({
+        url: "/booking/cancel-seats",
         method: "PUT",
         body: cancelData,
       });

@@ -82,7 +82,10 @@ describe("Bus Slice", () => {
         bus: null,
         buses: [],
       };
-      const newState = busReducer(initialState, setBuses(sampleBuses));
+      const newState = busReducer(
+        initialState,
+        setBuses({ data: sampleBuses, success: true })
+      );
       expect(newState.buses).toEqual(sampleBuses);
     });
 
@@ -101,7 +104,10 @@ describe("Bus Slice", () => {
         bus: sampleBus,
         buses: [],
       };
-      const newState = busReducer(initialState, setBuses(sampleBuses));
+      const newState = busReducer(
+        initialState,
+        setBuses({ success: true, data: sampleBuses })
+      );
       expect(newState.bus).toEqual(sampleBus);
       expect(newState.buses).toEqual(sampleBuses);
     });
@@ -173,7 +179,7 @@ describe("Bus Slice", () => {
 
       const newState = busReducer(
         initialState,
-        setBuses(getBusesFulfilledAction.payload.data)
+        setBuses({ data: getBusesFulfilledAction.payload.data, success: true })
       );
 
       expect(newState.buses).toEqual(sampleBuses);
@@ -190,7 +196,7 @@ describe("Bus Slice", () => {
 
     it("should update store when setBuses is dispatched", () => {
       const store = createMockStore();
-      store.dispatch(setBuses(sampleBuses));
+      store.dispatch(setBuses({ data: sampleBuses, success: true }));
 
       expect(store.getState().buses).toEqual(sampleBuses);
     });

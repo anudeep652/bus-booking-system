@@ -35,12 +35,12 @@ export default function BusSeatSelector() {
   };
 
   const handleSeatClick = (seatNumber: number) => {
-    if (isSeatUnavailable(seatNumber)) return;
-
-    if (isSeatSelected(seatNumber)) {
-      setSelectedSeats(selectedSeats.filter((seat) => seat !== seatNumber));
-    } else {
-      setSelectedSeats([...selectedSeats, seatNumber]);
+    if (!isSeatUnavailable(seatNumber)) {
+      if (isSeatSelected(seatNumber)) {
+        setSelectedSeats(selectedSeats.filter((seat) => seat !== seatNumber));
+      } else {
+        setSelectedSeats([...selectedSeats, seatNumber]);
+      }
     }
   };
 

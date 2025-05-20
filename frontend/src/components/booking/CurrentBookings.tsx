@@ -83,17 +83,17 @@ const CurrentBookings: React.FC<{
   };
 
   const handleMultipleSeatsCancellation = async () => {
-    if (selectedSeats.length === 0) return;
-
-    setCancellingMultiple(true);
-    try {
-      await onCancelMultipleSeats(booking._id, selectedSeats);
-      setSelectedSeats([]);
-      setSelectionMode(false);
-    } catch (error: unknown) {
-      console.error("Failed to cancel multiple seats:", error);
-    } finally {
-      setCancellingMultiple(false);
+    if (selectedSeats.length > 0) {
+      setCancellingMultiple(true);
+      try {
+        await onCancelMultipleSeats(booking._id, selectedSeats);
+        setSelectedSeats([]);
+        setSelectionMode(false);
+      } catch (error: unknown) {
+        console.error("Failed to cancel multiple seats:", error);
+      } finally {
+        setCancellingMultiple(false);
+      }
     }
   };
 

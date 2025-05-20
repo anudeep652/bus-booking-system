@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BookingHistoryCard } from "../BookingHistoryCard";
 import { TBooking } from "../../../types";

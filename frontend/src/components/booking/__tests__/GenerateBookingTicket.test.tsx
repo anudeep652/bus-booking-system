@@ -1,6 +1,5 @@
-import renderer, { act } from "react-test-renderer";
+// @ts-nocheck
 import { TicketDocument, generateTicketPDF } from "../GenerateBookingTicket";
-import { Text } from "@react-pdf/renderer";
 
 jest.mock("@react-pdf/renderer", () => {
   const Document = ({ children }: { children?: React.ReactNode }) => children;

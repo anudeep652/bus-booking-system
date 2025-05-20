@@ -179,12 +179,6 @@ export const TicketDocument = ({ ticketData }: { ticketData: TTicketData }) => {
           <Text style={styles.value}>
             • Payment Status: {ticketData.payment_status.toUpperCase()}
           </Text>
-
-          {ticketData.payment_status === "pending" && (
-            <Text style={[styles.value, { color: "red" }]}>
-              {/* Please complete your payment to confirm this booking. */}
-            </Text>
-          )}
         </View>
 
         <View style={styles.footer}>

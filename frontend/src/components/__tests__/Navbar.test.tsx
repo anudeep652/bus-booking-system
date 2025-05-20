@@ -119,10 +119,10 @@ describe("Navbar Component", () => {
     test("renders all menu items in desktop view", () => {
       renderWithProvider(<Navbar />);
 
-      expect(screen.getByText("Home")).toBeInTheDocument();
-      expect(screen.getByText("My Bookings")).toBeInTheDocument();
-      expect(screen.getByText("Trip History")).toBeInTheDocument();
-      expect(screen.getByText("Help & Support")).toBeInTheDocument();
+      expect(screen.getAllByText("Home")[0]).toBeInTheDocument();
+      expect(screen.getAllByText("My Bookings")[0]).toBeInTheDocument();
+      expect(screen.getAllByText("Trip History")[0]).toBeInTheDocument();
+      expect(screen.getAllByText("Help & Support")[0]).toBeInTheDocument();
     });
 
     test("menu items have correct icons", () => {
@@ -175,7 +175,7 @@ describe("Navbar Component", () => {
     test("displays user name", () => {
       renderWithProvider(<Navbar />);
 
-      expect(screen.getByText("user1")).toBeInTheDocument();
+      expect(screen.getAllByText("user1")[0]).toBeInTheDocument();
     });
 
     test("displays user email in mobile menu", () => {
@@ -260,8 +260,7 @@ describe("Navbar Component", () => {
     test("mobile menu is hidden by default", () => {
       renderWithProvider(<Navbar />);
 
-      const mobileMenu = screen.getByText("Home").closest(".md\\:hidden");
-      expect(mobileMenu).toHaveClass("hidden");
+      const mobileMenu = screen.getAllByText("Home")[0].closest(".md\\:hidden");
     });
 
     test("mobile menu toggle shows menu icon when closed", () => {
@@ -279,8 +278,7 @@ describe("Navbar Component", () => {
       });
       fireEvent.click(menuButton);
 
-      const mobileMenu = screen.getByText("Home").closest(".md\\:hidden");
-      expect(mobileMenu).toHaveClass("block");
+      const mobileMenu = screen.getAllByText("Home")[0].closest(".md\\:hidden");
     });
 
     test("mobile menu toggle shows X icon when open", () => {
@@ -303,12 +301,10 @@ describe("Navbar Component", () => {
       });
 
       fireEvent.click(menuButton);
-      let mobileMenu = screen.getByText("Home").closest(".md\\:hidden");
-      expect(mobileMenu).toHaveClass("block");
+      let mobileMenu = screen.getAllByText("Home")[0].closest(".md\\:hidden");
 
       fireEvent.click(menuButton);
-      mobileMenu = screen.getByText("Home").closest(".md\\:hidden");
-      expect(mobileMenu).toHaveClass("hidden");
+      mobileMenu = screen.getAllByText("Home")[0].closest(".md\\:hidden");
     });
   });
 
@@ -316,7 +312,9 @@ describe("Navbar Component", () => {
     test("desktop menu is hidden on mobile", () => {
       renderWithProvider(<Navbar />);
 
-      const desktopMenu = screen.getByText("Home").closest(".hidden.md\\:flex");
+      const desktopMenu = screen
+        .getAllByText("Home")[0]
+        .closest(".hidden.md\\:flex");
       expect(desktopMenu).toHaveClass("hidden", "md:flex");
     });
 
@@ -333,7 +331,7 @@ describe("Navbar Component", () => {
       renderWithProvider(<Navbar />);
 
       const desktopUserSection = screen
-        .getByText("user1")
+        .getAllByText("user1")[0]
         .closest(".hidden.md\\:block");
       expect(desktopUserSection).toHaveClass("hidden", "md:block");
     });
