@@ -42,7 +42,7 @@ export const getTripDetail = async (
 ): Promise<ReturnType<RequestParamHandler>> => {
   try {
     const trip = await tripService.getTripById(req.params.tripId);
-    res.status(200).json({ trip });
+    res.status(200).json({ success: true, data: trip });
   } catch (error) {
     res.status(404).json({
       success: false,
