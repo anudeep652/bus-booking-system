@@ -10,7 +10,7 @@ const BookBus = () => {
   const params = useParams();
   const bus = useAppSelector(selectBus);
   const navigate = useNavigate();
-  const bookingError = useAppSelector(selectBookingError);
+  const bookingError: string | null = useAppSelector(selectBookingError);
   useEffect(() => {
     if (!params.id || bus?.id !== params.id) {
       navigate("/");

@@ -9,24 +9,29 @@ export default function BusSeatSelector() {
   const bus = useAppSelector(selectBus);
   const params = useParams();
   console.log(params.id);
-  const { data, isError, isLoading, error } = useGetTripDetailByIdQuery(
-    params.id
-  );
+  const {
+    data: response,
+    isError,
+    isLoading,
+    error,
+  } = useGetTripDetailByIdQuery(params.id || "");
 
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {JSON.stringify(error)}</div>;
-  if (!data) return <div>No trip data available.</div>;
+  if (!response?.data) return <div>No trip data available.</div>;
 
-  const totalRows = Math.ceil(data.trip.totalSeats / data.trip.seatsPerRow);
+  const totalRows = Math.ceil(
+    response.data.totalSeats / response.data.seatsPerRow
+  );
 
   const isSeatSelected = (seatNumber: number) => {
     return selectedSeats.includes(seatNumber);
   };
 
   const isSeatUnavailable = (seatNumber: number) => {
-    return data.trip.unavailableSeats.includes(seatNumber);
+    return response.data.unavailableSeats.includes(seatNumber);
   };
 
   const handleSeatClick = (seatNumber: number) => {
@@ -45,10 +50,14 @@ export default function BusSeatSelector() {
     for (let row = 0; row < totalRows; row++) {
       const rowSeats = [];
 
-      for (let seatIndex = 0; seatIndex < data.trip.seatsPerRow; seatIndex++) {
-        const seatNumber = row * data.trip.seatsPerRow + seatIndex + 1;
+      for (
+        let seatIndex = 0;
+        seatIndex < response.data.seatsPerRow;
+        seatIndex++
+      ) {
+        const seatNumber = row * response.data.seatsPerRow + seatIndex + 1;
 
-        if (seatNumber > data.trip.totalSeats) continue;
+        if (seatNumber > response.data.totalSeats) continue;
 
         const isAisle = seatIndex === 1 || seatIndex === 2;
 

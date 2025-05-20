@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const BookingSuccess = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const location: { state: { success?: boolean } } = useLocation();
   const success = location.state?.success ?? null;
 
   useEffect(() => {

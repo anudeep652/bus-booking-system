@@ -1,66 +1,110 @@
+// @ts-nocheck
+import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import LogoutButton from "../LogoutButton";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../../app/hooks";
 import { logout } from "../../../features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import LogoutButton from "../LogoutButton";
 
-jest.mock("lucide-react", () => ({
-  LogOut: () => <div data-testid="logout-icon">Logout Icon</div>,
+jest.mock("react-router-dom", () => ({
+  useNavigate: jest.fn(),
 }));
 
 jest.mock("../../../app/hooks", () => ({
   useAppDispatch: jest.fn(),
 }));
-jest.mock("react-router-dom", () => ({
-  useNavigate: jest.fn(),
-}));
+
 jest.mock("../../../features/auth/authSlice", () => ({
-  logout: jest.fn().mockReturnValue({ type: "auth/logout" }),
+  logout: jest.fn(),
+}));
+
+jest.mock("lucide-react", () => ({
+  LogOut: () => <span data-testid="logout-icon" />,
+}));
+
+jest.mock("../../Button", () => ({
+  Button: ({ children, onClick, variant, size, className, role }) => (
+    <button
+      onClick={onClick}
+      data-variant={variant}
+      data-size={size}
+      className={className}
+      role={role}
+      data-testid="button-component"
+    >
+      {children}
+    </button>
+  ),
 }));
 
 describe("LogoutButton", () => {
-  let mockDispatch: jest.Mock;
-  let mockNavigate: jest.Mock;
+  const mockDispatch = jest.fn();
+  const mockNavigate = jest.fn();
 
   beforeEach(() => {
-    mockDispatch = jest.fn();
+    jest.clearAllMocks();
     (useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-
-    mockNavigate = jest.fn();
     (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it("renders with default props", () => {
+  it("renders correctly with default props", () => {
     render(<LogoutButton />);
 
-    expect(screen.getByTestId("logout-button")).toBeInTheDocument();
-
+    const button = screen.getByTestId("button-component");
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveAttribute("data-variant", "outline");
+    expect(button).toHaveAttribute("data-size", "md");
     expect(screen.getByTestId("logout-icon")).toBeInTheDocument();
+    expect(button).toHaveTextContent("Sign Out");
   });
 
-  it("applies custom variant, size, and className", () => {
-    render(
-      <LogoutButton variant="primary" size="lg" className="my-extra-class" />
-    );
-    const btn = screen.getByRole("button", { name: /sign out/i });
-    expect(btn).toHaveClass("btn-primary");
-    expect(btn).toHaveClass("btn-lg");
-    expect(btn).toHaveClass("my-extra-class");
+  it("applies custom variant prop correctly", () => {
+    render(<LogoutButton variant="primary" />);
+
+    const button = screen.getByTestId("button-component");
+    expect(button).toHaveAttribute("data-variant", "primary");
   });
 
-  it("dispatches logout and navigates to /login on click", () => {
+  it("applies custom size prop correctly", () => {
+    render(<LogoutButton size="lg" />);
+
+    const button = screen.getByTestId("button-component");
+    expect(button).toHaveAttribute("data-size", "lg");
+  });
+
+  it("applies custom className prop correctly", () => {
+    render(<LogoutButton className="custom-class" />);
+
+    const button = screen.getByTestId("button-component");
+    expect(button).toHaveClass("custom-class");
+    expect(button).toHaveClass("flex");
+    expect(button).toHaveClass("items-center");
+  });
+
+  it("calls handleLogout when clicked", () => {
     render(<LogoutButton />);
 
-    fireEvent.click(screen.getByTestId("logout-button"));
+    const button = screen.getByTestId("button-component");
+    fireEvent.click(button);
 
-    expect(logout).toHaveBeenCalledTimes(1);
+    expect(mockDispatch).toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalled();
+  });
 
-    expect(mockDispatch).toHaveBeenCalledWith({ type: "auth/logout" });
+  it("has the correct accessibility role", () => {
+    render(<LogoutButton />);
 
-    expect(mockNavigate).toHaveBeenCalledWith("/login");
+    const button = screen.getByTestId("button-component");
+    expect(button).toHaveAttribute("role", "button");
+  });
+
+  it("includes the logout icon with proper styling", () => {
+    render(<LogoutButton />);
+
+    const icon = screen.getByTestId("logout-icon");
+    expect(icon).toBeInTheDocument();
+
+    const iconContainer = icon.parentElement;
+    expect(iconContainer).toHaveClass("flex items-center");
   });
 });

@@ -31,7 +31,7 @@ export const busApi = createApi({
       }),
     }),
     getBusById: builder.query({
-      query: (id) => `/buses/${id}`,
+      query: (id: string) => `/buses/${id}`,
     }),
   }),
 });

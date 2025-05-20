@@ -9,6 +9,9 @@ module.exports = {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
   testPathIgnorePatterns: [".*\\.spec\\."],
+  testEnvironmentOptions: {
+    customExportConditions: [""],
+  },
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest",
   },

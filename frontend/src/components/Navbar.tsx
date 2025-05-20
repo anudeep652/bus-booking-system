@@ -13,6 +13,10 @@ import {
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { logout, selectUser } from "../features/auth/authSlice";
+import { authApi } from "../features/auth/authApi";
+import { bookingApi } from "../features/booking/bookingApi";
+import { busApi } from "../features/bus/busApi";
+import { store } from "../app/store";
 
 const Navbar = () => {
   const menuItems = [
@@ -112,7 +116,12 @@ const Navbar = () => {
                 </button>
                 <button
                   className="ml-4 text-gray-600 hover:text-violet-700 focus:outline-none cursor-pointer"
-                  onClick={() => dispatch(logout())}
+                  onClick={() => {
+                    dispatch(logout());
+                    dispatch(authApi.util.resetApiState());
+                    dispatch(bookingApi.util.resetApiState());
+                    dispatch(busApi.util.resetApiState());
+                  }}
                 >
                   <LogOut size={18} />
                 </button>

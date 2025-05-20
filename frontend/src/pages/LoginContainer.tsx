@@ -113,7 +113,7 @@ export default function LoginContainer() {
             navigate("/");
             dispatchReducer({ type: "RESET" });
           })
-          .catch((err) => {
+          .catch((err: { data: { message: string } }) => {
             console.error("Login submission failed:", err);
             toast.error(err.data.message);
             dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });

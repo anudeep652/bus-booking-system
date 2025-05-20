@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 import { TBus } from "../../types/bus";
 import { busApi } from "./busApi";
@@ -15,11 +15,14 @@ export const busSlice = createSlice({
   name: "bus",
   initialState,
   reducers: {
-    setBus: (state, action) => {
+    setBus: (state, action: PayloadAction<TBus>) => {
       state.bus = action.payload;
     },
-    setBuses: (state, action) => {
-      state.buses = action.payload;
+    setBuses: (
+      state,
+      action: PayloadAction<{ success: Boolean; data: TBus[] }>
+    ) => {
+      state.buses = action.payload.data;
     },
   },
   extraReducers: (builder) => {

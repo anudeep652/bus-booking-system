@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { CurrentBookings } from "../CurrentBookings";
 import { TBooking } from "../../../types";
 import { calculateTimeDifference, formatDateShort } from "../../../utils";
+import React from "react";
 
 jest.mock("lucide-react", () => ({
   Calendar: () => <div data-testid="icon-calendar" />,
@@ -338,5 +339,327 @@ describe("CurrentBookings", () => {
     expect(screen.getByText(/Cancel Entire Booking/i)).toBeInTheDocument();
 
     expect(mockOnCancelBooking).not.toHaveBeenCalled();
+  });
+
+  test("handles error when cancelling a booking", async () => {
+    const originalConsoleError = console.error;
+    console.error = jest.fn();
+
+    const failingCancelBooking = jest
+      .fn()
+      .mockRejectedValue(new Error("Failed to cancel booking"));
+
+    render(
+      <CurrentBookings
+        booking={mockBooking}
+        onCancelBooking={failingCancelBooking}
+        onCancelSeat={mockOnCancelSeat}
+        onCancelMultipleSeats={mockOnCancelMultipleSeats}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/Cancel Entire Booking/i));
+    fireEvent.click(screen.getByText(/Yes, Cancel Booking/i));
+
+    await waitFor(() => {
+      expect(console.error).toHaveBeenCalledWith(
+        "Failed to cancel booking:",
+        expect.any(Error)
+      );
+    });
+
+    console.error = originalConsoleError;
+  });
+
+  test("handles error when cancelling a seat", async () => {
+    const originalConsoleError = console.error;
+    console.error = jest.fn();
+
+    const failingCancelSeat = jest
+      .fn()
+      .mockRejectedValue(new Error("Failed to cancel seat"));
+
+    render(
+      <CurrentBookings
+        booking={mockBooking}
+        onCancelBooking={mockOnCancelBooking}
+        onCancelSeat={failingCancelSeat}
+        onCancelMultipleSeats={mockOnCancelMultipleSeats}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/Manage Seats/i));
+
+    const cancelButtons = screen.getAllByText(/Cancel/i);
+    fireEvent.click(cancelButtons[0]);
+
+    await waitFor(() => {
+      expect(console.error).toHaveBeenCalledWith(
+        "Failed to cancel seat 1:",
+        expect.any(Error)
+      );
+    });
+
+    console.error = originalConsoleError;
+  });
+
+  test("toggles seat selection when seat is clicked in selection mode", async () => {
+    render(
+      <CurrentBookings
+        booking={mockBooking}
+        onCancelBooking={mockOnCancelBooking}
+        onCancelSeat={mockOnCancelSeat}
+        onCancelMultipleSeats={mockOnCancelMultipleSeats}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/Manage Seats/i));
+
+    fireEvent.click(screen.getByText(/Select Multiple/i));
+
+    const seatCards = screen.getAllByText(/Seat \d/i);
+    fireEvent.click(seatCards[0]);
+
+    fireEvent.click(seatCards[0]);
+
+    expect(
+      screen.queryByText(/Cancel 1 Selected Seat/i)
+    ).not.toBeInTheDocument();
+  });
+
+  test("does nothing when trying to cancel multiple seats with none selected", async () => {
+    const originalAddEventListener = document.addEventListener;
+    let capturedClickHandler: Function | null = null;
+
+    document.addEventListener = jest.fn((event, handler) => {
+      if (event === "click") {
+        capturedClickHandler = handler as Function;
+      }
+      return originalAddEventListener(event, handler);
+    });
+
+    render(
+      <CurrentBookings
+        booking={mockBooking}
+        onCancelBooking={mockOnCancelBooking}
+        onCancelSeat={mockOnCancelSeat}
+        onCancelMultipleSeats={mockOnCancelMultipleSeats}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/Manage Seats/i));
+
+    fireEvent.click(screen.getByText(/Select Multiple/i));
+
+    const fakeButton = document.createElement("button");
+    fakeButton.dataset.testid = "fake-cancel-button";
+    fakeButton.textContent = "Cancel 0 Selected Seats";
+    document.body.appendChild(fakeButton);
+
+    fireEvent.click(fakeButton);
+
+    expect(mockOnCancelMultipleSeats).not.toHaveBeenCalled();
+
+    document.body.removeChild(fakeButton);
+    document.addEventListener = originalAddEventListener;
+  });
+
+  test("does nothing when trying to cancel multiple seats with none selected", async () => {
+    const consoleSpy = jest.spyOn(console, "error");
+
+    render(
+      <CurrentBookings
+        booking={mockBooking}
+        onCancelBooking={mockOnCancelBooking}
+        onCancelSeat={mockOnCancelSeat}
+        onCancelMultipleSeats={mockOnCancelMultipleSeats}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/Manage Seats/i));
+
+    fireEvent.click(screen.getByText(/Select Multiple/i));
+
+    const seatCards = screen.getAllByText(/Seat \d/i);
+    fireEvent.click(seatCards[0]);
+
+    const cancelButton = screen.getByText(/Cancel 1 Selected Seat/i);
+
+    fireEvent.click(screen.getByText(/Clear/i));
+
+    fireEvent.click(cancelButton, { force: true });
+
+    expect(mockOnCancelMultipleSeats).not.toHaveBeenCalled();
+
+    expect(consoleSpy).not.toHaveBeenCalled();
+
+    consoleSpy.mockRestore();
+  });
+  test("handleMultipleSeatsCancellation should return early when no seats are selected", async () => {
+    render(
+      <CurrentBookings
+        booking={mockBooking}
+        onCancelBooking={mockOnCancelBooking}
+        onCancelSeat={mockOnCancelSeat}
+        onCancelMultipleSeats={mockOnCancelMultipleSeats}
+      />
+    );
+
+    const manageSeatsButton = screen.getByText("Manage Seats");
+    fireEvent.click(manageSeatsButton);
+
+    const selectMultipleButton = screen.getByText("Select Multiple");
+    fireEvent.click(selectMultipleButton);
+
+    expect(screen.getByText("Exit Selection Mode")).toBeInTheDocument();
+
+    const originalConsoleError = console.error;
+    console.error = jest.fn();
+
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "Cancel 0 Selected Seats";
+    cancelButton.setAttribute("data-testid", "mock-cancel-button");
+    document.body.appendChild(cancelButton);
+
+    fireEvent.click(cancelButton);
+
+    await waitFor(() => {
+      expect(mockOnCancelMultipleSeats).not.toHaveBeenCalled();
+    });
+
+    document.body.removeChild(cancelButton);
+    console.error = originalConsoleError;
+  });
+  test("cancel button should not appear when no seats are selected", async () => {
+    render(
+      <CurrentBookings
+        booking={mockBooking}
+        onCancelBooking={mockOnCancelBooking}
+        onCancelSeat={mockOnCancelSeat}
+        onCancelMultipleSeats={mockOnCancelMultipleSeats}
+      />
+    );
+
+    const manageSeatsButton = screen.getByText("Manage Seats");
+    fireEvent.click(manageSeatsButton);
+
+    const selectMultipleButton = screen.getByText("Select Multiple");
+    fireEvent.click(selectMultipleButton);
+
+    const cancelButtonText = /Cancel 0 Selected Seat/i;
+    expect(screen.queryByText(cancelButtonText)).not.toBeInTheDocument();
+  });
+
+  test("clears selected seats when exiting selection mode", () => {
+    render(
+      <CurrentBookings
+        booking={mockBooking}
+        onCancelBooking={mockOnCancelBooking}
+        onCancelSeat={mockOnCancelSeat}
+        onCancelMultipleSeats={mockOnCancelMultipleSeats}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/Manage Seats/i));
+
+    fireEvent.click(screen.getByText(/Select Multiple/i));
+
+    const seatCards = screen.getAllByText(/Seat \d/i);
+    fireEvent.click(seatCards[0]);
+    fireEvent.click(seatCards[1]);
+
+    expect(screen.getByText(/Cancel 2 Selected Seats/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText(/Exit Selection Mode/i));
+
+    fireEvent.click(screen.getByText(/Select Multiple/i));
+
+    expect(
+      screen.queryByText(/Cancel \d+ Selected Seat/i)
+    ).not.toBeInTheDocument();
+  });
+
+  test("handles error when cancelling multiple seats", async () => {
+    const originalConsoleError = console.error;
+    console.error = jest.fn();
+
+    const failingCancelMultipleSeats = jest
+      .fn()
+      .mockRejectedValue(new Error("Failed to cancel multiple seats"));
+
+    render(
+      <CurrentBookings
+        booking={mockBooking}
+        onCancelBooking={mockOnCancelBooking}
+        onCancelSeat={mockOnCancelSeat}
+        onCancelMultipleSeats={failingCancelMultipleSeats}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/Manage Seats/i));
+
+    fireEvent.click(screen.getByText(/Select Multiple/i));
+
+    const seatCards = screen.getAllByText(/Seat \d/i);
+    fireEvent.click(seatCards[0]);
+
+    fireEvent.click(screen.getByText(/Cancel 1 Selected Seat/i));
+
+    await waitFor(() => {
+      expect(console.error).toHaveBeenCalledWith(
+        "Failed to cancel multiple seats:",
+        expect.any(Error)
+      );
+    });
+
+    console.error = originalConsoleError;
+  });
+
+  test("verifies the clear selection functionality", () => {
+    render(
+      <CurrentBookings
+        booking={mockBooking}
+        onCancelBooking={mockOnCancelBooking}
+        onCancelSeat={mockOnCancelSeat}
+        onCancelMultipleSeats={mockOnCancelMultipleSeats}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/Manage Seats/i));
+
+    fireEvent.click(screen.getByText(/Select Multiple/i));
+
+    const seatCards = screen.getAllByText(/Seat \d/i);
+    fireEvent.click(seatCards[0]);
+    fireEvent.click(seatCards[1]);
+
+    expect(screen.getByText(/Cancel 2 Selected Seats/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText(/Clear/i));
+
+    expect(
+      screen.queryByText(/Cancel \d+ Selected Seat/i)
+    ).not.toBeInTheDocument();
+  });
+
+  test("does nothing when trying to cancel with no seats selected", () => {
+    render(
+      <CurrentBookings
+        booking={mockBooking}
+        onCancelBooking={mockOnCancelBooking}
+        onCancelSeat={mockOnCancelSeat}
+        onCancelMultipleSeats={mockOnCancelMultipleSeats}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/Manage Seats/i));
+
+    fireEvent.click(screen.getByText(/Select Multiple/i));
+
+    expect(
+      screen.queryByText(/Cancel \d+ Selected Seat/i)
+    ).not.toBeInTheDocument();
+
+    expect(mockOnCancelMultipleSeats).not.toHaveBeenCalled();
   });
 });

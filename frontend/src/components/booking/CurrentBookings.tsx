@@ -50,7 +50,7 @@ const CurrentBookings: React.FC<{
       setCancellingBooking(true);
       try {
         await onCancelBooking(booking._id);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Failed to cancel booking:", error);
       } finally {
         setCancellingBooking(false);
@@ -65,7 +65,7 @@ const CurrentBookings: React.FC<{
     setCancellingSeat(seatNumber);
     try {
       await onCancelSeat(booking._id, seatNumber);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`Failed to cancel seat ${seatNumber}:`, error);
     } finally {
       setCancellingSeat(null);
@@ -90,7 +90,7 @@ const CurrentBookings: React.FC<{
       await onCancelMultipleSeats(booking._id, selectedSeats);
       setSelectedSeats([]);
       setSelectionMode(false);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Failed to cancel multiple seats:", error);
     } finally {
       setCancellingMultiple(false);

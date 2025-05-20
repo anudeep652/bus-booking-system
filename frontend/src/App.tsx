@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import MainRoutes from "./routes/MainRoutes";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { logout, selectIsAuthenticated } from "./features/auth/authSlice";
-import { useGetCurrentUserQuery } from "./features/auth/authApi";
 
 function App() {
   const dispatch = useAppDispatch();

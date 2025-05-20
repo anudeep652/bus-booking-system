@@ -35,7 +35,7 @@ const Bookings = () => {
     );
     await cancelSeats({ bookingId, seatNumbers });
   };
-  const bookings: TBooking[] = data.data;
+  const bookings: TBooking[] = data?.data || [];
   const activeBookings = bookings.filter((booking) =>
     booking.seats.some((seat) => seat.status === "booked")
   );

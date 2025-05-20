@@ -39,8 +39,8 @@ export const SeatSummary = ({
           navigate("/success", { state: { success: true } });
         }, 100);
       })
-      .catch((err) => {
-        toast.error(err.data.message);
+      .catch((err: { message: string }) => {
+        toast.error(err.message);
       })
       .finally(() => {
         clearSelectedSeats();

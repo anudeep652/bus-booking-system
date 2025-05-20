@@ -1,5 +1,6 @@
 import { pdf } from "@react-pdf/renderer";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { TTicketData } from "../../types";
 
 const styles = StyleSheet.create({
   page: {
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const TicketDocument = ({ ticketData }) => {
+export const TicketDocument = ({ ticketData }: { ticketData: TTicketData }) => {
   const formatDate = (dateString: string | number | Date) => {
     try {
       const date = new Date(dateString);
@@ -83,7 +84,7 @@ export const TicketDocument = ({ ticketData }) => {
       };
 
       return date.toLocaleString("en-US", options);
-    } catch (error) {
+    } catch (error: unknown) {
       return dateString;
     }
   };
@@ -202,7 +203,7 @@ export const TicketDocument = ({ ticketData }) => {
   );
 };
 
-export const generateTicketPDF = async (ticketData) => {
+export const generateTicketPDF = async (ticketData: TTicketData) => {
   if (!ticketData) {
     console.error("No ticket data available");
     return;
@@ -218,7 +219,7 @@ export const generateTicketPDF = async (ticketData) => {
     setTimeout(() => {
       URL.revokeObjectURL(url);
     }, 100);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error generating PDF:", error);
   }
 };

@@ -148,7 +148,7 @@ export default function RegisterContainer() {
           .then(() => {
             toast.success("Registration successful!");
           })
-          .catch((err) => {
+          .catch((err: string) => {
             console.error(err);
             toast.error(err);
             dispatchReducer({ type: "SET_SUBMIT_ATTEMPTED", value: false });

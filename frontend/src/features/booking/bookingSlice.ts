@@ -1,11 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 import { bookingApi } from "./bookingApi";
+import { TBooking, TBookingData, TBookingResponse } from "../../types";
 
 export const initialState = {
-  bookings: [],
+  bookings: [] as TBooking[],
   loading: false,
-  error: null,
+  error: "",
   success: false,
   message: "",
 };
@@ -14,13 +15,16 @@ export const bookingSlice = createSlice({
   name: "booking",
   initialState,
   reducers: {
-    setBookings: (state, action) => {
-      state.bookings = action.payload;
+    setBookings: (
+      state,
+      action: PayloadAction<{ data: TBooking[]; success: boolean }>
+    ) => {
+      state.bookings = action.payload.data;
     },
   },
   extraReducers: (builder) => {
     builder.addMatcher(
-      bookingApi.endpoints.bookBus.matchFulfilled,
+      bookingApi.endpoints.getUserCurrentBookings.matchFulfilled,
       bookingSlice.caseReducers.setBookings
     );
   },

@@ -1,10 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import {
-  TAuthResponse,
-  TLoginRequest,
-  TRegisterRequest,
-  TUserData,
-} from "../../types";
+import { TAuthResponse, TLoginRequest, TRegisterRequest } from "../../types";
 import { createBaseQuery } from "../baseQuery";
 
 export const authApi = createApi({
@@ -17,7 +12,7 @@ export const authApi = createApi({
         method: "POST",
         body: credentials,
       }),
-      transformErrorResponse: (response: { status: number; data: any }) => {
+      transformErrorResponse: (response: { status: number; data: {} }) => {
         if (response.status === 401) {
           return {
             status: response.status,
@@ -38,23 +33,7 @@ export const authApi = createApi({
         body: userData,
       }),
     }),
-
-    getCurrentUser: builder.query<TUserData, void>({
-      query: () => "/me",
-    }),
-
-    logout: builder.mutation<{ success: boolean }, void>({
-      query: () => ({
-        url: "/logout",
-        method: "POST",
-      }),
-    }),
   }),
 });
 
-export const {
-  useLoginMutation,
-  useRegisterMutation,
-  useGetCurrentUserQuery,
-  useLogoutMutation,
-} = authApi;
+export const { useLoginMutation, useRegisterMutation } = authApi;
