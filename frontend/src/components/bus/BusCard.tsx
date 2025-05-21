@@ -34,7 +34,10 @@ const BusCard = ({ bus }: { bus: TBus }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <div
+      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+      data-testid="bus-card"
+    >
       <div className="p-4 sm:p-6">
         <div className="flex flex-col md:flex-row justify-between">
           <div className="mb-4 md:mb-0">

@@ -1,6 +1,22 @@
 import { test, expect } from "@playwright/test";
 
-test("should be able to successfully book a trip", async ({ page }) => {
+function getSeatNumberForBrowser(browserName: string): string {
+  switch (browserName) {
+    case "chromium":
+      return "30";
+    case "firefox":
+      return "31";
+    case "webkit":
+      return "32";
+    default:
+      return "30";
+  }
+}
+
+test("should be able to successfully book a trip", async ({
+  page,
+  browserName,
+}) => {
   await page.goto("http://localhost:5173/login");
   await page.getByRole("textbox", { name: "Email Address" }).click();
   await page
@@ -23,12 +39,16 @@ test("should be able to successfully book a trip", async ({ page }) => {
     page.getByRole("heading", { name: "Select Your Seats" })
   ).toBeVisible();
   await page.screenshot({
-    path: "./screenshots/booking/display-seat-layout.png",
+    path: `./screenshots/booking/${browserName}/display-seat-layout.png`,
     fullPage: true,
   });
 
-  await page.getByRole("button", { name: "5", exact: true }).click();
-  await page.getByRole("button", { name: "6", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: getSeatNumberForBrowser(browserName),
+      exact: true,
+    })
+    .click();
   const page1Promise = page.waitForEvent("popup");
   await page.getByRole("button", { name: "Proceed to Checkout" }).click();
   const page1 = await page1Promise;
@@ -37,7 +57,7 @@ test("should be able to successfully book a trip", async ({ page }) => {
     page.locator("div").filter({ hasText: /^Booking Successful!$/ })
   ).toBeVisible();
   await page.screenshot({
-    path: "./screenshots/booking/booking-success-page.png",
+    path: `./screenshots/booking/${browserName}/booking-success-page.png`,
     fullPage: true,
   });
 
