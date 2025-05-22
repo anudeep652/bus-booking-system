@@ -1,7 +1,7 @@
-import React from "react";
+import React, { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginContainer from "../pages/LoginContainer";
-import RegisterContainer from "../pages/RegisterContainer";
+const RegisterContainer = lazy(() => import("../pages/RegisterContainer"));
 import { useAppSelector } from "../app/hooks";
 import { selectIsAuthenticated } from "../features/auth/authSlice";
 
@@ -15,11 +15,16 @@ const AuthRoutes: React.FC<AuthRoutesProps> = () => {
   }
 
   return (
-    <Routes>
-      <Route path="/login" element={<LoginContainer />} />
-      <Route path="/register" element={<RegisterContainer />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/login" element={<LoginContainer />} />
+      </Routes>
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/register" element={<RegisterContainer />} />
+        </Routes>
+      </React.Suspense>
+    </>
   );
 };
 

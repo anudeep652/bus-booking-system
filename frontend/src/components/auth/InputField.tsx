@@ -49,7 +49,7 @@ export const InputField = ({
           </div>
         )}
         <input
-          role="textbox"
+          role={type !== "number" ? "textbox" : ""}
           type={inputType}
           id={id}
           value={value}
@@ -62,6 +62,8 @@ export const InputField = ({
         />
         {type === "password" && (
           <button
+            aria-label="Toggle password visibility"
+            name="toggle-password"
             type="button"
             onClick={togglePasswordVisibility}
             className="absolute inset-y-0 right-0 pr-3 flex items-center"

@@ -1,15 +1,16 @@
-import React from "react";
+import React, { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AuthRoutes from "./AuthRoutes";
 import ProtectedRoute from "../components/auth/ProtectedRoutes";
 import { useAppSelector } from "../app/hooks";
 import { selectIsAuthenticated, selectRole } from "../features/auth/authSlice";
-import Home from "../pages/Home";
-import BusSearchResults from "../pages/BusSearchResults";
-import BookBus from "../pages/BookBus";
-import BookingSuccess from "../pages/BookingSuccess";
-import BookingHistory from "../pages/BookingHistory";
-import { Bookings } from "../pages/Bookings";
+
+const Home = lazy(() => import("../pages/Home"));
+const BusSearchResults = lazy(() => import("../pages/BusSearchResults"));
+const BookBus = lazy(() => import("../pages/BookBus"));
+const BookingSuccess = lazy(() => import("../pages/BookingSuccess"));
+const BookingHistory = lazy(() => import("../pages/BookingHistory"));
+const Bookings = lazy(() => import("../pages/Bookings"));
 
 const Dashboard = () => <Home />;
 const AdminPanel = () => <div>Admin Panel</div>;
@@ -58,8 +59,6 @@ const MainRoutes: React.FC = () => {
         <Route path="/history" element={<BookingHistory />} />
         <Route path="/bookings" element={<Bookings />} />
       </Route>
-
-      {/* User specific routes */}
 
       {/* Admin specific routes */}
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

@@ -52,20 +52,20 @@ const Footer = () => {
               </div>
               <span className="text-lg font-bold">BusBooker</span>
             </div>
-            <p className="text-indigo-200 text-sm mb-4">
+            <p className="text-white-200 text-sm mb-4">
               Making bus travel easy, comfortable, and affordable. Book your
               next journey with confidence.
             </p>
             <div className="space-y-2">
-              <div className="flex items-center text-sm text-indigo-200">
+              <div className="flex items-center text-sm text-white">
                 <Phone size={16} className="mr-2" />
                 <span>+91 63xxxxxxxx</span>
               </div>
-              <div className="flex items-center text-sm text-indigo-200">
+              <div className="flex items-center text-sm text-white">
                 <Mail size={16} className="mr-2" />
                 <span>support@busbooker.com</span>
               </div>
-              <div className="flex items-center text-sm text-indigo-200">
+              <div className="flex items-center text-sm text-white">
                 <MapPin size={16} className="mr-2" />
                 <span>1st street, Coimbatore</span>
               </div>
@@ -73,13 +73,13 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Company</h3>
+            <h2 className="text-lg font-semibold mb-4">Company</h2>
             <ul className="space-y-2">
               {footerLinks.company.map((link, index) => (
-                <li key={index} role="li">
+                <li key={index}>
                   <a
                     href={link.href}
-                    className="text-indigo-200 hover:text-white text-sm transition duration-150 ease-in-out"
+                    className="text-white hover:text-white text-sm transition duration-150 ease-in-out"
                   >
                     {link.name}
                   </a>
@@ -89,14 +89,15 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Support</h3>
+            <h2 className="text-lg font-semibold mb-4" role="heading">
+              Support
+            </h2>
             <ul className="space-y-2">
               {footerLinks.support.map((link, index) => (
                 <li key={index}>
                   <a
-                    role="link"
                     href={link.href}
-                    className="text-indigo-200 hover:text-white text-sm transition duration-150 ease-in-out"
+                    className="text-white hover:text-white text-sm transition duration-150 ease-in-out"
                   >
                     {link.name}
                   </a>
@@ -106,14 +107,15 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Legal</h3>
+            <h2 className="text-lg font-semibold mb-4" role="heading">
+              Legal
+            </h2>
             <ul className="space-y-2">
               {footerLinks.legal.map((link, index) => (
                 <li key={index}>
                   <a
-                    role="link"
                     href={link.href}
-                    className="text-indigo-200 hover:text-white text-sm transition duration-150 ease-in-out"
+                    className="text-white hover:text-white text-sm transition duration-150 ease-in-out"
                   >
                     {link.name}
                   </a>
@@ -121,11 +123,12 @@ const Footer = () => {
               ))}
             </ul>
 
-            <h3 className="text-lg font-semibold mt-6 mb-4">Follow Us</h3>
+            <h2 className="text-lg font-semibold mt-6 mb-4" role="heading">
+              Follow Us
+            </h2>
             <div className="flex space-x-4">
               {socialLinks.map((social, index) => (
                 <a
-                  role="link"
                   key={index}
                   href={social.href}
                   className="bg-indigo-500 hover:bg-indigo-400 h-8 w-8 rounded-full flex items-center justify-center transition duration-150 ease-in-out"
@@ -141,12 +144,12 @@ const Footer = () => {
 
       <div className="bg-indigo-700 py-4">
         <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-          <div className="text-sm text-indigo-200 mb-2 md:mb-0">
+          <div className="text-sm text-white mb-2 md:mb-0">
             &copy; {currentYear} BusBooker. All rights reserved.
           </div>
           <div className="flex items-center">
             <Shield size={16} className="mr-2 text-indigo-300" />
-            <span className="text-xs text-indigo-200">
+            <span className="text-xs text-white">
               Secured by SSL. 100% Safe & Secure Online Booking
             </span>
           </div>

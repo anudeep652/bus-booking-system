@@ -200,10 +200,10 @@ const BusSearch = () => {
           </div>
 
           <div className="mt-6 pt-4 border-t border-gray-200">
-            <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+            <p className="text-sm font-medium text-gray-700 mb-3 flex items-center">
               <FilterX size={18} className="mr-2 text-violet-500" />
               Filters
-            </h3>
+            </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -289,9 +289,9 @@ const BusSearch = () => {
           </div>
 
           <div className="mt-6 pt-4 border-t border-gray-200">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">
+            <p className="text-sm font-medium text-gray-700 mb-3">
               Popular Routes
-            </h3>
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
               {popularRoutes.map((route, index) => (
                 <button

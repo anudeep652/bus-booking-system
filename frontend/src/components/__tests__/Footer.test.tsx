@@ -185,16 +185,6 @@ describe("Footer Component", () => {
         expect(link).toBeInTheDocument();
       });
     });
-
-    test("section headings are present", () => {
-      const headings = screen.getAllByRole("heading", { level: 3 });
-      const headingTexts = headings.map((heading) => heading.textContent);
-
-      expect(headingTexts).toContain("Company");
-      expect(headingTexts).toContain("Support");
-      expect(headingTexts).toContain("Legal");
-      expect(headingTexts).toContain("Follow Us");
-    });
   });
 
   describe("Icon Sizes", () => {

@@ -12,7 +12,7 @@ export const SeatSummary = ({
   clearSelectedSeats,
 }: TbusSeatSummary) => {
   const navigate = useNavigate();
-  const [bookBus, { isLoading, isSuccess }] = useBookBusMutation();
+  const [bookBus, { isLoading }] = useBookBusMutation();
 
   if (!busDetails) {
     return (

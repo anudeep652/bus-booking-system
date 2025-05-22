@@ -3,7 +3,6 @@ import {
   Menu,
   X,
   Home,
-  Search,
   Ticket,
   Clock,
   User,
@@ -16,7 +15,6 @@ import { logout, selectUser } from "../features/auth/authSlice";
 import { authApi } from "../features/auth/authApi";
 import { bookingApi } from "../features/booking/bookingApi";
 import { busApi } from "../features/bus/busApi";
-import { store } from "../app/store";
 
 const Navbar = () => {
   const menuItems = [
@@ -115,6 +113,7 @@ const Navbar = () => {
                   </span>
                 </button>
                 <button
+                  aria-label="logout"
                   className="ml-4 text-gray-600 hover:text-violet-700 focus:outline-none cursor-pointer"
                   onClick={() => {
                     dispatch(logout());

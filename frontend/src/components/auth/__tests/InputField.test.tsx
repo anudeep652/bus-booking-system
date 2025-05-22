@@ -116,6 +116,17 @@ describe("InputField Component", () => {
       expect(screen.getByTestId("eye-icon")).toBeInTheDocument();
     });
 
+    test("renders number input without textbox role", () => {
+      render(<InputField {...defaultProps} type="number" />);
+
+      const input = screen.getByDisplayValue("");
+      expect(input).toBeInTheDocument();
+      expect(input).toHaveAttribute("type", "number");
+      expect(input).toHaveAttribute("role", "");
+
+      expect(() => screen.getByRole("textbox")).toThrow();
+    });
+
     test("toggles password visibility when eye icon is clicked", () => {
       render(<InputField {...defaultProps} type="password" />);
 
