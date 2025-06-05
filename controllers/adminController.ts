@@ -6,12 +6,18 @@ import { AuthServiceFactory } from "../services/auth/AuthServiceFactory";
 const adminService = new AdminService();
 
 export async function loginAdmin(req: Request, res: Response): Promise<void> {
-  const { email, password } = req.body;
+  const { email, password, phone } = req.body;
   const authService = AuthServiceFactory.createAuthService("admin");
-  const result = await authService.login(email, password);
+  const result = await authService.login(email, phone, password);
   res.status(result.statusCode).json({
     message: result.message,
     token: result.token,
+    user: {
+      id: result.id,
+      name: result.name,
+      email: email,
+      role: "admin",
+    },
   });
 }
 
@@ -24,6 +30,12 @@ export async function registerAdmin(
   res.status(result.statusCode).json({
     message: result.message,
     token: result.token,
+    user: {
+      id: result.id,
+      name: result.name,
+      email: req.body.email,
+      role: "admin",
+    },
   });
 }
 

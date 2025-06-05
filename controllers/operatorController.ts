@@ -14,6 +14,12 @@ export const registerOperator = async (
   return res.status(result.statusCode).json({
     message: result.message,
     token: result.token,
+    user: {
+      id: result.id,
+      name: result.name,
+      email: req.body.email,
+      role: "operator",
+    },
   });
 };
 
@@ -22,11 +28,17 @@ export const loginOperator = async (
   res: Response
 ): Promise<ReturnType<RequestParamHandler>> => {
   const authService = AuthServiceFactory.createAuthService("operator");
-  const { email, password } = req.body;
-  const result = await authService.login(email, password);
+  const { email, password, phone } = req.body;
+  const result = await authService.login(email, phone, password);
   return res.status(result.statusCode).json({
     message: result.message,
     token: result.token,
+    user: {
+      id: result.id,
+      name: result.name,
+      email: email,
+      role: "operator",
+    },
   });
 };
 

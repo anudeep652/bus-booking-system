@@ -11,11 +11,13 @@ import busRoutes from "./routes/busRoutes";
 import adminRoutes from "./routes/adminRoutes";
 import bookingRoutes from "./routes/bookingRoutes";
 import feedbackRoutes from "./routes/feedbackRoutes";
+import tripRoutes from "./routes/tripRoutes";
 
 import { logger } from "./services/LoggingService";
 import { database } from "./services/DatabaseService";
 
 import { rateLimit } from "express-rate-limit";
+import cors from "cors";
 
 dotenv.config({ path: path.join(path.resolve(), "./.env.development") });
 
@@ -23,16 +25,23 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "*",
+  })
+);
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: "Too many requests from this IP, please try again later.",
-});
+if (process.env.ENABLE_RATE_LIMITER === "true") {
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: "Too many requests from this IP, please try again later.",
+  });
 
-app.use(limiter);
+  app.use(limiter);
+}
 
 app.use(logger.requestLogger);
 app.use(expressSanitizer());
@@ -55,6 +64,7 @@ app.use("/api/v1/bus", busRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/booking", bookingRoutes);
 app.use("/api/v1/feedback", feedbackRoutes);
+app.use("/api/v1/trip", tripRoutes);
 
 //serve docs
 if (
@@ -97,7 +107,6 @@ if (
 async function startServer() {
   try {
     await database.connect();
-
     app.listen(PORT, () => {
       logger.info(`Server is running on port ${PORT}`);
     });

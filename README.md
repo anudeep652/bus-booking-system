@@ -21,13 +21,13 @@ NODE_ENV=development
 Run the dev container
 
 ```
-docker compose up app_dev
+docker compose up app_dev nginx
 ```
 
 remove the dev container and db
 
 ```
-docker compose down app_dev mongo
+docker compose down
 ```
 
 ### for production

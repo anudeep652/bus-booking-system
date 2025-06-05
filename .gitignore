@@ -4,3 +4,9 @@ logs
 .DS_Store
 dist
 coverage
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

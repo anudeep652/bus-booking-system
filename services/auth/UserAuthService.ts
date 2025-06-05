@@ -9,7 +9,7 @@ export class UserAuthService extends BaseAuthService {
 
   protected validateRegistrationData(data: TAuthData): string | null {
     const { name, email, phone, password, role } = data;
-    if (!name || !email || !phone || !password || !role) {
+    if (!name || (!email && !phone) || !password || !role) {
       return "Name, email, phone, password, and role are required";
     }
     return null;

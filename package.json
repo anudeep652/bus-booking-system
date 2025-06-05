@@ -28,11 +28,14 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.13.10",
-    "marked": "^15.0.7",
     "jest": "^29.7.0",
+    "k6": "^0.0.0",
+    "marked": "^15.0.7",
+    "msw": "^2.8.4",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.3"
   }
