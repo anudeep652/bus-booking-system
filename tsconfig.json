@@ -109,5 +109,15 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
-  }
+  },
+  "exclude": [
+    "frontend/*",
+    "*/__tests__/*",
+    "**/__tests__/*",
+    "dist/*",
+    "node_modules/*",
+    "coverage/*",
+    "build/*",
+    "load-test.ts"
+  ]
 }
