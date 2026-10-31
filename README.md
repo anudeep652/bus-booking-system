@@ -17,7 +17,11 @@ JWT_SECRET=<JWT_SECRET>
 SERVE_DOCS=true
 NODE_ENV=development
 ```
+install dependencies locally
 
+```
+yarn #or npm install
+```
 Run the dev container
 
 ```
@@ -61,6 +65,23 @@ docker compose down app_prod mongo
 ```
 
 > since both `dev` and `prod` containers depends on `mongo`, `mongo` container will start automatically when we start the `dev` or `prod` containers but we have to explicitely remove `mongo` when we removing `dev` or `prod` containers
+
+### Run frontend
+
+for dev and prod, frontend must runs seperately
+
+install frontend dependencies
+```
+cd frontend
+yarn # or npm install
+```
+
+Run frontend
+
+```
+yarn dev # or npm dev
+
+```
 
 ## Frontend Modules
 

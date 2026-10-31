@@ -14,6 +14,7 @@ services:
       - .env.development
     environment:
       - MONGO_URI=mongodb://mongo:27017/bus-booking-system
+    command: sh -c "npm run seed && nodemon --exec tsx server.ts"
     depends_on:
       - mongo
     networks:
@@ -29,6 +30,7 @@ services:
       - .env.production
     environment:
       - MONGO_URI=mongodb://mongo:27017/bus-booking-system
+    command: sh -c "node seed.js && node server.js"
     depends_on:
       - mongo
     networks:
@@ -36,7 +38,6 @@ services:
 
   mongo:
     image: mongo:latest
-    command: mongod --replSet rs0 --bind_ip_all
     container_name: mongo_db
     ports:
       - "27017:27017"

@@ -6,8 +6,9 @@
   "license": "MIT",
   "scripts": {
     "start": "node dist/server.js",
+    "seed": "tsx seed.ts",
     "dev": "nodemon --exec ts-node server.ts",
-    "build": "tsc -p .",
+    "build": "npx tsc -p . --noEmitOnError false",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
